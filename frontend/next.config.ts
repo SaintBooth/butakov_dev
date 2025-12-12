@@ -20,8 +20,8 @@ const nextConfig: NextConfig = {
 
 const withSerwist = withSerwistInit({
   swSrc: "service-worker.ts",
-  dev: process.env.NODE_ENV === "development",
-  disable: process.env.NODE_ENV !== "production", // disable in dev/Turbopack
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV !== "production",
 });
 
 export default withSerwist(withNextIntl(nextConfig));
