@@ -144,7 +144,7 @@ export default function Home() {
                 <div className="flex items-center gap-2 text-primary">app.tsx</div>
                 <div className="mt-3 space-y-1 text-white/90">
                   <code>{`const layout = glass({ radius: 16, blur: 18 })`}</code>
-                  <code>{`const seo = jsonLd({ person: "Ivan Butakov" })`}</code>
+                  <code>{`const seo = jsonLd({ person: "A. Butakov" })`}</code>
                   <code>{`deploy({ pwa: true, analytics: consented })`}</code>
                 </div>
               </div>

@@ -90,7 +90,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col gap-2 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p>© 2026 Ivan Butakov. 152-FZ Compliant.</p>
+          <p>{t("copyright")}</p>
           <p className="text-xs">
             Zero-CLS theming • Spatial glassmorphism • Built with Next.js App Router + Shadcn/ui
           </p>
