@@ -6,6 +6,7 @@ import { useLocale } from "next-intl"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, Github } from "lucide-react"
+import { PROJECT_CARD_PLACEHOLDER } from "@/lib/placeholder"
 
 export interface ProjectCardProps {
   id: number
@@ -47,17 +48,15 @@ export function ProjectCard({
   return (
     <Card className="flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow group">
       <Link href={`/projects/${slug}` as never} locale={locale} className="block">
-        {featured_image && (
-          <div className="relative w-full h-48 overflow-hidden">
-            <Image
-              src={featured_image}
-              alt={title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          </div>
-        )}
+        <div className="relative w-full h-48 overflow-hidden">
+          <Image
+            src={featured_image || PROJECT_CARD_PLACEHOLDER}
+            alt={featured_image ? title : "Project placeholder"}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-xl group-hover:text-primary transition-colors">
