@@ -28,7 +28,7 @@ const fallbacks = {
     service_4_body: "Ship fast, measure, and iterate. I blend product sense with analytics and push for Lighthouse-grade performance on every deploy.",
     featured_title: "Featured Projects",
     stack_title: "The \"Infinite\" Stack",
-    cta_title: "Let's Talk",
+    cta_title: fb.cta_title,
     cta_sub: "Have a product to launch or optimize? Let's craft a solution that works.",
   },
   ru: {
@@ -175,10 +175,10 @@ export default function Home() {
       </section>
 
       <section className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight">{cms.blocks?.services_title || "Services"}</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{cms.blocks?.services_title || fb.services_title}</h2>
         <Suspense fallback={<BentoSkeleton />}>
           <div className="grid auto-rows-[200px] grid-cols-1 gap-4 md:grid-cols-3">
-            <ServiceCard span={2} title={cms.blocks?.service_1_title || "Fullstack Development"} icon={<Terminal className="h-5 w-5 text-primary" />}>
+            <ServiceCard span={2} title={cms.blocks?.service_1_title || fb.service_1_title} icon={<Terminal className="h-5 w-5 text-primary" />}>
               <div className="rounded-lg border border-white/10 bg-black/60 p-4 font-mono text-xs text-white/80">
                 <div className="flex items-center gap-2 text-primary">app.tsx</div>
                 <div className="mt-3 space-y-1 text-white/90">
@@ -188,7 +188,7 @@ export default function Home() {
                 </div>
               </div>
             </ServiceCard>
-            <ServiceCard span={1} title={cms.blocks?.service_2_title || "Performance Marketing"} icon={<TrendingUp className="h-5 w-5 text-primary" />}>
+            <ServiceCard span={1} title={cms.blocks?.service_2_title || fb.service_2_title} icon={<TrendingUp className="h-5 w-5 text-primary" />}>
               <div className="flex h-full items-end gap-2">
                 {[40, 60, 90, 120].map((h, i) => (
                   <div
@@ -199,7 +199,7 @@ export default function Home() {
                 ))}
               </div>
             </ServiceCard>
-            <ServiceCard span={1} title={cms.blocks?.service_3_title || "Speed & SEO"} icon={<Timer className="h-5 w-5 text-primary" />}>
+            <ServiceCard span={1} title={cms.blocks?.service_3_title || fb.service_3_title} icon={<Timer className="h-5 w-5 text-primary" />}>
               <div className="relative flex h-full items-center justify-center">
                 <div className="h-28 w-28 rounded-full border-4 border-primary/30">
                   <div className="absolute inset-2 rounded-full border-4 border-primary/70 flex items-center justify-center text-2xl font-bold text-primary">
@@ -208,9 +208,9 @@ export default function Home() {
                 </div>
               </div>
             </ServiceCard>
-            <ServiceCard span={2} title={cms.blocks?.service_4_title || "My Philosophy"} icon={<Sparkles className="h-5 w-5 text-primary" />}>
+            <ServiceCard span={2} title={cms.blocks?.service_4_title || fb.service_4_title} icon={<Sparkles className="h-5 w-5 text-primary" />}>
               <p className="text-sm text-muted-foreground">
-                {cms.blocks?.service_4_body || "Ship fast, measure, and iterate. I blend product sense with analytics and push for Lighthouse-grade performance on every deploy."}
+                {cms.blocks?.service_4_body || fb.service_4_body}
               </p>
             </ServiceCard>
           </div>
@@ -218,7 +218,7 @@ export default function Home() {
       </section>
 
       <section className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight">{cms.blocks?.featured_title || "Featured Projects"}</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{cms.blocks?.featured_title || fb.featured_title}</h2>
         <div className="space-y-4">
           {featuredProjects.map((project, idx) => (
             <Card key={project.title} className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm dark:border-white/10">
