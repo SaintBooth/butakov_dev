@@ -114,8 +114,9 @@ export default function PortfolioPage() {
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}
-                id={project.id}
-                slug={project.slug}
+              id={project.id}
+              // Fallback slug from EN/primary title to avoid empty slugs in RU
+              slug={project.slug || generateSlug(project.title_en || project.title || project.title_ru || project.title)}
                 title={project.title}
                 description={project.description}
                 category={project.category}

@@ -33,7 +33,9 @@ export async function generateMetadata({
     // Fetch project data to generate metadata
     const data = await fetchProjects(locale)
     const project = data.results.find((p) => {
-      if (p.slug && p.slug === slug) return true
+      const candidateSlug =
+        p.slug || generateSlug(p.title_en || p.title || p.title_ru || p.title)
+      if (candidateSlug === slug) return true
       const candidates = [p.title, p.title_ru, p.title_en].filter(Boolean) as string[]
       return candidates.some((t) => generateSlug(t) === slug)
     })
@@ -69,7 +71,9 @@ export default async function ProjectDetailPage({
   try {
     const data = await fetchProjects(locale)
     const project = data.results.find((p) => {
-      if (p.slug && p.slug === slug) return true
+      const candidateSlug =
+        p.slug || generateSlug(p.title_en || p.title || p.title_ru || p.title)
+      if (candidateSlug === slug) return true
       const candidates = [p.title, p.title_ru, p.title_en].filter(Boolean) as string[]
       return candidates.some((t) => generateSlug(t) === slug)
     })
