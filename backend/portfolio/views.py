@@ -20,10 +20,10 @@ class ProjectListView(APIView):
         if category:
             queryset = queryset.filter(category=category)
         
-        # Filter by featured
+        # Filter by featured (order by most recently updated per FR-011)
         featured = request.query_params.get('featured', None)
         if featured == 'true':
-            queryset = queryset.filter(is_featured=True)
+            queryset = queryset.filter(is_featured=True).order_by('-updated_date')
         
         # Pagination
         page_size = int(request.query_params.get('page_size', 10))
