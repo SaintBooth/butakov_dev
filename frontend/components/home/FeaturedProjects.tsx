@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/navigation"
 import { fetchFeaturedProjects, Project } from "@/lib/api"
-import { ProjectCard } from "@/components/portfolio/ProjectCard"
+import { ProjectCard, generateSlug } from "@/components/portfolio/ProjectCard"
 import { BentoGrid } from "@/components/portfolio/BentoGrid"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
@@ -72,7 +72,8 @@ export function FeaturedProjects() {
             <ProjectCard
               key={project.id}
               id={project.id}
-              slug={project.slug}
+              // Fallback slug based on EN/primary title to keep ASCII slugs
+              slug={project.slug || generateSlug(project.title_en || project.title || project.title_ru || project.title)}
               title={project.title}
               description={project.description}
               category={project.category}
