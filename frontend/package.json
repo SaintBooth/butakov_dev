@@ -12,6 +12,8 @@
     "@hookform/resolvers": "^5.2.2",
     "@octokit/rest": "^22.0.1",
     "@serwist/next": "^9.2.3",
+    "@swc/helpers": "0.5.17",
+    "@swc/helpers": "0.5.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.0.0",
