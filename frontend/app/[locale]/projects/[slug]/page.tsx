@@ -9,6 +9,7 @@ import { generateSlug } from "@/components/portfolio/ProjectCard"
 import { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import { PROJECT_DETAIL_PLACEHOLDER } from "@/lib/placeholder"
+import { normalizeImageUrl } from "@/lib/utils"
 
 // Force dynamic rendering for this page
 export const dynamic = "force-dynamic"
@@ -78,6 +79,8 @@ export default async function ProjectDetailPage({
       notFound()
     }
 
+    const imageSrc = normalizeImageUrl(project.featured_image)
+
     // Schema.org CreativeWork markup
     const schemaMarkup = {
       "@context": "https://schema.org",
@@ -115,8 +118,8 @@ export default async function ProjectDetailPage({
         <div className="mb-8">
           <div className="relative w-full h-64 md:h-96 mb-6 rounded-lg overflow-hidden">
             <Image
-              src={project.featured_image || PROJECT_DETAIL_PLACEHOLDER}
-              alt={project.featured_image ? project.title : "Project placeholder"}
+              src={imageSrc || PROJECT_DETAIL_PLACEHOLDER}
+              alt={imageSrc ? project.title : "Project placeholder"}
               fill
               className="object-cover"
               priority

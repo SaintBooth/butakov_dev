@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { ExternalLink, Github } from "lucide-react"
 import { PROJECT_CARD_PLACEHOLDER } from "@/lib/placeholder"
+import { normalizeImageUrl } from "@/lib/utils"
 
 export interface ProjectCardProps {
   id: number
@@ -44,14 +45,15 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const locale = useLocale()
   const slug = slugProp || generateSlug(title)
+  const imageSrc = normalizeImageUrl(featured_image)
 
   return (
     <Card className="flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow group">
       <Link href={`/projects/${slug}` as never} locale={locale} className="block">
         <div className="relative w-full h-48 overflow-hidden">
           <Image
-            src={featured_image || PROJECT_CARD_PLACEHOLDER}
-            alt={featured_image ? title : "Project placeholder"}
+            src={imageSrc || PROJECT_CARD_PLACEHOLDER}
+            alt={imageSrc ? title : "Project placeholder"}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
