@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
+import { Link } from "@/navigation"
 import { useLocale } from "next-intl"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -46,7 +46,7 @@ export function ProjectCard({
 
   return (
     <Card className="flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow group">
-      <Link href={`/${locale}/projects/${slug}`} className="block">
+      <Link href={`/projects/${slug}` as never} locale={locale} className="block">
         {featured_image && (
           <div className="relative w-full h-48 overflow-hidden">
             <Image

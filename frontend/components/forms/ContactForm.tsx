@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { submitContactForm, ContactSubmission } from "@/lib/api"
-import Link from "next/link"
+import { Link } from "@/navigation"
+import { useLocale } from "next-intl"
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),

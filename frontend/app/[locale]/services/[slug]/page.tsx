@@ -1,7 +1,7 @@
 "use client"
 
 import { notFound } from "next/navigation"
-import Link from "next/link"
+import { Link } from "@/navigation"
 import { use, useEffect, useState } from "react"
 import { useLocale } from "next-intl"
 import { fetchServices, Service } from "@/lib/api"
@@ -68,7 +68,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(offerSchema) }}
       />
       <Button variant="ghost" asChild className="mb-6">
-        <Link href={`/${locale}/services`}>
+        <Link href="/services" locale={locale}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Services
         </Link>

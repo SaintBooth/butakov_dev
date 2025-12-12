@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { Link } from "@/navigation"
 import { Suspense, type ReactNode } from "react"
 import { useLocale } from "next-intl"
 import { ArrowUpRight, Github, Sparkles, Terminal, Timer, TrendingUp } from "lucide-react"
@@ -89,13 +89,13 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link href={`/${locale}/portfolio`}>{cms.blocks?.cta_primary || "View Work"}</Link>
+                <Link href="/portfolio" locale={locale}>{cms.blocks?.cta_primary || "View Work"}</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-lg border-white/30 text-white hover:bg-white/10">
-                <Link href="https://github.com/devbutakov" target="_blank" rel="noreferrer">
+                <a href="https://github.com/devbutakov" target="_blank" rel="noreferrer">
                   <Github className="mr-2 h-4 w-4" />
                   {cms.blocks?.cta_secondary || "GitHub"}
-                </Link>
+                </a>
               </Button>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useLocale } from "next-intl"
 import { fetchServices, Service } from "@/lib/api"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import Link from "next/link"
+import { Link } from "@/navigation"
 
 export default function ServicesPage() {
   const locale = useLocale()
@@ -69,7 +69,7 @@ export default function ServicesPage() {
         {services.map((service) => {
           const slug = service.slug || generateSlug(service.name)
           return (
-            <Link key={service.id} href={`/${locale}/services/${slug}`} className="h-full">
+            <Link key={service.id} href={`/services/${slug}` as never} locale={locale} className="h-full">
               <Card className="h-full hover:shadow-md transition-shadow">
                 <CardHeader>
                   <CardTitle>{service.name || service.name_en || service.name_ru}</CardTitle>
