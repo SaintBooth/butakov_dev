@@ -32,13 +32,7 @@ export async function generateMetadata({
     const data = await fetchProjects(locale)
     const project = data.results.find((p) => {
       if (p.slug && p.slug === slug) return true
-      const candidates = [
-        p.title,
-        // @ts-expect-error optional localized fields
-        p.title_ru,
-        // @ts-expect-error optional localized fields
-        p.title_en,
-      ].filter(Boolean) as string[]
+      const candidates = [p.title, p.title_ru, p.title_en].filter(Boolean) as string[]
       return candidates.some((t) => generateSlug(t) === slug)
     })
 
@@ -74,13 +68,7 @@ export default async function ProjectDetailPage({
     const data = await fetchProjects(locale)
     const project = data.results.find((p) => {
       if (p.slug && p.slug === slug) return true
-      const candidates = [
-        p.title,
-        // @ts-expect-error optional localized fields
-        p.title_ru,
-        // @ts-expect-error optional localized fields
-        p.title_en,
-      ].filter(Boolean) as string[]
+      const candidates = [p.title, p.title_ru, p.title_en].filter(Boolean) as string[]
       return candidates.some((t) => generateSlug(t) === slug)
     })
 
