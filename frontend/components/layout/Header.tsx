@@ -40,7 +40,7 @@ export function Header() {
               asChild
               className="rounded-full bg-primary px-4 py-2 text-primary-foreground shadow-[0_10px_40px_-18px_rgba(15,212,200,0.8)] hover:bg-primary/90"
             >
-              <Link href="/contact" locale={locale}>Discuss Project</Link>
+              <Link href="/contact" locale={locale}>{t("discussProject")}</Link>
             </Button>
           </div>
         </div>

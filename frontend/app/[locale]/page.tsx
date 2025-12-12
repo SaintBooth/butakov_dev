@@ -2,7 +2,7 @@
 
 import { Link } from "@/navigation"
 import { Suspense, type ReactNode } from "react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { ArrowUpRight, Github, Sparkles, Terminal, Timer, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +12,44 @@ import { BentoSkeleton } from "@/components/skeletons"
 import { useEffect, useMemo, useState } from "react"
 import { fetchUIBlocks, UIBlockPayload } from "@/lib/api"
 
+// Locale-aware fallback values to prevent flash
+const fallbacks = {
+  en: {
+    hero_badge: "Fullstack Delivery · PWA Ready",
+    hero_h1: "Building Digital Products with Logic & Strategy.",
+    hero_sub: "Fullstack Developer & Performance Marketer. Shipping spatial, glassy experiences with measurable business impact.",
+    cta_primary: "View Work",
+    cta_secondary: "GitHub",
+    services_title: "Services",
+    service_1_title: "Fullstack Development",
+    service_2_title: "Performance Marketing",
+    service_3_title: "Speed & SEO",
+    service_4_title: "My Philosophy",
+    service_4_body: "Ship fast, measure, and iterate. I blend product sense with analytics and push for Lighthouse-grade performance on every deploy.",
+    featured_title: "Featured Projects",
+    stack_title: "The \"Infinite\" Stack",
+    cta_title: "Let's Talk",
+    cta_sub: "Have a product to launch or optimize? Let's craft a solution that works.",
+  },
+  ru: {
+    hero_badge: "Fullstack-разработка · PWA",
+    hero_h1: "Создаю цифровые продукты с логикой и стратегией.",
+    hero_sub: "Fullstack-разработчик и перформанс-маркетолог. Запускаю быстрые, измеримые продукты от идеи до продакшена.",
+    cta_primary: "Смотреть работы",
+    cta_secondary: "GitHub",
+    services_title: "Услуги",
+    service_1_title: "Fullstack-разработка",
+    service_2_title: "Перформанс-маркетинг",
+    service_3_title: "Скорость и SEO",
+    service_4_title: "Моя философия",
+    service_4_body: "Быстро запускаю, измеряю и итерирую. Объединяю продуктовое мышление с техническим исполнением.",
+    featured_title: "Избранные проекты",
+    stack_title: "«Бесконечный» стек",
+    cta_title: "Давайте поговорим",
+    cta_sub: "Есть продукт для запуска или оптимизации? Давайте создадим решение, которое работает.",
+  },
+} as const
+
 type CMSState = {
   blocks: UIBlockPayload | null
   loading: boolean
@@ -20,6 +58,7 @@ type CMSState = {
 
 export default function Home() {
   const locale = useLocale()
+  const fb = fallbacks[locale as keyof typeof fallbacks] || fallbacks.en
   const [cms, setCms] = useState<CMSState>({ blocks: null, loading: true, error: null })
 
   useEffect(() => {
@@ -77,24 +116,24 @@ export default function Home() {
           <div className="flex-1 space-y-6">
             <div className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span>{cms.blocks?.hero_badge || "Fullstack Delivery · PWA Ready"}</span>
+              <span>{cms.blocks?.hero_badge || fb.hero_badge}</span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
               <span className="bg-gradient-to-r from-white via-white to-[#0FD4C8] bg-clip-text text-transparent">
-                {cms.blocks?.hero_h1 || "Building Digital Products with Logic & Strategy."}
+                {cms.blocks?.hero_h1 || fb.hero_h1}
               </span>
             </h1>
             <p className="max-w-2xl text-lg text-white/80">
-              {cms.blocks?.hero_sub || "Fullstack Developer & Performance Marketer. Shipping spatial, glassy experiences with measurable business impact."}
+              {cms.blocks?.hero_sub || fb.hero_sub}
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link href="/portfolio" locale={locale}>{cms.blocks?.cta_primary || "View Work"}</Link>
+                <Link href="/portfolio" locale={locale}>{cms.blocks?.cta_primary || fb.cta_primary}</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-lg border-white/30 text-white hover:bg-white/10">
                 <a href="https://github.com/devbutakov" target="_blank" rel="noreferrer">
                   <Github className="mr-2 h-4 w-4" />
-                  {cms.blocks?.cta_secondary || "GitHub"}
+                  {cms.blocks?.cta_secondary || fb.cta_secondary}
                 </a>
               </Button>
             </div>
