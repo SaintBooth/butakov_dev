@@ -42,6 +42,9 @@ services:
     env_file: .env
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    # Ensure api.butakov.dev resolves inside the container (uses host IP)
+    extra_hosts:
+      - "api.butakov.dev:host-gateway"
     depends_on:
       - backend
     expose:
