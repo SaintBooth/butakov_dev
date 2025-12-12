@@ -28,14 +28,18 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
         <div className="grid gap-8 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-background/60 p-6 shadow-[0_20px_70px_-50px_rgba(15,212,200,0.8)]">
-            <picture>
-              <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
+            <div className="h-8">
               <img
                 src="/logo-light.svg"
                 alt="Butakov.dev"
-                className="h-8"
+                className="h-8 block dark:hidden"
               />
-            </picture>
+              <img
+                src="/logo-dark.svg"
+                alt="Butakov.dev"
+                className="h-8 hidden dark:block"
+              />
+            </div>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Building spatial, glassy interfaces that feel tactile, fast, and privacy-conscious.
             </p>
