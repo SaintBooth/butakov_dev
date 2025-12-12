@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "butakov.dev",
+        pathname: "/media/**",
+      },
+      {
+        protocol: "https",
         hostname: "placehold.co",
       },
     ],
