@@ -7,11 +7,12 @@ import { ExternalLink, Github, ArrowLeft } from "lucide-react"
 import { fetchProjects } from "@/lib/api"
 import { generateSlug } from "@/components/portfolio/ProjectCard"
 import { Metadata } from "next"
-import { getLocale } from "next-intl/server"
+
+// Force dynamic rendering for this page
+export const dynamic = "force-dynamic"
 
 interface ProjectDetailPageProps {
-  params: Promise<{ slug: string }>
-  // Locale is available from parent route segment
+  params: Promise<{ locale: string; slug: string }>
 }
 
 // Generate static params for known projects (optional, for ISR)
@@ -24,8 +25,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: ProjectDetailPageProps): Promise<Metadata> {
-  const { slug } = await params
-  const locale = await getLocale()
+  const { slug, locale } = await params
   
   try {
     // Fetch project data to generate metadata
@@ -61,8 +61,7 @@ export async function generateMetadata({
 export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
-  const { slug } = await params
-  const locale = await getLocale()
+  const { slug, locale } = await params
 
   try {
     const data = await fetchProjects(locale)
