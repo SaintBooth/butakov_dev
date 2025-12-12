@@ -133,10 +133,10 @@ export default async function ProjectDetailPage({
             <div className="flex gap-2">
               {project.demo_url && (
                 <Button asChild>
-                  <Link href={project.demo_url as string} target="_blank" rel="noopener noreferrer">
+                  <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     View Demo
-                  </Link>
+                  </a>
                 </Button>
               )}
               {project.github_url && (
