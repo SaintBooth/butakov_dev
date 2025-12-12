@@ -28,7 +28,8 @@ export function LanguageSwitcher({ compact }: LanguageSwitcherProps) {
     const segments = pathname.split("/")
     segments[1] = newLocale
     const nextPath = segments.join("/") || `/${newLocale}`
-    router.replace(nextPath)
+    // Cast to any to satisfy Next.js 16 strict route typing
+    router.replace(nextPath as Parameters<typeof router.replace>[0])
     router.refresh()
     setOpen(false)
   }
