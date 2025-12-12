@@ -28,7 +28,7 @@ const fallbacks = {
     service_4_body: "Ship fast, measure, and iterate. I blend product sense with analytics and push for Lighthouse-grade performance on every deploy.",
     featured_title: "Featured Projects",
     stack_title: "The \"Infinite\" Stack",
-    cta_title: fb.cta_title,
+    cta_title: "Let's Talk",
     cta_sub: "Have a product to launch or optimize? Let's craft a solution that works.",
   },
   ru: {
