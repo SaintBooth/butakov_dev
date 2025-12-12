@@ -110,6 +110,32 @@ export async function fetchProjects(
   return parseJsonSafe<ProjectsResponse>(response)
 }
 
+/**
+ * Fetch featured projects for homepage display.
+ * @param locale - Language code ('ru' | 'en')
+ * @param limit - Maximum number of projects (default: 6)
+ * @returns Promise<Project[]> - Array of featured projects
+ */
+export async function fetchFeaturedProjects(
+  locale: string = "ru",
+  limit: number = 6
+): Promise<Project[]> {
+  const params = new URLSearchParams({
+    featured: "true",
+    lang: locale,
+    page_size: limit.toString(),
+  })
+
+  const response = await fetch(`${API_URL}/api/projects/?${params.toString()}`)
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch featured projects")
+  }
+
+  const data = await parseJsonSafe<ProjectsResponse>(response)
+  return data.results
+}
+
 export async function fetchServices(locale: string = "ru"): Promise<ServicesResponse> {
   const params = new URLSearchParams({
     lang: locale,

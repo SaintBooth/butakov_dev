@@ -13,7 +13,9 @@
     "title": "Fullstack PWA Portfolio",
     "description": "A production-ready portfolio showcasing web development and marketing projects.",
     "viewPortfolio": "View Portfolio",
-    "contact": "Contact"
+    "contact": "Contact",
+    "featuredTitle": "Featured Projects",
+    "viewAll": "View All"
   },
   "portfolio": {
     "title": "Portfolio",

@@ -7,6 +7,7 @@ import { ArrowUpRight, Github, Sparkles, Terminal, Timer, TrendingUp } from "luc
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ContactForm } from "@/components/forms/ContactForm"
+import { FeaturedProjects } from "@/components/home/FeaturedProjects"
 import { cn } from "@/lib/utils"
 import { BentoSkeleton } from "@/components/skeletons"
 import { useEffect, useMemo, useState } from "react"
@@ -26,7 +27,6 @@ const fallbacks = {
     service_3_title: "Speed & SEO",
     service_4_title: "My Philosophy",
     service_4_body: "Ship fast, measure, and iterate. I blend product sense with analytics and push for Lighthouse-grade performance on every deploy.",
-    featured_title: "Featured Projects",
     stack_title: "The \"Infinite\" Stack",
     cta_title: "Let's Talk",
     cta_sub: "Have a product to launch or optimize? Let's craft a solution that works.",
@@ -43,7 +43,6 @@ const fallbacks = {
     service_3_title: "Скорость и SEO",
     service_4_title: "Моя философия",
     service_4_body: "Быстро запускаю, измеряю и итерирую. Объединяю продуктовое мышление с техническим исполнением.",
-    featured_title: "Избранные проекты",
     stack_title: "«Бесконечный» стек",
     cta_title: "Давайте поговорим",
     cta_sub: "Есть продукт для запуска или оптимизации? Давайте создадим решение, которое работает.",
@@ -84,29 +83,6 @@ export default function Home() {
     "PostgreSQL",
   ]), [cms.blocks])
 
-  const featuredProjects = useMemo(() => (cms.blocks ? [
-    {
-      title: cms.blocks["featured_1_title"] || "Project One",
-      description: cms.blocks["featured_1_desc"] || "Description",
-      tags: (cms.blocks["featured_1_tags"] || "Next.js,Django").split(","),
-    },
-    {
-      title: cms.blocks["featured_2_title"] || "Project Two",
-      description: cms.blocks["featured_2_desc"] || "Description",
-      tags: (cms.blocks["featured_2_tags"] || "PWA,Analytics").split(","),
-    },
-  ] : [
-    {
-      title: "AI Marketing Dashboard",
-      description: "Realtime campaign insights with automated scoring and alerts.",
-      tags: ["Next.js", "Django", "PostgreSQL"],
-    },
-    {
-      title: "PWA Portfolio Engine",
-      description: "Offline-first portfolio with 100/100 Lighthouse and granular analytics consent.",
-      tags: ["PWA", "Serwist", "Next-intl"],
-    },
-  ]), [cms.blocks])
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-20 pb-16">
@@ -217,31 +193,7 @@ export default function Home() {
         </Suspense>
       </section>
 
-      <section className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight">{cms.blocks?.featured_title || fb.featured_title}</h2>
-        <div className="space-y-4">
-          {featuredProjects.map((project, idx) => (
-            <Card key={project.title} className="overflow-hidden rounded-2xl border-gray-200/80 shadow-sm dark:border-white/10">
-              <div className="grid gap-0 md:grid-cols-2">
-                <div className="relative h-56 bg-gradient-to-br from-primary/30 via-transparent to-primary/10 md:h-full">
-                  <div className="absolute inset-4 rounded-xl border border-white/20 bg-white/10 backdrop-blur" />
-                </div>
-                <div className="p-6 space-y-3">
-                  <h3 className="text-xl font-bold tracking-tight">{project.title}</h3>
-                  <p className="text-muted-foreground">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="rounded-lg border border-gray-200 px-3 py-1 text-xs text-muted-foreground dark:border-white/15">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
+      <FeaturedProjects />
 
       <section className="space-y-6 rounded-2xl border border-gray-200/80 bg-card/60 p-6 shadow-sm dark:border-white/10 dark:shadow-none md:p-10">
         <div className="space-y-2">
