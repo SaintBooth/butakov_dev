@@ -1,0 +1,79 @@
+{
+  "common": {
+    "home": "Home",
+    "portfolio": "Portfolio",
+    "about": "About",
+    "contact": "Contact",
+    "services": "Services",
+    "privacy": "Privacy Policy"
+  },
+  "home": {
+    "title": "Fullstack PWA Portfolio",
+    "description": "A production-ready portfolio showcasing web development and marketing projects.",
+    "viewPortfolio": "View Portfolio",
+    "contact": "Contact"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "description": "My projects and work",
+    "allProjects": "All Projects",
+    "webDev": "Web Development",
+    "marketing": "Marketing",
+    "petProjects": "Pet Projects",
+    "noProjects": "No projects found in this category.",
+    "loading": "Loading projects...",
+    "error": "Error loading projects"
+  },
+  "about": {
+    "title": "About Me",
+    "description": "Learn more about my development journey and coding activity",
+    "background": "Background",
+    "backgroundText": "I'm a fullstack developer and digital marketer passionate about creating modern web applications and helping businesses grow their online presence.",
+    "skills": "Skills",
+    "skillsFrontend": "Frontend: React, Next.js, TypeScript, Tailwind CSS",
+    "skillsBackend": "Backend: Django, Python, PostgreSQL, REST APIs",
+    "skillsTools": "Tools: Docker, Git, CI/CD, Testing",
+    "skillsMarketing": "Marketing: SEO, Content Strategy, Analytics",
+    "experience": "Experience",
+    "experienceText": "With experience in both development and marketing, I bring a unique perspective to building products that are both technically sound and user-focused."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Have a question or want to work together? Get in touch!",
+    "formTitle": "Contact Us",
+    "formDescription": "Fill out the form below and we'll get back to you as soon as possible.",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "message": "Message",
+    "consent": "I consent to the processing of personal data in accordance with the",
+    "privacyPolicy": "Privacy Policy",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "success": "Thank you for your submission! We'll get back to you soon.",
+    "error": "An error occurred. Please try again."
+  },
+  "github": {
+    "activity": "GitHub Activity",
+    "loading": "Loading contribution data...",
+    "unavailable": "Unable to load activity data",
+    "contributions": "contributions in the last year",
+    "dayStreak": "day streak",
+    "viewProfile": "View GitHub Profile →"
+  },
+  "cookie": {
+    "title": "We use cookies",
+    "description": "We use necessary cookies for the site to work and analytics only with your consent.",
+    "acceptAll": "Accept all",
+    "acceptNecessary": "Necessary only",
+    "showPrefs": "Preferences",
+    "prefsTitle": "Cookie preferences",
+    "savePrefs": "Save choices",
+    "close": "Close",
+    "prefsSectionEssentialTitle": "Essential cookies",
+    "prefsSectionEssentialDesc": "These cookies are required for the site to function and cannot be disabled.",
+    "prefsSectionAnalyticsTitle": "Analytics",
+    "prefsSectionAnalyticsDesc": "Helps us analyze traffic (Google Analytics / Yandex Metrika) only after your consent."
+  }
+}
+

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="476" height="476"><svg id="SvgjsSvg1307" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 476 476">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #0e172a;
+      }
+
+      .cls-2 {
+        fill: #12d3c8;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M238,0h0C369.36,0,476,106.64,476,238h0c0,131.36-106.64,238-238,238h0C106.64,476,0,369.36,0,238H0C0,106.64,106.64,0,238,0Z"></path>
+  <g>
+    <path class="cls-2" d="M321.93,251.57h0c0,44.68-36.22,80.9-80.9,80.9h-2.99c-44.68,0-80.9-36.22-80.9-80.9v-108.16h-60.53s0,105.2,0,105.2c0,78.11,63.32,141.43,141.43,141.43h0c69.41,0,127.13-50,139.13-115.94l-55.24-22.53Z"></path>
+    <path class="cls-2" d="M262.31,85.96l-25.42,57.45h85.04v108.16h0c34.13-10.38,57.45-41.85,57.45-77.52v-7.08c0-44.75-36.27-81.02-81.02-81.02h-36.05Z"></path>
+  </g>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>
