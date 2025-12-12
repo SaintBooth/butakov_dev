@@ -1,89 +1,3 @@
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api").replace(/\/$/, "")
-
-export type Project = {
-  id?: number
-  title: string
-  description: string
-  category?: string
-  tags?: string[]
-  featured_image?: string
-  demo_url?: string
-  github_url?: string
-  slug?: string
-}
-
-export type Service = {
-  id?: number
-  name: string
-  description: string
-  price?: string
-  category?: string
-  featured?: boolean
-  slug?: string
-}
-
-export type ContactSubmission = {
-  id?: number
-  name: string
-  email: string
-  phone?: string
-  message: string
-  consent_given: boolean
-  submitted_at?: string
-}
-
-export type UIBlockPayload = Record<string, string>
-
-async function getJson<T>(path: string) {
-  const res = await fetch(`${API_BASE}${path}`, { next: { revalidate: 60 } })
-  if (!res.ok) throw new Error(`API error ${res.status}`)
-  return (await res.json()) as T
-}
-
-export async function fetchProjects(locale: string, category?: string): Promise<Project[]> {
-  const params = new URLSearchParams()
-  if (locale) params.set("lang", locale)
-  if (category) params.set("category", category)
-  try {
-    return await getJson<Project[]>(`/projects/?${params.toString()}`)
-  } catch {
-    return []
-  }
-}
-
-export async function fetchServices(locale: string): Promise<Service[]> {
-  const params = new URLSearchParams()
-  if (locale) params.set("lang", locale)
-  try {
-    return await getJson<Service[]>(`/services/?${params.toString()}`)
-  } catch {
-    return []
-  }
-}
-
-export async function fetchUIBlocks(page: string, locale: string): Promise<UIBlockPayload> {
-  const params = new URLSearchParams()
-  if (locale) params.set("lang", locale)
-  if (page) params.set("page", page)
-  try {
-    return await getJson<UIBlockPayload>(`/ui-blocks/?${params.toString()}`)
-  } catch {
-    return {}
-  }
-}
-
-export async function submitContactForm(payload: ContactSubmission): Promise<ContactSubmission> {
-  const res = await fetch(`${API_BASE}/contact/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(text || `Contact submit failed (${res.status})`)
-  }
-  return (await res.json()) as ContactSubmission
-}
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
 export interface Project {
@@ -153,15 +67,6 @@ export interface ServicesResponse {
 
 export type UIBlockPayload = Record<string, string>
 
-export async function fetchUIBlocks(section: string, locale: string = "ru"): Promise<UIBlockPayload> {
-  const params = new URLSearchParams({ section, lang: locale })
-  const response = await fetch(`${API_URL}/api/blocks/?${params.toString()}`)
-  if (!response.ok) {
-    throw new Error("Failed to fetch UI blocks")
-  }
-  return parseJsonSafe<UIBlockPayload>(response)
-}
-
 async function parseJsonSafe<T>(response: Response): Promise<T> {
   const text = await response.text()
   if (!text) {
@@ -169,6 +74,15 @@ async function parseJsonSafe<T>(response: Response): Promise<T> {
     return {}
   }
   return JSON.parse(text) as T
+}
+
+export async function fetchUIBlocks(section: string, locale: string = "ru"): Promise<UIBlockPayload> {
+  const params = new URLSearchParams({ section, lang: locale })
+  const response = await fetch(`${API_URL}/api/blocks/?${params.toString()}`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch UI blocks")
+  }
+  return parseJsonSafe<UIBlockPayload>(response)
 }
 
 export async function fetchProjects(
@@ -222,7 +136,6 @@ export async function submitContactForm(
   const responseData = await parseJsonSafe<ContactSubmissionResponse>(response)
 
   if (!response.ok) {
-    // Return error response with errors object for form handling
     throw {
       message: responseData.message || "Failed to submit contact form",
       errors: responseData.errors,
