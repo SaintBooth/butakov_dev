@@ -8,6 +8,7 @@ import { fetchProjects } from "@/lib/api"
 import { generateSlug } from "@/components/portfolio/ProjectCard"
 import { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
+import { PROJECT_DETAIL_PLACEHOLDER } from "@/lib/placeholder"
 
 // Force dynamic rendering for this page
 export const dynamic = "force-dynamic"
@@ -112,18 +113,16 @@ export default async function ProjectDetailPage({
 
         {/* Project Header */}
         <div className="mb-8">
-          {project.featured_image && (
-            <div className="relative w-full h-64 md:h-96 mb-6 rounded-lg overflow-hidden">
-              <Image
-                src={project.featured_image}
-                alt={project.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-              />
-            </div>
-          )}
+          <div className="relative w-full h-64 md:h-96 mb-6 rounded-lg overflow-hidden">
+            <Image
+              src={project.featured_image || PROJECT_DETAIL_PLACEHOLDER}
+              alt={project.featured_image ? project.title : "Project placeholder"}
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            />
+          </div>
 
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
