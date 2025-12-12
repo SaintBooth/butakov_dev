@@ -1,9 +1,12 @@
 /* eslint-disable no-undef */
 /// <reference lib="webworker" />
+import type { PrecacheEntry } from "serwist";
 import { defaultCache } from "@serwist/next/worker";
 import { Serwist } from "serwist";
 
-declare const self: ServiceWorkerGlobalScope & typeof globalThis;
+declare const self: ServiceWorkerGlobalScope & typeof globalThis & {
+  __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
+};
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
