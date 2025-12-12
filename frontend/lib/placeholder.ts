@@ -19,13 +19,12 @@ interface PlaceholderOptions {
 export function getPlaceholderUrl({
   width,
   height,
-  text = "No Image",
+  text = "Placeholder",
   bgColor = "e2e8f0",
   textColor = "64748b",
 }: PlaceholderOptions): string {
-  // Use %20 instead of + for spaces to avoid encoding issues with Next.js Image
-  const encodedText = encodeURIComponent(text)
-  return `https://placehold.co/${width}x${height}/${bgColor}/${textColor}.webp?text=${encodedText}`
+  // Avoid spaces in text to prevent double-encoding issues with Next.js Image
+  return `https://placehold.co/${width}x${height}/${bgColor}/${textColor}.webp?text=${text}`
 }
 
 /**
@@ -35,7 +34,6 @@ export function getPlaceholderUrl({
 export const PROJECT_CARD_PLACEHOLDER = getPlaceholderUrl({
   width: 600,
   height: 338,
-  text: "No Image",
 })
 
 /**
@@ -45,5 +43,4 @@ export const PROJECT_CARD_PLACEHOLDER = getPlaceholderUrl({
 export const PROJECT_DETAIL_PLACEHOLDER = getPlaceholderUrl({
   width: 1200,
   height: 675,
-  text: "No Image",
 })
