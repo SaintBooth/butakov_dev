@@ -23,7 +23,8 @@ export function getPlaceholderUrl({
   bgColor = "e2e8f0",
   textColor = "64748b",
 }: PlaceholderOptions): string {
-  const encodedText = text.replace(/\s+/g, "+")
+  // Use %20 instead of + for spaces to avoid encoding issues with Next.js Image
+  const encodedText = encodeURIComponent(text)
   return `https://placehold.co/${width}x${height}/${bgColor}/${textColor}.webp?text=${encodedText}`
 }
 
