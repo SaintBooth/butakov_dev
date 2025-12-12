@@ -141,10 +141,10 @@ export default async function ProjectDetailPage({
               )}
               {project.github_url && (
                 <Button variant="outline" asChild>
-                  <Link href={project.github_url} target="_blank" rel="noopener noreferrer">
+                  <a href={project.github_url} target="_blank" rel="noopener noreferrer">
                     <Github className="mr-2 h-4 w-4" />
                     View Code
-                  </Link>
+                  </a>
                 </Button>
               )}
             </div>
