@@ -77,7 +77,7 @@ export default function Home() {
           <div className="flex-1 space-y-6">
             <div className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span>{cms.blocks?.hero_badge || "Fullstack Delivery · 152-FZ Compliant · PWA Ready"}</span>
+              <span>{cms.blocks?.hero_badge || "Fullstack Delivery · PWA Ready"}</span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
               <span className="bg-gradient-to-r from-white via-white to-[#0FD4C8] bg-clip-text text-transparent">
@@ -171,7 +171,7 @@ export default function Home() {
             </ServiceCard>
             <ServiceCard span={2} title={cms.blocks?.service_4_title || "My Philosophy"} icon={<Sparkles className="h-5 w-5 text-primary" />}>
               <p className="text-sm text-muted-foreground">
-                {cms.blocks?.service_4_body || "Ship fast, measure, and iterate. I blend product sense with analytics, keep privacy compliant (152-FZ), and push for Lighthouse-grade performance on every deploy."}
+                {cms.blocks?.service_4_body || "Ship fast, measure, and iterate. I blend product sense with analytics and push for Lighthouse-grade performance on every deploy."}
               </p>
             </ServiceCard>
           </div>

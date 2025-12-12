@@ -6,7 +6,7 @@
     "contact": "Contact",
     "services": "Services",
     "privacy": "Privacy Policy",
-    "copyright": "© 2025 Alexander Butakov. 152-FZ Compliant."
+    "copyright": "© 2025 Alexander Butakov"
   },
   "home": {
     "title": "Fullstack PWA Portfolio",
@@ -61,6 +61,24 @@
     "contributions": "contributions in the last year",
     "dayStreak": "day streak",
     "viewProfile": "View GitHub Profile →"
+  },
+  "project": {
+    "backToPortfolio": "Back to Portfolio",
+    "viewDemo": "View Demo",
+    "viewCode": "View Code",
+    "aboutProject": "About This Project",
+    "details": "Details",
+    "category": "Category",
+    "technologies": "Technologies",
+    "date": "Date",
+    "unavailable": "Project unavailable",
+    "unavailableDesc": "Could not load project details. Please try again later."
+  },
+  "services": {
+    "title": "Services",
+    "loading": "Loading services...",
+    "backToServices": "Back to Services",
+    "error": "Error loading services"
   },
   "cookie": {
     "title": "We use cookies",

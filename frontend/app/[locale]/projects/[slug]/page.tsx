@@ -7,6 +7,7 @@ import { ExternalLink, Github, ArrowLeft } from "lucide-react"
 import { fetchProjects } from "@/lib/api"
 import { generateSlug } from "@/components/portfolio/ProjectCard"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
 // Force dynamic rendering for this page
 export const dynamic = "force-dynamic"
@@ -62,6 +63,7 @@ export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
   const { slug, locale } = await params
+  const t = await getTranslations({ locale, namespace: "project" })
 
   try {
     const data = await fetchProjects(locale)
@@ -104,7 +106,7 @@ export default async function ProjectDetailPage({
         <Button variant="ghost" asChild className="mb-6">
           <Link href={`/${locale}/portfolio`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Portfolio
+            {t("backToPortfolio")}
           </Link>
         </Button>
 
@@ -134,7 +136,7 @@ export default async function ProjectDetailPage({
                 <Button asChild>
                   <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    View Demo
+                    {t("viewDemo")}
                   </a>
                 </Button>
               )}
@@ -142,7 +144,7 @@ export default async function ProjectDetailPage({
                 <Button variant="outline" asChild>
                   <a href={project.github_url} target="_blank" rel="noopener noreferrer">
                     <Github className="mr-2 h-4 w-4" />
-                    View Code
+                    {t("viewCode")}
                   </a>
                 </Button>
               )}
@@ -156,7 +158,7 @@ export default async function ProjectDetailPage({
           <div className="md:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>About This Project</CardTitle>
+                <CardTitle>{t("aboutProject")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed">
@@ -172,11 +174,11 @@ export default async function ProjectDetailPage({
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Details</CardTitle>
+                <CardTitle>{t("details")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Category</h4>
+                  <h4 className="font-semibold mb-2">{t("category")}</h4>
                   <span className="text-sm px-2 py-1 rounded-full bg-muted">
                     {project.category}
                   </span>
@@ -184,7 +186,7 @@ export default async function ProjectDetailPage({
 
                 {project.tags && project.tags.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-2">Technologies</h4>
+                    <h4 className="font-semibold mb-2">{t("technologies")}</h4>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag, index) => (
                         <span
@@ -200,7 +202,7 @@ export default async function ProjectDetailPage({
 
                 {project.created_date && (
                   <div>
-                    <h4 className="font-semibold mb-2">Date</h4>
+                    <h4 className="font-semibold mb-2">{t("date")}</h4>
                     <p className="text-sm text-muted-foreground">
                       {new Date(project.created_date).toLocaleDateString(locale, {
                         year: "numeric",
@@ -221,12 +223,12 @@ export default async function ProjectDetailPage({
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="rounded-lg border bg-card p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold mb-2">Project unavailable</h1>
+          <h1 className="text-2xl font-semibold mb-2">{t("unavailable")}</h1>
           <p className="text-muted-foreground mb-6">
-            Could not load project details. Please try again later or return to portfolio.
+            {t("unavailableDesc")}
           </p>
           <Button asChild>
-            <Link href={`/${locale}/portfolio`}>Back to Portfolio</Link>
+            <Link href={`/${locale}/portfolio`}>{t("backToPortfolio")}</Link>
           </Button>
         </div>
       </div>

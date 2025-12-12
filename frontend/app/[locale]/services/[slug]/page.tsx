@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation"
 import { Link } from "@/navigation"
 import { use, useEffect, useState } from "react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { fetchServices, Service } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +15,7 @@ function generateSlug(text: string) {
 
 export default function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const locale = useLocale()
+  const t = useTranslations("services")
   const { slug } = use(params)
   const [service, setService] = useState<Service | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -47,7 +48,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
   if (!service) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">{t("loading")}</p>
       </div>
     )
   }
@@ -70,7 +71,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
       <Button variant="ghost" asChild className="mb-6">
         <Link href="/services" locale={locale}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Services
+          {t("backToServices")}
         </Link>
       </Button>
 

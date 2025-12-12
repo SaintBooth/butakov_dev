@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { fetchServices, Service } from "@/lib/api"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Link } from "@/navigation"
 
 export default function ServicesPage() {
   const locale = useLocale()
+  const t = useTranslations("services")
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,8 +32,8 @@ export default function ServicesPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">Services</h1>
-        <p className="text-muted-foreground">Loading services...</p>
+        <h1 className="text-3xl font-bold mb-4">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("loading")}</p>
       </div>
     )
   }
@@ -40,8 +41,8 @@ export default function ServicesPage() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">Services</h1>
-        <p className="text-destructive">Error: {error}</p>
+        <h1 className="text-3xl font-bold mb-4">{t("title")}</h1>
+        <p className="text-destructive">{t("error")}</p>
       </div>
     )
   }
@@ -64,7 +65,7 @@ export default function ServicesPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(offerSchema) }}
         />
       )}
-      <h1 className="text-3xl font-bold mb-6">Services</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("title")}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {services.map((service) => {
           const slug = service.slug || generateSlug(service.name)

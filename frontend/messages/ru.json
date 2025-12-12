@@ -6,7 +6,7 @@
     "contact": "Контакты",
     "services": "Услуги",
     "privacy": "Политика конфиденциальности",
-    "copyright": "© 2025 Александр Бутаков. Соответствует 152-ФЗ."
+    "copyright": "© 2025 Александр Бутаков"
   },
   "home": {
     "title": "Fullstack PWA Портфолио",
@@ -61,6 +61,24 @@
     "contributions": "вкладов за последний год",
     "dayStreak": "дней подряд",
     "viewProfile": "Посмотреть профиль GitHub →"
+  },
+  "project": {
+    "backToPortfolio": "Назад к портфолио",
+    "viewDemo": "Демо",
+    "viewCode": "Код",
+    "aboutProject": "О проекте",
+    "details": "Детали",
+    "category": "Категория",
+    "technologies": "Технологии",
+    "date": "Дата",
+    "unavailable": "Проект недоступен",
+    "unavailableDesc": "Не удалось загрузить проект. Попробуйте позже."
+  },
+  "services": {
+    "title": "Услуги",
+    "loading": "Загрузка услуг...",
+    "backToServices": "Назад к услугам",
+    "error": "Ошибка загрузки услуг"
   },
   "cookie": {
     "title": "Мы используем cookies",
