@@ -87,8 +87,8 @@
 - [X] T020 [US3] Verify Input component at `frontend/components/ui/input.tsx` uses inset variant as default with shadow-inner styling (default variant set to inset)
 - [X] T021 [US3] Update Input focus states to enhance inset metaphor (enhanced border + ring) in `frontend/components/ui/input.tsx` (focus states enhanced with primary ring and border)
 - [X] T022 [US3] Apply inset input styling to ContactForm component at `frontend/components/forms/ContactForm.tsx` (ContactForm uses Input component which defaults to inset)
-- [ ] T023 [US3] Verify form inputs maintain visual consistency with Card components using same design tokens
-- [ ] T024 [US3] Test form inputs in both light and dark themes to ensure cohesive appearance
+- [ ] T023 [US3] ⏳ Verify form inputs maintain visual consistency with Card components using same design tokens (REQUIRES MANUAL TESTING - visual inspection)
+- [ ] T024 [US3] ⏳ Test form inputs in both light and dark themes to ensure cohesive appearance (REQUIRES MANUAL TESTING - test ContactForm)
 
 **Checkpoint**: At this point, User Story 3 should be complete - form inputs feel intentionally designed and integrated with the design system
 
@@ -104,11 +104,11 @@
 - [X] T028 Verify all homepage cards maintain glassmorphism aesthetic through standardized tokens (hero card uses Liquid Crystal, service cards auto-detect theme)
 - [X] T029 [P] Apply Badge component with Traffic Light colors to case study headers and project tags (applied to ProjectCard and project detail page tags)
 - [X] T030 Update prose link styling in `frontend/app/globals.css` with teal accent colors and subtle underlines (added .prose a styling)
-- [ ] T031 Verify design system consistency score of 95%+ across all page types (landing, blog, case studies)
-- [ ] T032 Test backdrop-blur fallback for browsers without support (verify solid color fallback works)
-- [ ] T033 Verify PageSpeed scores remain 95+ after all design system changes
-- [ ] T034 Run WCAG AA contrast validation across all components and pages
-- [ ] T035 Test theme switching smoothness and verify no FOUC (Flash of Unstyled Content)
+- [ ] T031 ⏳ Verify design system consistency score of 95%+ across all page types (landing, blog, case studies) (REQUIRES MANUAL TESTING - visual design audit)
+- [ ] T032 ⏳ Test backdrop-blur fallback for browsers without support (verify solid color fallback works) (REQUIRES MANUAL TESTING - test in Safari < 9, Firefox < 103)
+- [ ] T033 ⏳ Verify PageSpeed scores remain 95+ after all design system changes (REQUIRES TOOL TESTING - run PageSpeed Insights)
+- [ ] T034 ⏳ Run WCAG AA contrast validation across all components and pages (REQUIRES TOOL TESTING - use axe-core or Lighthouse)
+- [ ] T035 ⏳ Test theme switching smoothness and verify no FOUC (Flash of Unstyled Content) (REQUIRES MANUAL TESTING - test initial load and theme switching)
 
 ---
 
