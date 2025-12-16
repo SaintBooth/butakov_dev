@@ -90,7 +90,7 @@ export default function Home() {
         <AuroraBackground />
         <div className="relative flex flex-col gap-10 md:flex-row md:items-center">
           <div className="flex-1 space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 dark:bg-white/5 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm">
               <Sparkles className="h-4 w-4 text-primary" />
               <span>{cms.blocks?.hero_badge || fb.hero_badge}</span>
             </div>
@@ -217,7 +217,7 @@ function AuroraBackground() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-center">
+    <div className="rounded-lg border border-white/10 bg-white/5 dark:bg-white/5 backdrop-blur-sm p-3 text-center">
       <div className="text-xl font-bold tracking-tight text-white">{value}</div>
       <div className="text-xs uppercase text-white/70">{label}</div>
     </div>
@@ -235,12 +235,12 @@ function CodeLine({ children, prompt }: { children: React.ReactNode; prompt?: bo
 
 function Marquee({ items }: { items: string[] }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-gray-200/80 bg-card/80 shadow-sm dark:border-white/10 dark:shadow-none">
+    <Card className="relative overflow-hidden rounded-2xl">
       <div className="animate-marquee flex min-w-full gap-6 px-6 py-4 text-sm font-medium uppercase tracking-tight text-muted-foreground">
         {[...items, ...items].map((item, idx) => (
           <span
             key={`${item}-${idx}`}
-            className="rounded-lg border border-gray-200/80 px-4 py-2 transition hover:border-primary hover:text-primary dark:border-white/10"
+            className="rounded-lg border border-gray-200/80 dark:border-white/10 px-4 py-2 transition hover:border-primary hover:text-primary"
           >
             {item}
           </span>
@@ -256,7 +256,7 @@ function Marquee({ items }: { items: string[] }) {
           width: max-content;
         }
       `}</style>
-    </div>
+    </Card>
   )
 }
 
