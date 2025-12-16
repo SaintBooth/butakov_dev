@@ -69,8 +69,8 @@
 - [X] T015 [US2] Verify Ceramic design token includes border-slate-200 in `frontend/app/globals.css` card-ceramic class (verified in CSS)
 - [X] T016 [US2] Update Header component at `frontend/components/layout/Header.tsx` to use Liquid Crystal/Ceramic tokens for glassmorphism effects (Header already uses appropriate glassmorphism for floating UI)
 - [X] T017 [US2] Update Footer component at `frontend/components/layout/Footer.tsx` to use Ceramic tokens for consistent styling (Footer already uses appropriate glassmorphism for floating UI)
-- [ ] T018 [US2] Test visual structure consistency when switching between light and dark modes on the same page
-- [ ] T019 [US2] Verify all UI elements maintain structural definition without relying solely on shadows in light mode
+- [ ] T018 [US2] ⏳ Test visual structure consistency when switching between light and dark modes on the same page (REQUIRES MANUAL TESTING - verify smooth transitions)
+- [ ] T019 [US2] ⏳ Verify all UI elements maintain structural definition without relying solely on shadows in light mode (REQUIRES MANUAL TESTING - test on uncalibrated monitor)
 
 **Checkpoint**: At this point, User Story 2 should be complete - UI elements maintain clear visual structure across all lighting conditions
 

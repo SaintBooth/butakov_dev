@@ -12,8 +12,9 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, readingSurface, ...props }, ref) => {
-    const { theme } = useTheme();
-    const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const { theme, resolvedTheme } = useTheme();
+    // Use resolvedTheme which handles system theme detection
+    const isDark = resolvedTheme === "dark";
     
     const cardClasses = readingSurface
       ? "bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-white/10"
