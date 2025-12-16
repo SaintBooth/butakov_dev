@@ -195,13 +195,13 @@ export default function Home() {
 
       <FeaturedProjects />
 
-      <section className="space-y-6 rounded-2xl border border-gray-200/80 dark:border-white/10 bg-card/60 p-6 shadow-sm md:p-10">
+      <Card className="space-y-6 rounded-2xl p-6 md:p-10">
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">{cms.blocks?.cta_title || "Let’s Talk"}</h2>
           <p className="text-muted-foreground">{cms.blocks?.cta_sub || "Have a product to launch or optimize? Let’s craft it."}</p>
         </div>
         <ContactForm />
-      </section>
+      </Card>
     </div>
   )
 }
