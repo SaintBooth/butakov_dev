@@ -1,19 +1,41 @@
+"use client"
+
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useTheme } from "next-themes"
+import { getCardClasses } from "@/components/design-system/tokens"
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-2xl border border-gray-200/80 bg-card text-card-foreground shadow-sm dark:border-white/10 dark:shadow-none",
-      className
-    )}
-    {...props}
-  />
-))
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "ceramic" | "liquid-crystal" | "default";
+  readingSurface?: boolean;
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant, readingSurface, ...props }, ref) => {
+    const { theme } = useTheme();
+    const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    
+    const cardClasses = readingSurface
+      ? "bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-white/10"
+      : variant === "ceramic"
+      ? "card-ceramic"
+      : variant === "liquid-crystal"
+      ? "card-liquid"
+      : getCardClasses(isDark, readingSurface);
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "rounded-2xl text-card-foreground",
+          cardClasses,
+          className
+        )}
+        {...props}
+      />
+    )
+  }
+)
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<

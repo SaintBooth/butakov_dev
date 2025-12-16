@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Github, ArrowLeft } from "lucide-react"
 import { fetchProjects } from "@/lib/api"
 import { generateSlug } from "@/components/portfolio/ProjectCard"
@@ -162,7 +163,7 @@ export default async function ProjectDetailPage({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
-            <Card>
+            <Card readingSurface className="reading-surface">
               <CardHeader>
                 <CardTitle>{t("aboutProject")}</CardTitle>
               </CardHeader>
@@ -194,14 +195,23 @@ export default async function ProjectDetailPage({
                   <div>
                     <h4 className="font-semibold mb-2">{t("technologies")}</h4>
                     <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {project.tags.map((tag, index) => {
+                        // Map common tech tags to Traffic Light colors
+                        const tagLower = tag.toLowerCase();
+                        let badgeColor: "orange" | "cyan" | "green" | "red" | "blue" = "blue";
+                        if (tagLower.includes("bitrix") || tagLower.includes("wordpress") || tagLower.includes("php")) {
+                          badgeColor = "orange";
+                        } else if (tagLower.includes("react") || tagLower.includes("next") || tagLower.includes("typescript")) {
+                          badgeColor = "cyan";
+                        } else if (tagLower.includes("django") || tagLower.includes("python")) {
+                          badgeColor = "green";
+                        }
+                        return (
+                          <Badge key={index} color={badgeColor}>
+                            {tag}
+                          </Badge>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

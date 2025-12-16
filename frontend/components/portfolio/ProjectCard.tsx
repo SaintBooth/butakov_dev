@@ -5,6 +5,7 @@ import { Link } from "@/navigation"
 import { useLocale } from "next-intl"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Github } from "lucide-react"
 import { PROJECT_CARD_PLACEHOLDER } from "@/lib/placeholder"
 import { normalizeImageUrl } from "@/lib/utils"
@@ -75,14 +76,23 @@ export function ProjectCard({
         {tags.length > 0 && (
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground"
-                >
-                  {tag}
-                </span>
-              ))}
+              {tags.map((tag, index) => {
+                // Map common tech tags to Traffic Light colors
+                const tagLower = tag.toLowerCase();
+                let badgeColor: "orange" | "cyan" | "green" | "red" | "blue" = "blue";
+                if (tagLower.includes("bitrix") || tagLower.includes("wordpress") || tagLower.includes("php")) {
+                  badgeColor = "orange";
+                } else if (tagLower.includes("react") || tagLower.includes("next") || tagLower.includes("typescript")) {
+                  badgeColor = "cyan";
+                } else if (tagLower.includes("django") || tagLower.includes("python")) {
+                  badgeColor = "green";
+                }
+                return (
+                  <Badge key={index} color={badgeColor}>
+                    {tag}
+                  </Badge>
+                );
+              })}
             </div>
           </CardContent>
         )}
