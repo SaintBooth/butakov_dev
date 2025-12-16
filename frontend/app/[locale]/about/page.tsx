@@ -22,7 +22,7 @@ export default function AboutPage() {
         <GitHubActivity username={GITHUB_USERNAME} token={GITHUB_TOKEN} />
 
         {/* Additional About Content */}
-        <div className="prose prose-sm max-w-none dark:prose-invert">
+        <div className="prose prose-sm max-w-none dark:prose-invert reading-surface rounded-2xl p-8">
           <h2>{t('background')}</h2>
           <p>{t('backgroundText')}</p>
 

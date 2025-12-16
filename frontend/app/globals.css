@@ -84,3 +84,37 @@ body {
     linear-gradient(180deg, rgba(0, 0, 0, 0.02), transparent 55%);
   background-attachment: fixed;
 }
+
+/* Design System Tokens */
+
+/* Ceramic Design Token (Light Mode) */
+.card-ceramic {
+  @apply bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-white/50;
+}
+
+/* Liquid Crystal Design Token (Dark Mode) */
+.card-liquid {
+  background-color: rgb(15 23 42 / 0.95); /* Fallback for browsers without backdrop-blur */
+}
+
+@supports (backdrop-filter: blur(16px)) {
+  .card-liquid {
+    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-[0_0_15px_-3px_rgba(15,212,200,0.1)];
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
+  }
+}
+
+/* Inset Input Styling */
+.input-inset {
+  @apply bg-muted/50 border border-border shadow-inner;
+}
+
+/* Reading Surface (Opaque for long-form content) */
+.reading-surface {
+  @apply bg-white dark:bg-slate-900/95;
+}
+
+/* Prose Links */
+.prose a {
+  @apply border-b border-teal-500/30 text-teal-600 dark:text-teal-400 hover:border-teal-500 transition-colors;
+}

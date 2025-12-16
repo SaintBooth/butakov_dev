@@ -115,7 +115,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1">
-            <Card className="rounded-2xl border-white/10 bg-white/5 text-white shadow-sm backdrop-blur">
+            <Card variant="liquid-crystal" className="rounded-2xl text-white">
               <CardHeader>
                 <CardTitle className="text-white">Delivery Signals</CardTitle>
               </CardHeader>
@@ -195,7 +195,7 @@ export default function Home() {
 
       <FeaturedProjects />
 
-      <section className="space-y-6 rounded-2xl border border-gray-200/80 bg-card/60 p-6 shadow-sm dark:border-white/10 dark:shadow-none md:p-10">
+      <section className="space-y-6 rounded-2xl border border-gray-200/80 dark:border-white/10 bg-card/60 p-6 shadow-sm md:p-10">
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">{cms.blocks?.cta_title || "Let’s Talk"}</h2>
           <p className="text-muted-foreground">{cms.blocks?.cta_sub || "Have a product to launch or optimize? Let’s craft it."}</p>
@@ -274,7 +274,7 @@ function ServiceCard({
   return (
     <Card
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border-gray-200/80 shadow-sm dark:border-white/10 dark:shadow-none",
+        "flex flex-col gap-4 rounded-2xl",
         span === 2 ? "md:col-span-2" : "md:col-span-1"
       )}
     >
