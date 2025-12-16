@@ -1,89 +1,84 @@
-# Component API Contracts: Design System Expansion
+# Component API Contracts: Architectural Review & Design System Expansion
 
-**Feature**: Architectural Review & Design System Expansion  
 **Date**: 2025-01-27  
-**Phase**: Phase 1 - Design
+**Feature**: 001-design-system-expansion  
+**Status**: Complete
 
-## Component Interfaces
+## Overview
 
-### Layout Component
+This document defines the component API contracts for all new and modified components in the design system expansion. All components follow React/TypeScript patterns and extend standard HTML element props for accessibility.
+
+---
+
+## Layout Components
+
+### Layout
 
 **File**: `frontend/components/layout/Layout.tsx`
 
 **Props**:
 ```typescript
 interface LayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
   isLanding?: boolean; // Default: false
-  contentMaxWidth?: string; // Default: "max-w-5xl" for anchored, null for float
+  contentMaxWidth?: string; // Default: "max-w-5xl"
 }
 ```
 
 **Behavior**:
-- If `isLanding={true}`: Uses float layout (full width, cards float over background)
-- If `isLanding={false}`: Uses anchored layout (max-width container, opaque reading surface)
+- If `isLanding={true}`: Applies float layout (no max-width constraint)
+- If `isLanding={false}`: Applies anchored layout (max-width constraint, centered)
 - Renders global background effects (auroras/blobs) as fixed elements
-- Applies appropriate padding and spacing based on mode
+- Applies appropriate padding and spacing
 
 **Usage**:
 ```tsx
-// Landing page
 <Layout isLanding={true}>
-  <BentoGrid />
+  {/* Homepage content */}
 </Layout>
 
-// Content page
-<Layout isLanding={false}>
-  <Article content={...} />
+<Layout isLanding={false} contentMaxWidth="max-w-4xl">
+  {/* Blog post content */}
 </Layout>
 ```
 
 ---
 
-### Card Component (Enhanced)
+## Design System Components
+
+### Card
 
 **File**: `frontend/components/ui/card.tsx`
 
 **Props**:
 ```typescript
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "ceramic" | "liquid-crystal" | "default"; // Auto-detected from theme if not specified
-  readingSurface?: boolean; // If true, uses opaque background (95%+)
+  variant?: "ceramic" | "liquid-crystal" | "default"; // Default: "default"
+  readingSurface?: boolean; // Default: false
 }
 ```
 
-**Variants**:
-- **ceramic**: Light mode styling (white background, slate-200 border, soft shadow)
-- **liquid-crystal**: Dark mode styling (semi-transparent, backdrop-blur, glow effect)
-- **default**: Auto-detects from theme context
-
 **Behavior**:
-- Automatically applies correct variant based on theme if `variant` not specified
-- If `readingSurface={true}`, overrides opacity to 95%+ for readability
-- Maintains all existing Card sub-components (CardHeader, CardContent, etc.)
-- **Homepage Migration**: All homepage cards MUST use standardized Liquid Crystal/Ceramic tokens (per clarification) to maintain consistency with global application style
+- `variant="ceramic"`: Forces Ceramic (light mode) styling
+- `variant="liquid-crystal"`: Forces Liquid Crystal (dark mode) styling
+- `variant="default"`: Auto-detects theme and applies appropriate token
+- `readingSurface={true}`: Applies opaque background (95%+ opacity) for long-form content
+- Uses `useTheme()` from `next-themes` for SSR-safe theme detection
 
 **Usage**:
 ```tsx
-// Auto-detected variant
-<Card>
-  <CardHeader>Title</CardHeader>
+<Card variant="liquid-crystal">
+  {/* Glassmorphism card */}
 </Card>
 
-// Explicit variant
-<Card variant="ceramic">
-  <CardContent>Content</CardContent>
-</Card>
-
-// Reading surface (opaque)
 <Card readingSurface={true}>
-  <Article>Long-form content</Article>
+  {/* Opaque reading surface */}
 </Card>
 ```
 
 ---
 
-### Input Component (Enhanced)
+### Input
 
 **File**: `frontend/components/ui/input.tsx`
 
@@ -94,213 +89,449 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 ```
 
-**Variants**:
-- **inset**: Engraved appearance (inner shadow, muted background, border)
-- **default**: Standard input (backward compatibility)
-
 **Behavior**:
-- `variant="inset"` applies engraved styling with `shadow-inner`
-- Maintains focus states and accessibility
-- Works in both light and dark themes
+- `variant="inset"`: Applies "engraved" styling with `shadow-inner`
+- `variant="default"`: Standard input styling
+- Enhanced focus states for inset variant (border + ring)
+- Maintains all standard HTML input attributes
 
 **Usage**:
 ```tsx
-// Inset input (default)
-<Input type="text" placeholder="Name" />
-
-// Standard input (backward compatibility)
+<Input variant="inset" type="text" placeholder="Name" />
 <Input variant="default" type="email" />
 ```
 
 ---
 
-### Button Component (Enhanced)
+### Textarea
+
+**File**: `frontend/components/ui/textarea.tsx`
+
+**Props**:
+```typescript
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  // No additional props, uses inset styling by default
+}
+```
+
+**Behavior**:
+- Applies `input-inset` styling by default
+- Enhanced focus states (consistent with Input component)
+- Maintains all standard HTML textarea attributes
+
+**Usage**:
+```tsx
+<Textarea placeholder="Message" rows={5} />
+```
+
+---
+
+### Button
 
 **File**: `frontend/components/ui/button.tsx`
 
 **Props**:
 ```typescript
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "outline";
-  // Existing variants maintained
+  variant?: "primary" | "secondary" | "outline" | "ghost"; // Default: "default"
+  // ... other existing variants
 }
 ```
 
-**Enhancements**:
-- Primary button: Gradient styling (teal-to-emerald)
-- Hover: Brightness increase + scale down to 95% (`scale-95`)
-- Active: Maintains scale-down for tactile feedback
-
 **Behavior**:
-- Differentiates from card lift interactions (cards scale up, buttons scale down)
-- Maintains all existing variants for backward compatibility
+- `variant="primary"`: Gradient styling with glow effect, tactile hover feedback (brightness + scale)
+- Other variants: Existing behavior maintained
+- Hover: `brightness-110` + `scale-95` for primary variant
 
 **Usage**:
 ```tsx
 <Button variant="primary">Submit</Button>
+<Button variant="outline">Cancel</Button>
 ```
 
 ---
 
-### Badge Component (New)
+### Badge
 
 **File**: `frontend/components/ui/badge.tsx`
 
 **Props**:
 ```typescript
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  color: "orange" | "cyan" | "green" | "red" | "blue"; // Traffic Light system
-  children: React.ReactNode;
+  color?: "orange" | "cyan" | "green" | "red" | "blue"; // Default: "blue"
 }
 ```
 
-**Styling**:
-- Transparent background (`bg-{color}-500/5`)
-- Colored border (`border-{color}-500/20`)
-- Colored text (`text-{color}-600`)
-- Pill shape (rounded-full)
+**Behavior**:
+- Traffic Light color system: transparent background + colored border + colored text
+- Theme-aware colors (different shades for light/dark mode)
+- Maintains accessibility contrast ratios
 
 **Usage**:
 ```tsx
-<Badge color="orange">Bitrix</Badge>
 <Badge color="cyan">React</Badge>
+<Badge color="orange">Bitrix</Badge>
 ```
 
 ---
 
-### Typography Components (New)
+## Animation Components
 
-**File**: `frontend/components/design-system/typography.tsx`
+### TypewriterEffect
 
-**Components**:
-- `Heading1`: Hero titles (allows gradients)
-- `Heading2` through `Heading6`: Content headings (solid colors only)
-- `BodyText`: Body text with appropriate contrast colors
+**File**: `frontend/components/animations/TypewriterEffect.tsx`
 
 **Props**:
 ```typescript
-interface HeadingProps {
-  children: React.ReactNode;
-  gradient?: boolean; // Only allowed for H1
+interface TypewriterEffectProps {
+  text: string;
+  delay?: number; // Delay between characters in ms (Default: 50)
+  onComplete?: () => void; // Callback when animation completes
   className?: string;
 }
 ```
 
 **Behavior**:
-- H2-H6: Always use solid colors (slate-900 light, white dark)
-- H1: Can use gradients for hero sections
-- Body: Uses slate-600 (light) or slate-300 (dark) for reduced contrast
+- Displays text character by character
+- Respects `prefers-reduced-motion` (shows full text immediately)
+- Triggers `onComplete` callback when animation finishes
+- Uses Framer Motion for smooth animation
 
 **Usage**:
 ```tsx
-<Heading1 gradient>Welcome</Heading1>
-<Heading2>Article Title</Heading2>
-<BodyText>Article content...</BodyText>
+<TypewriterEffect 
+  text="const layout = glass({ radius: 16, blur: 18 })"
+  delay={30}
+/>
 ```
 
 ---
 
-### Design Token Utilities
+### CounterAnimation
 
-**File**: `frontend/components/design-system/tokens.ts`
+**File**: `frontend/components/animations/CounterAnimation.tsx`
 
-**Exports**:
+**Props**:
 ```typescript
-// CSS class utilities
-export const ceramicCard = "card-ceramic";
-export const liquidCard = "card-liquid";
-export const insetInput = "input-inset";
+interface CounterAnimationProps {
+  value: number;
+  duration?: number; // Animation duration in seconds (Default: 1.5)
+  format?: (value: number) => string; // Custom formatter function
+  className?: string;
+}
+```
 
-// Tailwind utility combinations
-export const ceramicStyles = {
-  base: "bg-white",
-  border: "border border-slate-200",
-  shadow: "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
-  ring: "ring-1 ring-white/50",
-};
+**Behavior**:
+- Animates from 0 to target value
+- Supports custom formatting (e.g., percentages, scores)
+- Respects `prefers-reduced-motion` (shows final value immediately)
+- Uses Framer Motion for smooth counting
 
-export const liquidStyles = {
-  base: "bg-slate-900/60",
-  backdrop: "backdrop-blur-xl",
-  border: "border border-white/10",
-  shadow: "shadow-[0_0_15px_-3px_rgba(15,212,200,0.1)]",
-  gradient: "bg-gradient-to-b from-white/5 to-transparent",
-};
+**Usage**:
+```tsx
+<CounterAnimation 
+  value={100} 
+  format={(v) => `${v}%`}
+/>
+<CounterAnimation 
+  value={99.9} 
+  format={(v) => `${v.toFixed(1)}%`}
+/>
 ```
 
 ---
 
-## CSS Classes Contract
+### StaggeredScroll
 
-### Ceramic Card Class
+**File**: `frontend/components/animations/StaggeredScroll.tsx`
 
-**Definition**: `frontend/app/globals.css`
-
-```css
-.card-ceramic {
-  @apply bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-white/50;
-}
-```
-
-### Liquid Crystal Card Class
-
-**Definition**: `frontend/app/globals.css`
-
-```css
-.card-liquid {
-  background-color: rgb(15 23 42 / 0.95); /* Fallback */
-}
-
-@supports (backdrop-filter: blur(16px)) {
-  .card-liquid {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-[0_0_15px_-3px_rgba(15,212,200,0.1)];
-    background-image: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
-  }
-}
-```
-
-### Inset Input Class
-
-**Definition**: `frontend/app/globals.css`
-
-```css
-.input-inset {
-  @apply bg-muted/50 border border-border shadow-inner;
-}
-```
-
----
-
-## Theme Integration
-
-All components automatically adapt to theme changes via:
-- `next-themes` ThemeProvider context
-- Tailwind `dark:` prefix utilities
-- CSS custom properties for colors
-
-**Theme Detection**:
+**Props**:
 ```typescript
-import { useTheme } from "next-themes";
+interface StaggeredScrollProps {
+  children: ReactNode;
+  staggerDelay?: number; // Delay between items in seconds (Default: 0.1)
+  className?: string;
+}
+```
 
-const { theme } = useTheme(); // "light" | "dark" | "system"
+**Behavior**:
+- Wraps children and applies staggered animation on scroll
+- Uses Intersection Observer to detect visibility
+- Respects `prefers-reduced-motion` (shows all items immediately)
+- Uses Framer Motion's `stagger` prop
+
+**Usage**:
+```tsx
+<StaggeredScroll staggerDelay={0.1}>
+  {serviceCards.map(card => <ServiceCard key={card.id} {...card} />)}
+</StaggeredScroll>
 ```
 
 ---
 
-## Backward Compatibility
+### ParallaxImage
 
-- All existing component props maintained
-- Default behaviors preserved
-- New variants are opt-in (except Input which defaults to inset)
-- Existing pages continue to work without changes
-- **Homepage Migration Required**: Homepage cards must migrate from custom glassmorphism (`bg-white/5 backdrop-blur`) to standardized Liquid Crystal/Ceramic tokens for consistency
+**File**: `frontend/components/animations/ParallaxImage.tsx`
+
+**Props**:
+```typescript
+interface ParallaxImageProps {
+  src: string;
+  alt: string;
+  intensity?: number; // Parallax intensity (Default: 0.5)
+  className?: string;
+  // ... Next.js Image props
+}
+```
+
+**Behavior**:
+- Applies parallax effect based on scroll position
+- Uses Framer Motion's `useScroll` and `useTransform`
+- Respects `prefers-reduced-motion` (no parallax effect)
+- Wraps Next.js Image component
+
+**Usage**:
+```tsx
+<ParallaxImage 
+  src="/project-image.jpg" 
+  alt="Project"
+  intensity={0.3}
+/>
+```
 
 ---
 
-## Accessibility Requirements
+## Homepage Section Components
 
-- All components maintain WCAG AA contrast ratios
-- Focus states clearly visible
-- Keyboard navigation supported
-- Screen reader labels preserved
-- ARIA attributes maintained
+### HeroSection
+
+**File**: `frontend/components/home/HeroSection.tsx`
+
+**Props**:
+```typescript
+interface HeroSectionProps {
+  badge: string; // i18n key or text
+  title: string; // i18n key or text
+  subtitle: string; // i18n key or text
+  ctaPrimary: { label: string; href: string };
+  ctaSecondary: { label: string; href: string };
+  metrics: {
+    lighthouse: number;
+    seo: string;
+    uptime: string;
+  };
+  codeBlock: string[]; // Array of code lines
+}
+```
+
+**Behavior**:
+- Renders hero section with Aurora background
+- Displays Delivery Signals card with counter animations
+- Shows code block with typewriter effect
+- Implements scroll behavior (scale + sticky) on scroll
+- Uses Liquid Crystal card variant
+
+**Usage**:
+```tsx
+<HeroSection
+  badge={t("hero.badge")}
+  title={t("hero.title")}
+  subtitle={t("hero.subtitle")}
+  ctaPrimary={{ label: t("cta.primary"), href: "/portfolio" }}
+  ctaSecondary={{ label: t("cta.secondary"), href: "https://github.com" }}
+  metrics={{ lighthouse: 100, seo: "A+", uptime: "99.9%" }}
+  codeBlock={["pnpm lint && pnpm test", "Deploying to edge...", "Perf budget: OK"]}
+/>
+```
+
+---
+
+### StackSection
+
+**File**: `frontend/components/home/StackSection.tsx`
+
+**Props**:
+```typescript
+interface StackSectionProps {
+  title: string; // i18n key or text
+  technologies: Array<{
+    name: string;
+    category: "frontend" | "backend" | "tools";
+    description?: string; // For tooltip
+  }>;
+  showStatistics?: boolean; // Default: true
+}
+```
+
+**Behavior**:
+- Renders marquee with technology badges
+- Applies category-based color coding
+- Shows tooltips on hover with application descriptions
+- Implements pause on hover functionality
+- Displays pause/play button for accessibility
+- Shows statistics count below marquee
+
+**Usage**:
+```tsx
+<StackSection
+  title={t("stack.title")}
+  technologies={[
+    { name: "Next.js", category: "frontend", description: "SSR, SEO, Performance" },
+    { name: "Django", category: "backend", description: "REST API, Admin" },
+    // ...
+  ]}
+/>
+```
+
+---
+
+### ServicesGrid
+
+**File**: `frontend/components/home/ServicesGrid.tsx`
+
+**Props**:
+```typescript
+interface ServicesGridProps {
+  services: Array<{
+    id: string;
+    title: string; // i18n key or text
+    icon: ReactNode;
+    span: 1 | 2;
+    content: ReactNode; // Custom content for each service card
+  }>;
+}
+```
+
+**Behavior**:
+- Renders Bento Grid layout
+- Applies staggered scroll animations
+- Uses Card component with auto-detected theme
+- Respects `prefers-reduced-motion`
+
+**Usage**:
+```tsx
+<ServicesGrid
+  services={[
+    {
+      id: "1",
+      title: t("services.fullstack"),
+      icon: <Terminal />,
+      span: 2,
+      content: <CodeBlock code={codeExample} />
+    },
+    // ...
+  ]}
+/>
+```
+
+---
+
+### ContactForm
+
+**File**: `frontend/components/forms/ContactForm.tsx`
+
+**Props**:
+```typescript
+interface ContactFormProps {
+  title?: string; // i18n key or text
+  subtitle?: string; // i18n key or text
+  showTrustIndicators?: boolean; // Default: true
+  showAlternativeContacts?: boolean; // Default: true
+}
+```
+
+**Behavior**:
+- Renders contact form with progressive enhancement
+- Uses native HTML form with `action` attribute (works without JS)
+- Enhances with React Hook Form when JS available
+- Displays trust indicators (response time, privacy)
+- Shows alternative contact methods (email, Telegram)
+- Uses inset input styling
+
+**Usage**:
+```tsx
+<ContactForm
+  title={t("contact.title")}
+  subtitle={t("contact.subtitle")}
+  showTrustIndicators={true}
+  showAlternativeContacts={true}
+/>
+```
+
+---
+
+## Project Components
+
+### ProjectCard (Enhanced)
+
+**File**: `frontend/components/portfolio/ProjectCard.tsx`
+
+**Props**:
+```typescript
+interface ProjectCardProps {
+  // ... existing props
+  metrics?: {
+    lighthouse?: number;
+    conversionRate?: number;
+    roi?: number;
+  };
+  codePreview?: string; // Code fragment for hover preview
+}
+```
+
+**Behavior**:
+- Displays terminal-style metrics in footer (if provided)
+- Shows code preview on hover (if provided)
+- Uses ParallaxImage for project images
+- Maintains existing functionality
+
+**Usage**:
+```tsx
+<ProjectCard
+  // ... existing props
+  metrics={{
+    lighthouse: 100,
+    conversionRate: 4.2,
+    roi: 180
+  }}
+  codePreview="const deploy = () => { ... }"
+/>
+```
+
+---
+
+## Accessibility Contracts
+
+All components MUST:
+- Support keyboard navigation
+- Include ARIA labels where appropriate
+- Respect `prefers-reduced-motion` media query
+- Maintain WCAG AA contrast ratios
+- Support screen readers with semantic HTML
+
+---
+
+## Error Handling
+
+- Missing props: Components should provide sensible defaults
+- Invalid values: Components should validate and fallback gracefully
+- Animation failures: Components should degrade to static content
+- Theme detection failures: Components should default to light mode
+
+---
+
+## Performance Contracts
+
+- Animations: Must use GPU-accelerated transforms (transform, opacity)
+- Images: Must use Next.js Image component with lazy loading
+- Intersection Observer: Must cleanup observers on unmount
+- Framer Motion: Must use `AnimatePresence` for mount/unmount animations
+
+---
+
+## Notes
+
+- All components are client components (`"use client"`) where needed
+- All text content supports i18n via next-intl
+- All components extend standard HTML element props for flexibility
+- Component APIs are designed for composition and reusability

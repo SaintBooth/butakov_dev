@@ -1,0 +1,35 @@
+﻿# devbutakov Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-12-12
+
+## Active Technologies
+- TypeScript 5.x, React 19.2.1, Next.js 16.0.8 + Tailwind CSS v4, next-themes 0.4.6, Framer Motion 11.0.0, Shadcn/ui components (001-design-system-expansion)
+- N/A (design system - no data persistence) (001-design-system-expansion)
+- N/A (frontend-only feature, data from existing Django DRF API) (001-design-system-expansion)
+
+- Python 3.11+ (backend), TypeScript (frontend) + Next.js 14 App Router, Django 4.2+ DRF, Tailwind CSS, Shadcn/ui, Framer Motion (003-featured-projects)
+
+## Project Structure
+
+```text
+backend/
+frontend/
+tests/
+```
+
+## Commands
+
+cd src; pytest; ruff check .
+
+## Code Style
+
+Python 3.11+ (backend), TypeScript (frontend): Follow standard conventions
+
+## Recent Changes
+- 001-design-system-expansion: Added TypeScript 5.x, React 19.2.1, Next.js 16.0.8
+- 001-design-system-expansion: Added TypeScript 5.x, React 19.2.1, Next.js 16.0.8 + Tailwind CSS v4, next-themes 0.4.6, Framer Motion 11.0.0, Shadcn/ui components
+- 001-design-system-expansion: Added TypeScript 5.x, React 19.2.1, Next.js 16.0.8 + Tailwind CSS v4, next-themes 0.4.6, Framer Motion 11.0.0, Shadcn/ui components
+
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

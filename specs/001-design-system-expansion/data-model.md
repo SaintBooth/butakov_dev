@@ -1,136 +1,269 @@
-# Data Model: Design System Expansion
+# Data Model: Architectural Review & Design System Expansion
 
-**Feature**: Architectural Review & Design System Expansion  
 **Date**: 2025-01-27  
-**Phase**: Phase 1 - Design
+**Feature**: 001-design-system-expansion  
+**Status**: Complete
 
 ## Overview
 
-This design system expansion does not involve database entities or data persistence. Instead, it defines **design system entities** (design tokens, layout modes, content types) that govern visual presentation and component behavior.
+This feature is primarily frontend-focused and does not introduce new backend data models. However, it defines component-level data structures and prop interfaces for the design system components.
 
-## Design System Entities
+## Component Data Structures
 
 ### Design Token
 
-**Purpose**: Reusable visual style formula that defines consistent appearance across UI components.
+**Type**: TypeScript utility type / CSS class string
 
-**Variants**:
-- **Ceramic** (Light Mode): Tactile, clean, premium aesthetic
-- **Liquid Crystal** (Dark Mode): High-tech, glowing, mysterious aesthetic
-
-**Attributes**:
-- `baseSurface`: Background color/base
-- `texture`: Gradient overlay for sheen/lighting
-- `depth`: Shadow for lift/depth perception
-- `definition`: Border for structural integrity
-- `highlight`: Ring/glow for accent
-
-**Relationships**:
-- Applied to: Card, Input, Container components
-- Context: Theme mode (light/dark)
+**Fields**:
+- `ceramicCardClasses`: string - CSS classes for Ceramic (light mode) card styling
+- `liquidCardClasses`: string - CSS classes for Liquid Crystal (dark mode) card styling
+- `getCardClasses(isDark: boolean, readingSurface?: boolean)`: string - Function returning appropriate card classes based on theme
 
 **Validation Rules**:
-- Must maintain WCAG AA contrast ratios
-- Must degrade gracefully without backdrop-blur support
-- Must work in both light and dark themes
+- Must include visible borders for light mode (slate-200 or darker)
+- Must include backdrop-blur for dark mode (with fallback)
+- Must support readingSurface variant for opaque backgrounds
+
+**State Transitions**: N/A (static utility functions)
+
+---
 
 ### Layout Mode
 
-**Purpose**: Layout strategy that determines content width, positioning, and background treatment.
+**Type**: TypeScript union type
 
-**Variants**:
-- **Float**: Landing pages - cards float in open space over background
-- **Anchored**: Content pages - text in central column with opaque background
+**Values**:
+- `"float"` - Landing page layout (no max-width constraint, glassmorphism cards)
+- `"anchored"` - Content page layout (max-width constraint, opaque reading surfaces)
 
-**Attributes**:
-- `mode`: "float" | "anchored"
-- `maxWidth`: Content container max-width (null for float, "max-w-3xl" for anchored)
-- `backgroundOpacity`: Main content area opacity (varies by mode)
-- `padding`: Container padding
+**Component**: `Layout` component
 
-**Relationships**:
-- Applied to: Layout component
-- Determines: Content area styling, background visibility
-
-**State Transitions**:
-- `float` → `anchored`: When navigating from landing to content page
-- `anchored` → `float`: When navigating from content to landing page
-
-### Content Type
-
-**Purpose**: Page type classification that determines which layout mode and design tokens to apply.
-
-**Types**:
-- **Landing**: Homepage - uses Float layout, glassmorphism cards
-- **Blog**: Blog posts - uses Anchored layout, opaque reading surface
-- **Case Study**: Project details - uses Anchored layout, opaque reading surface
-- **404**: Error page - uses Anchored layout, opaque reading surface
-
-**Attributes**:
-- `type`: "landing" | "blog" | "case-study" | "404"
-- `layoutMode`: LayoutMode variant to use
-- `requiresReadingSurface`: Boolean - whether opaque reading surface required
-
-**Relationships**:
-- Maps to: Layout Mode
-- Determines: Design token application
-
-## Component Structure
-
-### Card Component Variants
-
-**Ceramic Card** (Light Mode):
-- Base: `bg-white`
-- Border: `border-slate-200`
-- Shadow: `shadow-[0_8px_30px_rgb(0,0,0,0.04)]`
-- Ring: `ring-1 ring-white/50`
-
-**Liquid Crystal Card** (Dark Mode):
-- Base: `bg-slate-900/60`
-- Backdrop: `backdrop-blur-xl`
-- Border: `border-white/10`
-- Shadow: `shadow-[0_0_15px_-3px_rgba(15,212,200,0.1)]`
-- Gradient: `bg-gradient-to-b from-white/5 to-transparent`
-
-### Input Component Variants
-
-**Inset Input** (Both Themes):
-- Background: `bg-muted/50`
-- Border: `border-border`
-- Shadow: `shadow-inner` (inset shadow)
-- Focus: Enhanced border + ring
-
-### Layout Component Props
-
+**Props**:
 ```typescript
 interface LayoutProps {
-  children: React.ReactNode;
-  isLanding?: boolean; // Determines float vs anchored mode
-  contentMaxWidth?: string; // Override default max-width
+  children: ReactNode;
+  isLanding?: boolean; // true = float, false = anchored
+  contentMaxWidth?: string; // Optional custom max-width
 }
 ```
 
-## State Management
+**Validation Rules**:
+- `isLanding` defaults to `false` (anchored mode)
+- `contentMaxWidth` defaults to `max-w-5xl` if not provided
 
-**Theme State**: Managed by `next-themes` (existing)
-- Light mode → Ceramic tokens
-- Dark mode → Liquid Crystal tokens
+---
 
-**Layout Mode State**: Determined by page type
-- Landing page → `isLanding={true}` → Float mode
-- Content pages → `isLanding={false}` → Anchored mode
+### Content Type
 
-## Validation Rules
+**Type**: TypeScript union type (implicit)
 
-1. **Contrast Compliance**: All text/background combinations must pass WCAG AA (4.5:1 normal, 3:1 large)
-2. **Opacity Requirements**: Reading surfaces must be 95%+ opacity in dark mode
-3. **Border Requirements**: Light mode elements must have visible borders (slate-200 or darker)
-4. **Backdrop Fallback**: All backdrop-blur effects must have solid color fallback
-5. **Theme Consistency**: Design tokens must work identically in both light and dark modes
+**Values**:
+- `"landing"` - Homepage (uses float layout)
+- `"blog"` - Blog post pages (uses anchored layout)
+- `"case-study"` - Case study pages (uses anchored layout)
+- `"404"` - Error pages (uses anchored layout)
 
-## Edge Cases
+**Usage**: Determines which layout mode and design tokens to apply
 
-- **High Contrast Mode**: Design tokens must maintain structure without relying solely on color
-- **No Backdrop-Blur Support**: Fallback to solid backgrounds maintains functionality
-- **Extremely Long Content**: Anchored layout ensures readability throughout scroll
-- **Theme Switching**: Smooth transition between Ceramic and Liquid Crystal tokens
+---
+
+### Animation State
+
+**Type**: React state / Framer Motion animation state
+
+**Fields**:
+- `isVisible`: boolean - Whether element is visible (for intersection observer)
+- `isPlaying`: boolean - Whether animation is playing (for pause/play)
+- `displayedText`: string - Current displayed text (for typewriter effect)
+- `count`: number - Current count value (for counter animation)
+
+**State Transitions**:
+- `isVisible`: false → true (on intersection observer trigger)
+- `isPlaying`: true ↔ false (on pause/play button click)
+- `displayedText`: "" → fullText (character by character)
+- `count`: 0 → targetValue (smooth animation)
+
+---
+
+### Technology Category
+
+**Type**: TypeScript union type
+
+**Values**:
+- `"frontend"` - Frontend technologies (Next.js, React, TypeScript)
+- `"backend"` - Backend technologies (Django, PostgreSQL, Redis)
+- `"tools"` - Development tools (Docker, Figma, Yandex.Metrika)
+
+**Component**: Stack Section tech badges
+
+**Props**:
+```typescript
+interface TechBadgeProps {
+  name: string;
+  category: "frontend" | "backend" | "tools";
+  description?: string; // For tooltip
+}
+```
+
+**Color Mapping**:
+- `frontend`: blue-50 / blue-950/20 (dark)
+- `backend`: green-50 / green-950/20 (dark)
+- `tools`: purple-50 / purple-950/20 (dark)
+
+---
+
+### Project Metrics
+
+**Type**: TypeScript interface (for terminal-style display)
+
+**Fields**:
+- `lighthouseScore`: number | null - Lighthouse performance score (0-100)
+- `conversionRate`: number | null - Conversion rate percentage
+- `roi`: number | null - ROI percentage
+
+**Component**: Featured Projects card footer
+
+**Props**:
+```typescript
+interface ProjectMetricsProps {
+  lighthouseScore?: number;
+  conversionRate?: number;
+  roi?: number;
+}
+```
+
+**Display Format**: Terminal-style strings
+- `$ lighthouse --score {lighthouseScore}`
+- `$ conversion-rate {conversionRate}%`
+- `$ roi +{roi}%`
+
+**Validation Rules**:
+- All fields optional (may not be available for all projects)
+- Numbers must be valid (0-100 for scores, any positive number for rates)
+
+---
+
+### Trust Indicator
+
+**Type**: TypeScript interface
+
+**Fields**:
+- `icon`: ReactNode - Icon component (from lucide-react)
+- `text`: string - Trust indicator text (i18n key)
+
+**Component**: ContactForm section
+
+**Props**:
+```typescript
+interface TrustIndicatorProps {
+  icon: ReactNode;
+  text: string; // i18n key
+}
+```
+
+**Values**:
+- Response time: "Обычно отвечаю в течение 24 часов" / "Usually respond within 24 hours"
+- Privacy: "Конфиденциально и безопасно" / "Confidential and secure"
+
+---
+
+### Contact Method
+
+**Type**: TypeScript interface
+
+**Fields**:
+- `type`: "email" | "telegram"
+- `href`: string - Contact URL
+- `label`: string - Display label (i18n key)
+
+**Component**: Alternative contact methods display
+
+**Props**:
+```typescript
+interface ContactMethodProps {
+  type: "email" | "telegram";
+  href: string;
+  label: string; // i18n key
+}
+```
+
+**Values**:
+- Email: `mailto:{email}`
+- Telegram: `https://t.me/{username}`
+
+---
+
+## Component Props Interfaces
+
+### Card Component
+
+```typescript
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "ceramic" | "liquid-crystal" | "default";
+  readingSurface?: boolean;
+}
+```
+
+### Input Component
+
+```typescript
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  variant?: "inset" | "default";
+}
+```
+
+### Button Component
+
+```typescript
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  // ... other variants
+}
+```
+
+### Badge Component
+
+```typescript
+interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  color?: "orange" | "cyan" | "green" | "red" | "blue";
+}
+```
+
+---
+
+## Relationships
+
+1. **Layout → Content Type**: Layout component determines layout mode based on page type
+2. **Design Token → Theme**: Design tokens selected based on current theme (light/dark)
+3. **Animation State → Component**: Animation state managed per component instance
+4. **Technology Category → Badge**: Tech badges display category-based color coding
+5. **Project Metrics → Project Card**: Project cards display terminal-style metrics in footer
+
+---
+
+## Data Flow
+
+1. **Theme Detection**: `next-themes` provides current theme → Design tokens selected
+2. **Layout Mode**: Page type determines layout mode → Layout component applies appropriate styling
+3. **Animation Triggers**: Intersection Observer detects visibility → Animations trigger
+4. **Form Submission**: Native form fallback OR React Hook Form enhancement → API submission
+
+---
+
+## Validation Rules Summary
+
+- Design tokens must include visible borders for light mode
+- Layout mode must default to "anchored" unless explicitly set to "float"
+- Animation states must respect `prefers-reduced-motion`
+- Project metrics must handle missing/null values gracefully
+- Trust indicators must support i18n translation keys
+- Contact methods must have valid hrefs
+
+---
+
+## Notes
+
+- No backend schema changes required (frontend-only feature)
+- All data structures are TypeScript interfaces/types
+- Component props extend standard HTML element props for accessibility
+- i18n keys used for all user-facing text (next-intl)

@@ -14,6 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { submitContactForm, ContactSubmission } from "@/lib/api"
 import { Link } from "@/navigation"
 import { useLocale } from "next-intl"
+import { Clock, Shield, Mail, MessageCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
@@ -108,16 +110,62 @@ export function ContactForm() {
     }
   }
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+  const formAction = `${apiUrl}/api/contact/`
+
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>{t('formTitle')}</CardTitle>
-        <CardDescription>
-          {t('formDescription')}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Trust Indicators */}
+      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4" />
+          <span>{t('trustIndicator.responseTime', { defaultValue: "Обычно отвечаю в течение 24 часов" })}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Shield className="h-4 w-4" />
+          <span>{t('trustIndicator.privacy', { defaultValue: "Конфиденциально и безопасно" })}</span>
+        </div>
+      </div>
+
+      {/* Alternative Contact Methods */}
+      <div className="flex flex-wrap gap-4">
+        <a
+          href="mailto:contact@butakov.dev"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Mail className="h-4 w-4" />
+          <span>{t('alternativeContacts.email', { defaultValue: "Email" })}</span>
+        </a>
+        <a
+          href="https://t.me/devbutakov"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
+          <MessageCircle className="h-4 w-4" />
+          <span>{t('alternativeContacts.telegram', { defaultValue: "Telegram" })}</span>
+        </a>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('formTitle')}</CardTitle>
+          <CardDescription>
+            {t('formDescription')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Progressive Enhancement: Native form fallback */}
+          <form 
+            action={formAction}
+            method="POST"
+            onSubmit={(e) => {
+              // Enhanced submission with React Hook Form when JS available
+              e.preventDefault()
+              handleSubmit(onSubmit)(e)
+            }}
+            className="space-y-6"
+          >
           {/* Name Field */}
           <div className="space-y-2">
             <Label htmlFor="name">
@@ -239,8 +287,9 @@ export function ContactForm() {
             </div>
           )}
         </form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 

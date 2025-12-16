@@ -112,6 +112,65 @@
 
 ---
 
+## Phase 7: Homepage Enhancements (Architecture Alignment)
+
+**Purpose**: Implement all animations, interactive features, and enhancements from homepage-architecture.md to fully align homepage with architectural vision.
+
+**Independent Test**: Verify all animations work smoothly, tooltips display correctly, marquee pauses on hover, counter animations complete, parallax effects respond to scroll, and all accessibility features function properly.
+
+### Animation Components
+
+- [X] T036 [P] Create TypewriterEffect component at `frontend/components/animations/TypewriterEffect.tsx` with character-by-character reveal, delay prop, and prefers-reduced-motion support
+- [X] T037 [P] Create CounterAnimation component at `frontend/components/animations/CounterAnimation.tsx` using Framer Motion useMotionValue + useTransform for smooth counting from 0 to target value
+- [X] T038 [P] Create StaggeredScroll component at `frontend/components/animations/StaggeredScroll.tsx` using Intersection Observer + Framer Motion stagger for sequential scroll-triggered animations
+- [X] T039 [P] Create ParallaxImage component at `frontend/components/animations/ParallaxImage.tsx` using Framer Motion useScroll + useTransform for scroll-based parallax effects
+
+### Hero Section Enhancements
+
+- [X] T040 [P] Extract HeroSection component from `frontend/app/[locale]/page.tsx` to `frontend/components/home/HeroSection.tsx` with props interface
+- [X] T041 [P] Add typewriter effect to code block in HeroSection using TypewriterEffect component with 0.3s delay per line
+- [X] T042 [P] Add counter animations to Stats metrics (Lighthouse, SEO, Uptime) in HeroSection using CounterAnimation component
+- [X] T043 [P] Add aurora background rotation animation (rotate-45 animate-spin, duration 20s) to AuroraBackground component in `frontend/app/[locale]/page.tsx`
+- [X] T044 [P] Implement Hero section scroll behavior (scale 0.98 + sticky on 100vh) using Framer Motion useScroll and useTransform in HeroSection component
+
+### Stack Section Enhancements
+
+- [X] T045 [P] Extract StackSection component from `frontend/app/[locale]/page.tsx` to `frontend/components/home/StackSection.tsx` with technology categories support
+- [X] T046 [P] Add technology categories (Frontend, Backend, Tools) with color coding to StackSection tech badges (blue for frontend, green for backend, purple for tools)
+- [X] T047 [P] Add tooltips to tech badges in StackSection showing application descriptions (e.g., "Next.js: SSR, SEO, Performance") on hover using Radix UI Tooltip or custom tooltip component
+- [X] T048 [P] Implement marquee pause on hover functionality (animation-play-state: paused) in Marquee component at `frontend/app/[locale]/page.tsx`
+- [X] T049 [P] Add pause/play button for marquee animations in StackSection to allow users to control animation playback
+- [X] T050 [P] Add statistics count display (e.g., "15+ технологий в стеке") below Stack marquee in StackSection component
+
+### Services Grid Enhancements
+
+- [X] T051 [P] Extract ServicesGrid component from `frontend/app/[locale]/page.tsx` to `frontend/components/home/ServicesGrid.tsx` with staggered scroll support
+- [X] T052 [P] Wrap Service cards with StaggeredScroll component in ServicesGrid for sequential appearance (delay 0.1s per card) on scroll
+- [X] T053 [P] Add typewriter effect to Service Card 1 code block using TypewriterEffect component
+
+### Featured Projects Enhancements
+
+- [X] T054 [P] Add terminal-style metrics to ProjectCard footer at `frontend/components/portfolio/ProjectCard.tsx` (e.g., `$ lighthouse --score 100`, `$ conversion-rate 4.2%`, `$ roi +180%`)
+- [X] T055 [P] Add code preview on hover for ProjectCard showing project code fragments using Framer Motion AnimatePresence
+- [X] T056 [P] Replace Image component with ParallaxImage component in ProjectCard for parallax effects during scroll
+
+### ContactForm Enhancements
+
+- [X] T057 [P] Add trust indicators section to ContactForm at `frontend/components/forms/ContactForm.tsx` ("Обычно отвечаю в течение 24 часов", "Конфиденциально и безопасно") with icons from lucide-react
+- [X] T058 [P] Add alternative contact methods (email, Telegram) display alongside ContactForm with links and icons
+- [X] T059 [P] Ensure progressive enhancement for ContactForm: add native HTML form with action attribute and method="POST" for fallback without JavaScript
+
+### Accessibility & Performance
+
+- [X] T060 [P] Add prefers-reduced-motion support to all animation components (TypewriterEffect, CounterAnimation, StaggeredScroll, ParallaxImage) - disable or reduce motion when user preference is set
+- [X] T061 [P] Implement lazy loading for images using Next.js Image component with loading="lazy" and Intersection Observer for custom visibility-based loading in Featured Projects
+- [ ] T062 ⏳ Test all animations respect prefers-reduced-motion media query (REQUIRES MANUAL TESTING - enable reduced motion in OS settings)
+- [ ] T063 ⏳ Verify lazy loading works correctly with intersection observer and placeholder skeletons (REQUIRES MANUAL TESTING - test slow network conditions)
+
+**Checkpoint**: At this point, all homepage enhancements from architecture should be complete - animations, tooltips, parallax, terminal metrics, trust indicators, and accessibility features are functional
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -122,6 +181,9 @@
   - User stories can proceed sequentially in priority order (P1 → P2 → P3)
   - Or in parallel if team capacity allows (stories are independent)
 - **Homepage Migration (Phase 6)**: Can start after Foundational, benefits from all user stories but can proceed independently
+- **Homepage Enhancements (Phase 7)**: Can start after Foundational, benefits from animation components but can proceed independently
+  - Animation components (T036-T039) can be created in parallel
+  - Section enhancements can proceed in parallel once animation components are ready
 
 ### User Story Dependencies
 
@@ -142,6 +204,10 @@
 - **Foundational Phase**: T004, T005, T006, T007 can all run in parallel (different component files)
 - **User Stories**: Once Foundational completes, US1, US2, US3 can run in parallel (different components/pages)
 - **Homepage Migration**: T025, T026, T027 can run in parallel (different card sections)
+- **Homepage Enhancements**: 
+  - Animation components (T036-T039) can run in parallel (different component files)
+  - Section extractions (T040, T045, T051) can run in parallel (different sections)
+  - Enhancement tasks within each section can run in parallel (different features)
 - **Polish Phase**: T029, T030 can run in parallel (different styling tasks)
 
 ---
@@ -211,5 +277,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Homepage migration (Phase 6) ensures consistency but can proceed independently
+- Homepage enhancements (Phase 7) align with homepage-architecture.md specification
 - All design tokens must maintain WCAG AA contrast compliance
 - Test both light and dark modes for every component update
+- All animations must respect prefers-reduced-motion for accessibility
+- Use Framer Motion for all complex animations (already in dependencies)
+- Progressive enhancement ensures forms work without JavaScript

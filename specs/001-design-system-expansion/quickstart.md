@@ -1,65 +1,35 @@
-# Quickstart: Design System Expansion Implementation
+# Quickstart Guide: Architectural Review & Design System Expansion
 
-**Feature**: Architectural Review & Design System Expansion  
 **Date**: 2025-01-27  
-**Phase**: Phase 1 - Design
+**Feature**: 001-design-system-expansion  
+**Status**: Complete
 
 ## Overview
 
-This guide provides step-by-step instructions for implementing the design system expansion. The implementation is frontend-only and focuses on creating reusable design tokens, updating components, and implementing the Layout component with float/anchored modes.
+This quickstart guide provides step-by-step instructions for implementing the design system expansion and homepage enhancements. Follow these steps in order to ensure proper implementation.
+
+---
 
 ## Prerequisites
 
-- Next.js 16.0.8+ with App Router
-- Tailwind CSS v4
-- next-themes 0.4.6+
-- Framer Motion 11.0.0+
-- Existing Shadcn/ui components
+- ✅ Next.js 16.0.8+ installed
+- ✅ React 19.2.1+ installed
+- ✅ Framer Motion ^11.0.0 installed
+- ✅ Tailwind CSS ^4 installed
+- ✅ next-themes ^0.4.6 installed
+- ✅ next-intl ^4.5.8 installed
 
-## Implementation Steps
+---
 
-### Step 1: Add Design Token CSS Classes
+## Phase 1: Design Token Implementation
 
-**File**: `frontend/app/globals.css`
+### Step 1.1: Verify Design Token Utilities
 
-Add the following CSS classes after existing theme variables:
+**File**: `frontend/components/design-system/tokens.ts`
 
-```css
-/* Ceramic Design Token (Light Mode) */
-.card-ceramic {
-  @apply bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-white/50;
-}
-
-/* Liquid Crystal Design Token (Dark Mode) */
-.card-liquid {
-  background-color: rgb(15 23 42 / 0.95); /* Fallback for browsers without backdrop-blur */
-}
-
-@supports (backdrop-filter: blur(16px)) {
-  .card-liquid {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-[0_0_15px_-3px_rgba(15,212,200,0.1)];
-    background-image: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
-  }
-}
-
-/* Inset Input Styling */
-.input-inset {
-  @apply bg-muted/50 border border-border shadow-inner;
-}
-
-/* Reading Surface (Opaque for long-form content) */
-.reading-surface {
-  @apply bg-white dark:bg-slate-900/95;
-}
-```
-
-### Step 2: Create Design Token Utilities
-
-**File**: `frontend/components/design-system/tokens.ts` (new file)
+Verify that `ceramicCardClasses`, `liquidCardClasses`, and `getCardClasses` are implemented:
 
 ```typescript
-import { cn } from "@/lib/utils";
-
 export const ceramicCardClasses = "bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-white/50";
 
 export const liquidCardClasses = "bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-[0_0_15px_-3px_rgba(15,212,200,0.1)] bg-gradient-to-b from-white/5 to-transparent";
@@ -72,293 +42,454 @@ export const getCardClasses = (isDark: boolean, readingSurface?: boolean) => {
 };
 ```
 
-### Step 3: Update Card Component
+**Status**: ✅ Already implemented
 
-**File**: `frontend/components/ui/card.tsx`
+---
 
-Update the Card component to support variants:
-
-```typescript
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { useTheme } from "next-themes"
-import { getCardClasses } from "@/components/design-system/tokens"
-
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "ceramic" | "liquid-crystal" | "default";
-  readingSurface?: boolean;
-}
-
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, readingSurface, ...props }, ref) => {
-    const { theme } = useTheme();
-    const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    
-    const cardClasses = readingSurface
-      ? "bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-white/10"
-      : variant === "ceramic"
-      ? "card-ceramic"
-      : variant === "liquid-crystal"
-      ? "card-liquid"
-      : getCardClasses(isDark, readingSurface);
-
-    return (
-      <div
-        ref={ref}
-        className={cn(cardClasses, className)}
-        {...props}
-      />
-    )
-  }
-)
-Card.displayName = "Card"
-
-// ... rest of Card sub-components remain unchanged
-```
-
-### Step 4: Migrate Homepage Cards to Standardized Tokens
-
-**File**: `frontend/app/[locale]/page.tsx`
-
-**IMPORTANT**: Per clarification, homepage cards MUST migrate to use Liquid Crystal (dark) / Ceramic (light) design tokens to maintain consistency with the global application style.
-
-Update all Card components on the homepage to use the standardized tokens:
-
-```typescript
-// Before (custom glassmorphism):
-<Card className="rounded-2xl border-white/10 bg-white/5 text-white shadow-sm backdrop-blur">
-
-// After (standardized Liquid Crystal token):
-<Card variant="liquid-crystal" className="rounded-2xl text-white">
-  {/* Card content */}
-</Card>
-
-// Or let it auto-detect from theme:
-<Card className="rounded-2xl text-white">
-  {/* Card content - automatically uses Liquid Crystal in dark mode, Ceramic in light mode */}
-</Card>
-```
-
-**Migration Checklist**:
-- [ ] Hero section card (Delivery Signals) - migrate to Liquid Crystal token
-- [ ] Service cards in Bento Grid - migrate to Liquid Crystal/Ceramic tokens
-- [ ] Stats cards - migrate to Liquid Crystal/Ceramic tokens
-- [ ] All cards maintain glassmorphism aesthetic through standardized tokens
-- [ ] Verify cards work correctly in both light and dark modes
-
-### Step 5: Update Input Component
-
-**File**: `frontend/components/ui/input.tsx`
-
-Update to support inset variant:
-
-```typescript
-import * as React from "react"
-import { cn } from "@/lib/utils"
-
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  variant?: "inset" | "default";
-}
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, variant = "inset", ...props }, ref) => {
-    const inputClasses = variant === "inset" 
-      ? "input-inset"
-      : "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
-
-    return (
-      <input
-        type={type}
-        className={cn(inputClasses, className)}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Input.displayName = "Input"
-
-export { Input }
-```
-
-### Step 6: Update Button Component
-
-**File**: `frontend/components/ui/button.tsx`
-
-Update primary button hover to scale down:
-
-```typescript
-// In the button variants, update primary:
-const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        primary: "bg-gradient-to-r from-teal-500 to-emerald-500 text-primary-foreground shadow-[0_0_20px_-5px_#0FD4C8] hover:brightness-110 active:scale-95",
-        // ... other variants
-      },
-    },
-  }
-)
-```
-
-### Step 7: Create Layout Component
-
-**File**: `frontend/components/layout/Layout.tsx` (new file)
-
-```typescript
-"use client"
-
-import { ReactNode } from "react"
-import { cn } from "@/lib/utils"
-
-interface LayoutProps {
-  children: ReactNode;
-  isLanding?: boolean;
-  contentMaxWidth?: string;
-}
-
-export function Layout({ 
-  children, 
-  isLanding = false,
-  contentMaxWidth 
-}: LayoutProps) {
-  const containerClasses = isLanding
-    ? "" // Float layout - no max-width constraint
-    : cn("mx-auto px-4 sm:px-6", contentMaxWidth || "max-w-5xl");
-
-  return (
-    <div className="relative min-h-screen bg-background text-foreground transition-colors duration-300">
-      {/* Global Background Effects (Fixed) */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[128px]" />
-        <div className="absolute bottom-0 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-[128px]" />
-      </div>
-
-      {/* Main Content Area */}
-      <main className={cn("relative z-10 pt-20", containerClasses)}>
-        {children}
-      </main>
-    </div>
-  );
-}
-```
-
-### Step 8: Update Locale Layout
-
-**File**: `frontend/app/[locale]/layout.tsx`
-
-Update to use new Layout component for content pages:
-
-```typescript
-// Add import
-import { Layout } from "@/components/layout/Layout";
-
-// In the return, wrap children conditionally:
-// For landing page (page.tsx), use existing structure
-// For content pages, use Layout component
-
-// Example for blog page:
-<Layout isLanding={false}>
-  <article className="reading-surface rounded-2xl p-8">
-    {children}
-  </article>
-</Layout>
-```
-
-### Step 9: Create Badge Component
-
-**File**: `frontend/components/ui/badge.tsx` (new file)
-
-```typescript
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
-
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors",
-  {
-    variants: {
-      color: {
-        orange: "border-orange-500/20 text-orange-600 bg-orange-500/5",
-        cyan: "border-cyan-500/20 text-cyan-600 bg-cyan-500/5",
-        green: "border-green-500/20 text-green-600 bg-green-500/5",
-        red: "border-red-500/20 text-red-600 bg-red-500/5",
-        blue: "border-blue-500/20 text-blue-600 bg-blue-500/5",
-      },
-    },
-    defaultVariants: {
-      color: "blue",
-    },
-  }
-)
-
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, color, ...props }: BadgeProps) {
-  return (
-    <span className={cn(badgeVariants({ color }), className)} {...props} />
-  )
-}
-
-export { Badge, badgeVariants }
-```
-
-### Step 10: Update Typography in Content Pages
-
-**File**: `frontend/app/[locale]/blog/[slug]/page.tsx` (example)
-
-Apply typography hierarchy:
-
-```typescript
-<article className="reading-surface rounded-2xl p-8">
-  <h1 className="text-4xl font-bold text-foreground mb-4">
-    {/* H1 can have gradients */}
-  </h1>
-  <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-4">
-    {/* H2-H6: solid colors only */}
-  </h2>
-  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-    {/* Body text with reduced contrast */}
-  </p>
-</article>
-```
-
-### Step 11: Update Link Styling
+### Step 1.2: Verify CSS Classes in globals.css
 
 **File**: `frontend/app/globals.css`
 
-Add prose link styling:
+Verify that design token CSS classes are defined:
 
-```css
-/* Prose Links */
-.prose a {
-  @apply border-b border-teal-500/30 text-teal-600 dark:text-teal-400 hover:border-teal-500 transition-colors;
+- `.card-ceramic`
+- `.card-liquid` (with `@supports` fallback)
+- `.input-inset`
+- `.reading-surface`
+- `.prose a` (for prose links)
+
+**Status**: ✅ Already implemented
+
+---
+
+## Phase 2: Component Updates
+
+### Step 2.1: Update Card Component
+
+**File**: `frontend/components/ui/card.tsx`
+
+**Changes Required**:
+1. ✅ Already uses `useTheme()` for SSR-safe theme detection
+2. ✅ Already supports `variant` and `readingSurface` props
+3. ✅ Already uses `getCardClasses` utility
+
+**Status**: ✅ Already implemented
+
+---
+
+### Step 2.2: Update Input Component
+
+**File**: `frontend/components/ui/input.tsx`
+
+**Changes Required**:
+1. ✅ Already supports `variant="inset"` as default
+2. ✅ Already applies `input-inset` class
+3. ✅ Already has enhanced focus states
+
+**Status**: ✅ Already implemented
+
+---
+
+### Step 2.3: Update Textarea Component
+
+**File**: `frontend/components/ui/textarea.tsx`
+
+**Changes Required**:
+1. ✅ Already applies `input-inset` styling
+2. ✅ Already has enhanced focus states
+
+**Status**: ✅ Already implemented
+
+---
+
+### Step 2.4: Update Button Component
+
+**File**: `frontend/components/ui/button.tsx`
+
+**Changes Required**:
+1. ✅ Already has `variant="primary"` with gradient styling
+2. ✅ Already has tactile hover feedback (`scale-95`)
+
+**Status**: ✅ Already implemented
+
+---
+
+## Phase 3: Animation Components
+
+### Step 3.1: Create TypewriterEffect Component
+
+**File**: `frontend/components/animations/TypewriterEffect.tsx`
+
+**Implementation**:
+```typescript
+"use client"
+
+import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
+
+interface TypewriterEffectProps {
+  text: string;
+  delay?: number;
+  onComplete?: () => void;
+  className?: string;
+}
+
+export function TypewriterEffect({ 
+  text, 
+  delay = 50, 
+  onComplete,
+  className 
+}: TypewriterEffectProps) {
+  const [displayedText, setDisplayedText] = useState("")
+  const [isComplete, setIsComplete] = useState(false)
+
+  useEffect(() => {
+    if (displayedText.length < text.length) {
+      const timer = setTimeout(() => {
+        setDisplayedText(text.slice(0, displayedText.length + 1))
+      }, delay)
+      return () => clearTimeout(timer)
+    } else if (!isComplete) {
+      setIsComplete(true)
+      onComplete?.()
+    }
+  }, [displayedText, text, delay, isComplete, onComplete])
+
+  // Respect prefers-reduced-motion
+  const prefersReducedMotion = typeof window !== "undefined" 
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches 
+    : false
+
+  if (prefersReducedMotion) {
+    return <span className={className}>{text}</span>
+  }
+
+  return (
+    <motion.span
+      className={cn("inline-block", className)}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      {displayedText}
+      {!isComplete && <span className="animate-pulse">|</span>}
+    </motion.span>
+  )
 }
 ```
 
-## Testing Checklist
+**Status**: ⏳ TODO
 
-- [ ] **Homepage cards migrated to standardized tokens** (Liquid Crystal/Ceramic)
-- [ ] Cards render correctly in light mode (Ceramic)
-- [ ] Cards render correctly in dark mode (Liquid Crystal)
-- [ ] Reading surfaces are opaque (95%+) in dark mode
-- [ ] Inputs have inset/engraved appearance
-- [ ] Buttons scale down on hover (not up)
-- [ ] Layout component switches between float/anchored modes
-- [ ] WCAG AA contrast ratios pass validation
-- [ ] Backdrop-blur fallback works in unsupported browsers
-- [ ] Theme switching works smoothly
-- [ ] Typography hierarchy is consistent
+---
 
-## Next Steps
+### Step 3.2: Create CounterAnimation Component
 
-After implementation:
-1. Test on multiple devices and browsers
-2. Validate WCAG AA contrast compliance
-3. Test theme switching
-4. Verify PageSpeed scores remain 95+
-5. Update existing pages to use new components
+**File**: `frontend/components/animations/CounterAnimation.tsx`
+
+**Implementation**:
+```typescript
+"use client"
+
+import { motion, useMotionValue, useTransform, animate } from "framer-motion"
+import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
+
+interface CounterAnimationProps {
+  value: number;
+  duration?: number;
+  format?: (value: number) => string;
+  className?: string;
+}
+
+export function CounterAnimation({ 
+  value, 
+  duration = 1.5,
+  format = (v) => v.toString(),
+  className 
+}: CounterAnimationProps) {
+  const count = useMotionValue(0)
+  const rounded = useTransform(count, (latest) => Math.round(latest))
+  const [displayValue, setDisplayValue] = useState(0)
+
+  useEffect(() => {
+    const controls = animate(count, value, { duration })
+    return controls.stop
+  }, [count, value, duration])
+
+  useEffect(() => {
+    const unsubscribe = rounded.on("change", (latest) => {
+      setDisplayValue(latest)
+    })
+    return unsubscribe
+  }, [rounded])
+
+  // Respect prefers-reduced-motion
+  const prefersReducedMotion = typeof window !== "undefined" 
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches 
+    : false
+
+  if (prefersReducedMotion) {
+    return <span className={className}>{format(value)}</span>
+  }
+
+  return (
+    <motion.span className={cn("inline-block", className)}>
+      {format(displayValue)}
+    </motion.span>
+  )
+}
+```
+
+**Status**: ⏳ TODO
+
+---
+
+### Step 3.3: Create StaggeredScroll Component
+
+**File**: `frontend/components/animations/StaggeredScroll.tsx`
+
+**Implementation**:
+```typescript
+"use client"
+
+import { motion } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
+import { cn } from "@/lib/utils"
+
+interface StaggeredScrollProps {
+  children: React.ReactNode;
+  staggerDelay?: number;
+  className?: string;
+}
+
+export function StaggeredScroll({ 
+  children, 
+  staggerDelay = 0.1,
+  className 
+}: StaggeredScrollProps) {
+  const [isVisible, setIsVisible] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current)
+      }
+    }
+  }, [])
+
+  // Respect prefers-reduced-motion
+  const prefersReducedMotion = typeof window !== "undefined" 
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches 
+    : false
+
+  if (prefersReducedMotion || !isVisible) {
+    return <div className={className}>{children}</div>
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      className={cn(className)}
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: {
+          transition: {
+            staggerChildren: staggerDelay
+          }
+        }
+      }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+```
+
+**Status**: ⏳ TODO
+
+---
+
+### Step 3.4: Create ParallaxImage Component
+
+**File**: `frontend/components/animations/ParallaxImage.tsx`
+
+**Implementation**:
+```typescript
+"use client"
+
+import { motion, useScroll, useTransform } from "framer-motion"
+import Image, { ImageProps } from "next/image"
+import { useRef } from "react"
+import { cn } from "@/lib/utils"
+
+interface ParallaxImageProps extends Omit<ImageProps, "ref"> {
+  intensity?: number;
+}
+
+export function ParallaxImage({ 
+  intensity = 0.5,
+  className,
+  ...props 
+}: ParallaxImageProps) {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, -100 * intensity])
+
+  // Respect prefers-reduced-motion
+  const prefersReducedMotion = typeof window !== "undefined" 
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches 
+    : false
+
+  if (prefersReducedMotion) {
+    return (
+      <div className={cn("relative", className)}>
+        <Image {...props} />
+      </div>
+    )
+  }
+
+  return (
+    <div ref={ref} className={cn("relative overflow-hidden", className)}>
+      <motion.div style={{ y }}>
+        <Image {...props} />
+      </motion.div>
+    </div>
+  )
+}
+```
+
+**Status**: ⏳ TODO
+
+---
+
+## Phase 4: Homepage Enhancements
+
+### Step 4.1: Extract Hero Section Component
+
+**File**: `frontend/components/home/HeroSection.tsx`
+
+**Tasks**:
+1. Extract hero section from `page.tsx` to separate component
+2. Add typewriter effect to code block
+3. Add counter animations to Stats metrics
+4. Add aurora rotation animation
+5. Add scroll behavior (scale + sticky)
+
+**Status**: ⏳ TODO
+
+---
+
+### Step 4.2: Extract Stack Section Component
+
+**File**: `frontend/components/home/StackSection.tsx`
+
+**Tasks**:
+1. Extract Stack section from `page.tsx` to separate component
+2. Add technology categories with color coding
+3. Add tooltips with application descriptions
+4. Add pause/play button for marquee
+5. Add statistics count display
+
+**Status**: ⏳ TODO
+
+---
+
+### Step 4.3: Extract Services Grid Component
+
+**File**: `frontend/components/home/ServicesGrid.tsx`
+
+**Tasks**:
+1. Extract Services section from `page.tsx` to separate component
+2. Wrap Service cards with StaggeredScroll component
+3. Add typewriter effect to Service Card 1 code block
+
+**Status**: ⏳ TODO
+
+---
+
+### Step 4.4: Enhance Featured Projects
+
+**File**: `frontend/components/portfolio/ProjectCard.tsx`
+
+**Tasks**:
+1. Add terminal-style metrics to footer
+2. Add code preview on hover
+3. Replace Image with ParallaxImage component
+
+**Status**: ⏳ TODO
+
+---
+
+### Step 4.5: Enhance ContactForm
+
+**File**: `frontend/components/forms/ContactForm.tsx`
+
+**Tasks**:
+1. Add trust indicators section
+2. Add alternative contact methods (email, Telegram)
+3. Ensure progressive enhancement (native form fallback)
+
+**Status**: ⏳ TODO
+
+---
+
+## Phase 5: Testing & Validation
+
+### Step 5.1: Visual Testing
+
+- [ ] Test all animations in both light and dark modes
+- [ ] Verify prefers-reduced-motion support
+- [ ] Test on mobile devices
+- [ ] Verify WCAG AA contrast ratios
+
+### Step 5.2: Performance Testing
+
+- [ ] Verify PageSpeed scores remain 95+
+- [ ] Test lazy loading with intersection observer
+- [ ] Verify GPU-accelerated animations (60fps)
+- [ ] Test form submission without JavaScript
+
+### Step 5.3: Accessibility Testing
+
+- [ ] Test keyboard navigation
+- [ ] Test with screen reader
+- [ ] Verify ARIA labels
+- [ ] Test pause/play button functionality
+
+---
+
+## Implementation Order
+
+1. ✅ Design tokens (already implemented)
+2. ✅ Component updates (already implemented)
+3. ⏳ Animation components (create new components)
+4. ⏳ Homepage enhancements (extract and enhance sections)
+5. ⏳ Testing & validation
+
+---
+
+## Notes
+
+- All new components should be client components (`"use client"`)
+- All text content should use i18n keys (next-intl)
+- All animations must respect `prefers-reduced-motion`
+- All components should maintain existing functionality while adding enhancements

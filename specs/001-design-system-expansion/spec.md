@@ -10,6 +10,11 @@
 ### Session 2025-01-27
 
 - Q: Should homepage cards use the new standardized design tokens (Ceramic/Liquid Crystal) or maintain their current custom glassmorphism implementation? → A: Homepage cards MUST migrate to use Liquid Crystal (dark mode) / Ceramic (light mode) design tokens to ensure consistency with the global application style per constitution requirements, while maintaining the glassmorphism aesthetic through the standardized tokens.
+- Q: Should homepage implement all animations from homepage-architecture.md (typewriter effects, staggered scroll animations, counter animations, aurora rotation, marquee pause on hover, tooltips) or only critical ones? → A: All animations from homepage-architecture.md MUST be implemented: typewriter effects for code blocks, staggered scroll animations for Service cards, counter animations for Stats metrics, aurora rotation animation, marquee pause on hover, and tooltips for tech badges to fully align with the architectural vision.
+- Q: Should Featured Projects section implement terminal-style metrics, code preview on hover, and parallax effects on images as described in homepage-architecture.md? → A: All visual elements from homepage-architecture.md MUST be implemented for Featured Projects: terminal-style metrics in footer (e.g., `$ lighthouse --score 100`), code preview on hover showing project code fragments, and parallax effects on project images during scroll to fully align with the architectural vision.
+- Q: Should Stack Section implement technology categories with color coding, tooltips with application descriptions, separators, and statistics count as described in homepage-architecture.md? → A: All elements from homepage-architecture.md MUST be implemented for Stack Section: technology categories (Frontend, Backend, Tools) with color coding, tooltips on hover showing application (e.g., "Next.js: SSR, SEO, Performance"), optional separators between categories, and statistics count (e.g., "15+ технологий в стеке") below marquee to fully align with the architectural vision.
+- Q: Should Hero section implement scroll behavior (scale 0.98 + sticky on 100vh), trust indicators in ContactForm ("Обычно отвечаю в течение 24 часов", "Конфиденциально и безопасно"), and progressive enhancement (form works without JS) as described in homepage-architecture.md? → A: All elements from homepage-architecture.md MUST be implemented: Hero section scroll behavior with scale transformation and sticky positioning, trust indicators in ContactForm section, and progressive enhancement ensuring form functionality without JavaScript to fully align with the architectural vision.
+- Q: Should homepage implement accessibility features (pause/play button for animations, prefers-reduced-motion support) and performance optimizations (lazy loading images with intersection observer, alternative contact methods) as described in homepage-architecture.md? → A: All accessibility and performance features from homepage-architecture.md MUST be implemented: pause/play button for marquee animations, respect for prefers-reduced-motion media query, lazy loading images with intersection observer and placeholder skeletons, and alternative contact methods (email, Telegram) displayed alongside ContactForm to fully align with the architectural vision.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -88,6 +93,24 @@ As a visitor filling out the contact form, I need form inputs to feel integrated
 - **FR-012**: System MUST apply consistent badge/tag styling using the "Traffic Light" color system (transparent background + colored border + colored text) across all content types
 - **FR-013**: System MUST ensure glassmorphism effects are reserved for floating UI elements (navigation, sidebars, CTAs) only, not main content reading areas
 - **FR-014**: System MUST maintain global background effects (auroras/blobs) as fixed elements that persist across route changes without interfering with content readability
+- **FR-015**: System MUST implement typewriter effects for code blocks in Hero section and Service Card 1, with sequential appearance of code lines (delay 0.3s per line)
+- **FR-016**: System MUST implement staggered scroll animations for Service cards using intersection observer, with cards appearing sequentially (delay 0.1s per card) on scroll
+- **FR-017**: System MUST implement counter animations for Stats metrics (Lighthouse, SEO, Uptime) that animate from 0 to target value
+- **FR-018**: System MUST implement aurora background rotation animation (rotate-45 animate-spin, duration 20s) for subtle movement
+- **FR-019**: System MUST implement marquee pause on hover functionality (animation-play-state: paused) for Stack section
+- **FR-020**: System MUST implement tooltips for tech badges in Stack section showing application descriptions (e.g., "Next.js: SSR, SEO, Performance") on hover
+- **FR-021**: System MUST implement terminal-style metrics in Featured Projects card footers (e.g., `$ lighthouse --score 100`, `$ conversion-rate 4.2%`, `$ roi +180%`)
+- **FR-022**: System MUST implement code preview on hover for Featured Projects cards, showing project code fragments
+- **FR-023**: System MUST implement parallax effects on Featured Projects images during scroll
+- **FR-024**: System MUST implement technology categories (Frontend, Backend, Tools) with color coding in Stack section
+- **FR-025**: System MUST implement statistics count display (e.g., "15+ технологий в стеке") below Stack marquee
+- **FR-026**: System MUST implement Hero section scroll behavior with scale transformation (scale 0.98) and sticky positioning (sticky on 100vh) on scroll
+- **FR-027**: System MUST implement trust indicators in ContactForm section ("Обычно отвечаю в течение 24 часов", "Конфиденциально и безопасно")
+- **FR-028**: System MUST implement progressive enhancement for ContactForm ensuring functionality without JavaScript (fallback to native form submission)
+- **FR-029**: System MUST implement pause/play button for marquee animations to allow users to control animation playback
+- **FR-030**: System MUST respect prefers-reduced-motion media query for all animations, disabling or reducing motion when user preference is set
+- **FR-031**: System MUST implement lazy loading for images using intersection observer with placeholder skeletons
+- **FR-032**: System MUST display alternative contact methods (email, Telegram) alongside ContactForm
 
 ### Key Entities *(include if feature involves data)*
 
@@ -107,6 +130,11 @@ As a visitor filling out the contact form, I need form inputs to feel integrated
 - **SC-006**: Background effects (auroras/blobs) remain visually present but non-intrusive, with zero user reports of background elements interfering with content readability
 - **SC-007**: Typography hierarchy is clearly distinguishable with consistent heading styles, achieving 100% compliance with defined color and gradient rules (headings solid, gradients only for hero H1)
 - **SC-008**: Interactive elements (buttons, links) provide clear visual feedback with hover states that feel responsive and intentional, achieving 90%+ positive user feedback on interaction quality
+- **SC-009**: All animations from homepage-architecture.md are implemented and functional: typewriter effects, staggered scroll animations, counter animations, aurora rotation, marquee pause on hover, tooltips
+- **SC-010**: Featured Projects section displays terminal-style metrics, code preview on hover, and parallax effects as specified in homepage-architecture.md
+- **SC-011**: Stack section displays technology categories with color coding, tooltips with application descriptions, and statistics count
+- **SC-012**: Hero section implements scroll behavior (scale + sticky), ContactForm displays trust indicators, and form works without JavaScript (progressive enhancement)
+- **SC-013**: Accessibility features are implemented: pause/play button for animations, prefers-reduced-motion support, lazy loading with intersection observer, alternative contact methods displayed
 
 ## Assumptions
 
@@ -117,6 +145,10 @@ As a visitor filling out the contact form, I need form inputs to feel integrated
 - The site supports both light and dark mode themes that users can switch between
 - Background effects (auroras/blobs) are rendered as fixed elements that persist across navigation
 - The "Traffic Light" badge system (orange for Bitrix, cyan for React, etc.) is already defined and should be consistently applied
+- Homepage MUST fully align with homepage-architecture.md specification, implementing all animations, visual elements, interactive features, accessibility optimizations, and performance enhancements described in the architectural document
+- Framer Motion library is available for implementing complex animations (typewriter, staggered scroll, parallax)
+- Intersection Observer API is available for scroll-triggered animations and lazy loading
+- Project data includes metrics (Lighthouse scores, conversion rates, ROI) that can be displayed in terminal-style format
 
 ## Dependencies
 
@@ -128,8 +160,7 @@ As a visitor filling out the contact form, I need form inputs to feel integrated
 
 ## Out of Scope
 
-- Redesigning the homepage (only expanding the system to support new pages)
 - Creating new content for blog or case studies (only establishing the design system to support them)
-- Implementing new functionality or features (only visual design system expansion)
-- Accessibility features beyond contrast and readability (screen reader optimization, keyboard navigation improvements are separate concerns)
-- Performance optimization of background effects (assumed to be handled separately)
+- Screen reader optimization beyond basic semantic structures (keyboard navigation improvements are separate concerns)
+- Performance optimization of background effects beyond lazy loading (assumed to be handled separately)
+- Backend API changes for form submission (progressive enhancement uses existing form action)
