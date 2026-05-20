@@ -1,58 +1,62 @@
 # butakov.dev
 
-Личный сайт-лендинг ИП Бутакова Александра — технического партнёра для B2B.
+Персональный сайт **Александра Бутакова** — независимого IT-консультанта и разработчика веб-приложений для B2B.
 
-## Стек
+🌐 **[butakov.dev](https://butakov.dev)** · 📩 hello@butakov.dev · 💬 [Telegram](https://t.me/SashaBooth)
 
-- React 19 + Vite 8
-- Tailwind CSS v4
-- Zod (валидация форм)
-- clsx (условные классы)
-- Web3Forms (отправка заявок)
-- Яндекс Метрика
-- vite-imagetools (WebP/AVIF)
+---
 
-## Архитектура
+## Чем занимаюсь
 
-```
-src/
-├── features/      # бизнес-фичи (contact, cases, blog)
-├── sections/      # секции страницы
-├── components/ui/ # атомарные UI-компоненты (Modal, Slider, LogoImage, ContentImage)
-├── data/          # статические данные
-├── config/        # конфиги (social links)
-└── utils/         # утилиты
-```
+- Разработка сложных веб-сервисов и SaaS на **Django + Next.js**
+- Интернет-магазины на **1С-Битрикс** с интеграцией 1С:УТ
+- **Digital-маркетинг и Яндекс Директ** — сквозная аналитика, воронки, KPI
+- Корпоративные сайты на **WordPress**
+- **ИИ-консалтинг** — внедрение LLM и нейросетей в бизнес-процессы
 
-## Команды
+Работаю официально: договор, NDA, ЭДО. Гарантия 6 месяцев.
 
-```bash
-npm run dev      # dev-сервер
-npm run build    # production-сборка
-npm run preview  # preview сборки
-npm run lint     # ESLint
-npm run images   # конвертация public/*.png → WebP + AVIF
-```
+---
 
-## Деплой
+## Архитектура проекта
 
-```bash
-bash ../deploy.sh   # build + rsync на сервер
-```
+Сайт построен по корпоративным стандартам разработки 2026 года.
 
-SSH alias: `butakov` → `c500811@h65.netangels.ru`
+**Стек:** React 19, Vite 8, Tailwind CSS v4, Zod, clsx
 
-## Переменные окружения
+**Принципы:**
 
-Скопируй `.env.example` → `.env` и заполни:
+- **Feature-Sliced Design** — код разбит по бизнес-фичам, а не по типам файлов
+- **BEM-компоненты** — изолированные блоки без внешних зависимостей
+- **Zod-валидация** — все данные форм и ответы внешних API проверяются схемами
+- **Conventional Commits** — атомарные коммиты с автоматической валидацией через commitlint
+- **Git Hooks** — pre-commit: ESLint + Prettier, commit-msg: commitlint
 
-```
-VITE_WEB3FORMS_KEY=your_key_here
-```
+**SEO и производительность:**
 
-## Git
+- Schema.org JSON-LD: `ProfessionalService`, `Person`, `FAQPage`, `hasOfferCatalog`
+- Полный NAP для LocalBusiness, `sameAs` для Knowledge Graph
+- Conversational H2/H3 под голосовой и ИИ-поиск
+- Локальный шрифт Geist (woff2) с `font-display: swap` и `<link rel="preload">` — без Google Fonts
+- Изображения в WebP + AVIF через `<picture>` (−58% к размеру vs PNG)
+- Lazy-загрузка модальных окон (`React.lazy`) — меньше JS при старте
+- `fetchpriority="high"` на LCP-элементе
 
-Conventional Commits + Trunk-Based Development. Хуки (husky):
+---
 
-- `pre-commit` → lint-staged (ESLint + Prettier)
-- `commit-msg` → commitlint (Conventional Commits)
+## Собственные проекты
+
+### [PromptSpace.ru](https://promptspace.ru)
+
+Маркетплейс монетизации AI-промптов. Спроектирован и запущен с нуля.
+
+**Стек:** Next.js 15 SSR · Django Ninja REST · PostgreSQL + pgvector · HashiCorp Vault
+
+Реализовано: семантический поиск, Envelope-шифрование (152-ФЗ), автоматическое расщепление платежей между платформой и авторами.
+
+---
+
+## Реквизиты
+
+**ИП Бутаков Александр Сергеевич**  
+ИНН: 667011271708 · ОГРНИП: 326965800043687
