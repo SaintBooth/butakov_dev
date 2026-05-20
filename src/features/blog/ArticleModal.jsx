@@ -1,5 +1,6 @@
 import { X, ArrowRight } from 'lucide-react';
 import Modal from '../../components/ui/Modal/Modal.jsx';
+import { LogoImage } from '../../components/ui/LogoImage/LogoImage.jsx';
 
 export default function ArticleModal({ post, onClose, onContactClick }) {
   return (
@@ -18,7 +19,7 @@ export default function ArticleModal({ post, onClose, onContactClick }) {
         </div>
         <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-white shadow-md overflow-hidden mb-4">
-            <img src="butakov-01.png" alt="Александр Бутаков" width="64" height="64" className="w-full h-full object-cover p-2 bg-slate-900" />
+            <LogoImage width={64} height={64} className="w-full h-full object-cover p-2 bg-slate-900" />
           </div>
           <h4 className="font-bold text-slate-900">Александр Бутаков</h4>
           <p className="text-sm text-slate-500 font-medium mb-6">Независимый IT-консультант</p>

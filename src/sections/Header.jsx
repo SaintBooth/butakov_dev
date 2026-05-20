@@ -1,4 +1,5 @@
 import { MessageSquare } from 'lucide-react';
+import { LogoImage } from '../components/ui/LogoImage/LogoImage.jsx';
 
 export default function Header({ onContactClick }) {
   return (
@@ -12,12 +13,10 @@ export default function Header({ onContactClick }) {
             tabIndex={0}
             aria-label="Наверх"
           >
-            <img
-              src="butakov-01.png"
-              alt="Александр Бутаков"
-              width="180"
-              height="48"
-              fetchpriority="high"
+            <LogoImage
+              width={180}
+              height={48}
+              priority
               className="h-8 md:h-12 w-auto object-contain"
             />
           </div>
