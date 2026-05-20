@@ -9,7 +9,12 @@
 - AI consulting — LLM and neural network integration
 
 ## Engineering Cases
-(cases coming soon)
+- Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms)
+- High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed)
+- Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability)
+- Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss (97% RAM freed)
+- SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops (+14% form conversion)
+- WordPress Recovery After Fatal Error During PHP 8.3 Migration (Uptime 99.99%)
 
 ## Contact
 - Telegram: https://t.me/SashaBooth

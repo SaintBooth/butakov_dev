@@ -1,0 +1,61 @@
+---
+title: "Cache Warmup Architecture for a 200k SKU Catalog"
+date: "2024-06-01"
+tags: ["1C Bitrix", "Bash", "Redis"]
+metric: "Server response 190ms"
+excerpt: "Background cache regeneration system after heavy DB updates — no server overload, no manual reset."
+---
+
+## Problem
+
+Page generation time without cache hit reached **2524ms**. PHP process startup, session init, and dozens of DB queries for filter assembly — on aggressive crawling, free workers ran out instantly, CPU hit 100%. Full catalog warmup with standard tools would take dozens of hours and bring the service down.
+
+## Solution
+
+PHP script for SEO module table cleanup and tagged cache reset:
+
+```php
+<?php
+define("NO_KEEP_STATISTIC", true);
+define("NOT_CHECK_PERMISSIONS", true);
+$_SERVER["DOCUMENT_ROOT"] = __DIR__;
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+
+if (\Bitrix\Main\Loader::includeModule('seo.module')) {
+    \Seo\Module\Models\CacheTable::clearCache();
+    $GLOBALS['CACHE_MANAGER']->ClearByTag('seo_module');
+    echo "Cache cleared.\n";
+}
+```
+
+Bash warmup script: parses sitemap, filters 7329 URLs down to 318 target category sections, warms with throttling:
+
+```bash
+#!/bin/bash
+SITE="https://client-site.com"
+DOCROOT="/var/www/client/data/www/client-site.com"
+
+php -f $DOCROOT/clear_seo.php
+
+SEO_URLS=$(curl -s $SITE/seo-sitemap/sitemap-1.xml | grep -oP '(?<=<loc>).*?(?=</loc>)')
+IBLOCK_MAPS=$(curl -s $SITE/sitemap.xml | grep -oP '(?<=<loc>).*?(?=</loc>)' | grep 'sitemap-iblock')
+SECTION_URLS=$(echo "$IBLOCK_MAPS" | xargs -I {} curl -s {} | grep -oP '(?<=<loc>).*?(?=</loc>)' | sed 's#[^/]*/*$##' | sort | uniq)
+
+ALL_URLS=$(echo -e "$SEO_URLS\n$SECTION_URLS" | grep "http" | sort | uniq)
+echo "$ALL_URLS" > /tmp/warmup_urls.txt
+wget -q --spider -i /tmp/warmup_urls.txt --wait=1 --random-wait
+rm -f /tmp/warmup_urls.txt
+```
+
+Scheduled via cron at DB idle window (after price import completes):
+
+```bash
+30 11 * * * /var/www/client/data/www/client-site.com/safe_warmup.sh
+```
+
+## Result
+
+- Response time dropped to **190ms**
+- CPU spikes fully eliminated
+- SEO meta tags 100% fresh for crawlers
+- Manual cache reset routine eliminated

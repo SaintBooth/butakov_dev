@@ -1,0 +1,37 @@
+---
+title: "Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss"
+date: "2024-01-20"
+tags: ["Bitrix", "Redis", "Bash"]
+metric: "97% RAM freed"
+excerpt: "Targeted managed cache cleanup in background with page prerender — eliminated OOM risk without losing user sessions."
+---
+
+## Problem
+
+The Bitrix project hit hardware hosting limits. Redis consumed 977MB of the available 1GB. `INFO memory` showed critical fill. LRU eviction policy couldn't handle the tag write intensity. Standard admin response: `FLUSHDB` — which destroys all user session keys, instantly logs out users, and clears shopping carts. First morning request to cold cache caused 10-second page generation waits.
+
+## Solution
+
+Redis `--bigkeys` audit revealed the cause: 84% of keys were stale tag sets. Instead of full flush, wrote a bash script for mask-based key lookup and async deletion via `UNLINK` (frees memory without blocking the main thread):
+
+```bash
+REDIS_CLI="/usr/bin/redis-cli"
+$REDIS_CLI --scan --pattern '*IL:*' | xargs -L 100 $REDIS_CLI unlink
+$REDIS_CLI --scan --pattern '*domain.com/public_html*' | xargs -L 100 $REDIS_CLI unlink
+```
+
+Scheduled via cron during minimum load hours. Added cache warmup module — server reads sitemap and requests target URLs via curl before real visitors arrive:
+
+```bash
+urls=$(curl -s https://domain.com/sitemap.xml | grep -oP '(?<=<loc>).*?(?=</loc>)' | head -n 10)
+for url in $urls; do
+  curl -s -L -o /dev/null "$url"
+done
+```
+
+## Result
+
+- **97% RAM freed** — consumption dropped from 688MB to 19MB
+- User sessions fully preserved during cleanup
+- Server response for first visitors reduced to milliseconds
+- Stayed on current hosting tier — no hardware upgrade needed

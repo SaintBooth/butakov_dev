@@ -1,0 +1,35 @@
+---
+title: "WordPress Recovery After Fatal Error During PHP 8.3 Migration"
+date: "2023-11-10"
+tags: ["WordPress", "PHP 8.3", "MySQL"]
+metric: "Uptime 99.99%"
+excerpt: "Emergency debug, plugin compatibility fixes and DB structure restoration after PHP version upgrade broke the site."
+---
+
+## Problem
+
+Frontend and admin panel were completely down. Server logs showed a fatal error in Really Simple SSL Pro plugin during license check. System generated hundreds of Deprecated warnings from other modules. After partial access restoration, Yoast SEO Premium tables were found missing — sitemap generation fully stopped.
+
+## Solution
+
+Restored admin access by renaming the broken plugin directory via filesystem. Disabled frontend warnings via core config:
+
+```php
+define( 'WP_DEBUG', false );
+ini_set( 'display_errors', 0 );
+```
+
+Updated CMS core and all extensions to PHP 8.3-compatible versions. For the Yoast SEO database error — the system couldn't find the indexable table:
+
+```sql
+SELECT * FROM yoast_wp_seo_models_indexable WHERE object_id = '1' AND object_type = 'user' LIMIT 1
+```
+
+Deactivation and reactivation triggered automatic migration — service tables were recreated and populated by the built-in optimization tool.
+
+## Result
+
+- Uptime restored to **99.99%**
+- Server response **+25%** from PHP 8.3 upgrade
+- DB errors **100% eliminated**
+- Organic traffic loss stopped
