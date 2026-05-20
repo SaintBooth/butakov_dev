@@ -22,13 +22,14 @@
 
 Сайт построен по корпоративным стандартам разработки 2026 года.
 
-**Стек:** React 19, Vite 8, Tailwind CSS v4, Zod, clsx
+**Стек:** React 19, TypeScript (strict), Vite 8, Tailwind CSS v4, Zod, clsx
 
 **Принципы:**
 
+- **TypeScript strict** — все компоненты, хуки и data-слой полностью типизированы, `tsc --noEmit` в CI
 - **Feature-Sliced Design** — код разбит по бизнес-фичам, а не по типам файлов
 - **BEM-компоненты** — изолированные блоки без внешних зависимостей
-- **Zod-валидация** — все данные форм и ответы внешних API проверяются схемами
+- **Zod-валидация** — все данные форм и ответы внешних API проверяются схемами; типы выводятся через `z.infer<>`
 - **Conventional Commits** — атомарные коммиты с автоматической валидацией через commitlint
 - **Git Hooks** — pre-commit: ESLint + Prettier, commit-msg: commitlint
 
