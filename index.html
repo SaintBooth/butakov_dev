@@ -12,21 +12,171 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://butakov.dev" />
     <meta property="og:image" content="https://butakov.dev/butakov-01.png" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://butakov.dev" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Schema.org: ProfessionalService + LocalBusiness -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "ProfessionalService",
+      "@type": ["ProfessionalService", "LocalBusiness"],
+      "@id": "https://butakov.dev/#business",
       "name": "ИП Бутаков Александр Сергеевич",
+      "alternateName": "butakov.dev",
       "url": "https://butakov.dev",
       "logo": "https://butakov.dev/butakov-01.png",
       "image": "https://butakov.dev/butakov-01.png",
-      "description": "Независимый IT-консультант и разработчик веб-приложений. Специализируюсь на Django, Next.js, 1C-Битрикс и внедрении ИИ.",
-      "knowsAbout": ["Разработка веб-приложений","1С-Битрикс","Интеграция 1С:УТ","Next.js","Django","Яндекс Директ","Внедрение ИИ и нейросетей","Web Analytics","SEO оптимизация"],
+      "description": "Независимый IT-консультант и разработчик веб-приложений. Специализируюсь на Django, Next.js, 1C-Битрикс, Яндекс Директ и внедрении ИИ в бизнес.",
       "priceRange": "₽₽₽",
-      "address": {"@type": "PostalAddress","addressCountry": "RU"}
+      "currenciesAccepted": "RUB",
+      "paymentAccepted": "Безналичный расчет, ЭДО",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Россия"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "RU"
+      },
+      "taxID": "667011271708",
+      "legalName": "ИП Бутаков Александр Сергеевич",
+      "knowsAbout": [
+        "Разработка веб-приложений",
+        "1С-Битрикс",
+        "Интеграция 1С:УТ",
+        "Next.js",
+        "Django",
+        "Яндекс Директ",
+        "Перфоманс-маркетинг",
+        "Внедрение ИИ и нейросетей",
+        "Web Analytics",
+        "SEO оптимизация"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Услуги IT-разработки и маркетинга",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Сложные веб-сервисы и стартапы",
+              "description": "Разработка кастомных платформ, SaaS, маркетплейсов и личных кабинетов на Django 5 и Next.js 15."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "E-commerce на 1С-Битрикс",
+              "description": "Разработка интернет-магазинов с синхронизацией 1С:УТ."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Digital-маркетинг и Яндекс Директ",
+              "description": "Настройка и ведение Яндекс Директ, сквозная аналитика, оптимизация воронки."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Корпоративные сайты на WordPress",
+              "description": "Быстрые SEO-оптимизированные корпоративные сайты."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "ИИ-консалтинг",
+              "description": "Внедрение LLM и нейросетей в бизнес-процессы."
+            }
+          }
+        ]
+      }
+    }
+    </script>
+
+    <!-- Schema.org: Person -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "@id": "https://butakov.dev/#person",
+      "name": "Александр Бутаков",
+      "jobTitle": "IT-консультант и разработчик веб-приложений",
+      "url": "https://butakov.dev",
+      "image": "https://butakov.dev/butakov-01.png",
+      "worksFor": {
+        "@id": "https://butakov.dev/#business"
+      },
+      "knowsAbout": ["Django", "Next.js", "React", "1С-Битрикс", "Яндекс Директ", "ИИ-консалтинг", "SEO"],
+      "description": "Технический партнер для B2B. 10+ лет опыта в разработке, e-commerce и digital-маркетинге."
+    }
+    </script>
+
+    <!-- Schema.org: FAQPage (B2B-гарантии и процесс) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Работаете ли вы по официальному договору?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Работаю по договору, подписываю NDA. Предоставляю все закрывающие документы и чеки, принимаю безналичный расчет через ЭДО. ИП Бутаков А.С., ИНН 667011271708."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Какая гарантия на разработку?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "6 месяцев бесплатной технической поддержки. Если после сдачи проекта обнаружится баг — исправлю его бесплатно."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Почему работать с вами выгоднее, чем со студией?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Я работаю один и использую ИИ-инструменты для ускорения рутины. Вы не оплачиваете раздутый штат менеджеров и получаете прямой доступ к исполнителю. Скорость — как у команды, цена — как у фрилансера."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Как начать сотрудничество?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Три шага: 1) Оставьте заявку с описанием задачи. 2) Я подготовлю смету и roadmap. 3) Работаем спринтами с регулярной демонстрацией результатов."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Какие технологии вы используете для разработки?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Стек зависит от задачи: Django + Next.js для сложных сервисов и SaaS, 1С-Битрикс для e-commerce с интеграцией 1С:УТ, WordPress для корпоративных сайтов. Дополнительно: PostgreSQL, Redis, HashiCorp Vault, LLM-интеграции."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Вы работаете с клиентами из других городов и регионов?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, работаю удалённо со всей России. Вся коммуникация через Telegram или видеозвонки, документооборот — через ЭДО."
+          }
+        }
+      ]
     }
     </script>
   </head>
