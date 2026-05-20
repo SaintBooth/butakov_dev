@@ -1,16 +1,58 @@
-# React + Vite
+# butakov.dev
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Личный сайт-лендинг ИП Бутакова Александра — технического партнёра для B2B.
 
-Currently, two official plugins are available:
+## Стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + Vite 8
+- Tailwind CSS v4
+- Zod (валидация форм)
+- clsx (условные классы)
+- Web3Forms (отправка заявок)
+- Яндекс Метрика
+- vite-imagetools (WebP/AVIF)
 
-## React Compiler
+## Архитектура
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── features/      # бизнес-фичи (contact, cases, blog)
+├── sections/      # секции страницы
+├── components/ui/ # атомарные UI-компоненты (Modal, Slider, LogoImage, ContentImage)
+├── data/          # статические данные
+├── config/        # конфиги (social links)
+└── utils/         # утилиты
+```
 
-## Expanding the ESLint configuration
+## Команды
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev      # dev-сервер
+npm run build    # production-сборка
+npm run preview  # preview сборки
+npm run lint     # ESLint
+npm run images   # конвертация public/*.png → WebP + AVIF
+```
+
+## Деплой
+
+```bash
+bash ../deploy.sh   # build + rsync на сервер
+```
+
+SSH alias: `butakov` → `c500811@h65.netangels.ru`
+
+## Переменные окружения
+
+Скопируй `.env.example` → `.env` и заполни:
+
+```
+VITE_WEB3FORMS_KEY=your_key_here
+```
+
+## Git
+
+Conventional Commits + Trunk-Based Development. Хуки (husky):
+
+- `pre-commit` → lint-staged (ESLint + Prettier)
+- `commit-msg` → commitlint (Conventional Commits)
