@@ -17,8 +17,16 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "plugins": [{ "name": "next" }]
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowJs": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "isolatedModules": true
   },
-  "include": ["src", "next.config.mjs", "scripts"],
+  "include": ["next.config.mjs", "scripts", "src", ".next/types/**/*.ts"],
   "exclude": ["node_modules", ".next", "dist"]
 }

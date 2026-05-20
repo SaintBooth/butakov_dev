@@ -1,0 +1,17 @@
+# butakov.dev — Alexander Butakov, IT Consultant
+
+## Services
+- Complex web services and startups (Django 5, Next.js 15)
+- E-commerce on 1C-Bitrix with 1C:UT integration
+- Digital marketing & Performance (Yandex Direct)
+- Corporate WordPress sites
+- Legacy support (Bitrix, WordPress)
+- AI consulting — LLM and neural network integration
+
+## Engineering Cases
+(cases coming soon)
+
+## Contact
+- Telegram: https://t.me/SashaBooth
+- Email: hello@butakov.dev
+- Site: https://butakov.dev

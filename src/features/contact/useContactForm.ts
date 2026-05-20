@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ContactFormData } from './contactSchema';
 import { contactSchema, web3formsResponseSchema } from './contactSchema';
 
-const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string;
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? '';
 
 interface SubmitResult {
   success: boolean;
