@@ -1,3 +1,4 @@
+'use client';
 import { X } from 'lucide-react';
 import Modal from '../components/ui/Modal/Modal';
 

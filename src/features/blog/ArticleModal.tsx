@@ -1,3 +1,4 @@
+'use client';
 import { X, ArrowRight } from 'lucide-react';
 import Modal from '../../components/ui/Modal/Modal';
 import type { BlogPost } from '../../types';
@@ -6,10 +7,9 @@ import { LogoImage } from '../../components/ui/LogoImage/LogoImage';
 interface ArticleModalProps {
   post: BlogPost;
   onClose: () => void;
-  onContactClick: () => void;
 }
 
-export default function ArticleModal({ post, onClose, onContactClick }: ArticleModalProps) {
+export default function ArticleModal({ post, onClose }: ArticleModalProps) {
   return (
     <Modal
       onClose={onClose}
@@ -44,16 +44,14 @@ export default function ArticleModal({ post, onClose, onContactClick }: ArticleM
           </div>
           <h4 className="font-bold text-slate-900">Александр Бутаков</h4>
           <p className="text-sm text-slate-500 font-medium mb-6">Независимый IT-консультант</p>
-          <button
-            onClick={() => {
-              onClose();
-              setTimeout(onContactClick, 150);
-            }}
+          <a
+            href="#contact"
+            onClick={onClose}
             className="px-6 py-3 rounded-xl bg-teal-50 text-teal-700 font-bold hover:bg-teal-100 transition-all flex items-center justify-center gap-2 group"
           >
             Обсудить ваш проект
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
         </div>
       </div>
     </Modal>

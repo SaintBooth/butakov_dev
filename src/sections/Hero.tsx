@@ -1,10 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 
-interface HeroProps {
-  onContactClick: () => void;
-}
-
-export default function Hero({ onContactClick }: HeroProps) {
+export default function Hero() {
   return (
     <section className="relative pt-36 pb-16 lg:pt-48 lg:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -25,13 +21,13 @@ export default function Hero({ onContactClick }: HeroProps) {
           ИИ. Работаю от бизнес-задачи, официально, с гарантией.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button
-            onClick={onContactClick}
+          <a
+            href="#contact"
             className="w-full sm:w-auto px-8 py-4 rounded-full bg-teal-500 text-white font-bold hover:bg-teal-600 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-teal-500/20 active:scale-95"
           >
             Связаться со мной
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
           <a
             href="#b2b"
             className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/70 backdrop-blur-md text-slate-900 font-bold hover:bg-white/90 border border-white transition-all text-center shadow-sm active:scale-95"
