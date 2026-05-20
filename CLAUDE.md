@@ -126,11 +126,33 @@ export const contactSchema = z.object({
 - Все `<img>`, `<video>`, `<iframe>` — обязательны `width` + `height` или `aspect-ratio`.
 - Динамический контент резервирует фиксированное место (skeleton-размер = финальный блок).
 
-### Изображения
+### Изображения — автоматически через vite-imagetools
 
-- Форматы: **WebP/AVIF** через `<picture>` + `srcset`. PNG/JPG — только fallback.
-- При добавлении изображений использовать `vite-imagetools` для автоконвертации.
-- Tailwind purge в проде — работает автоматически через Vite + Tailwind v4. Инлайн-CSS библиотеки запрещены.
+**Логотип/статика** (`public/`) — конвертируется вручную: `npm run images` → WebP + AVIF → `<LogoImage>`.
+
+**Контентные изображения** (`src/assets/`) — автоматически через `vite-imagetools` + `<ContentImage>`:
+
+```jsx
+// 1. Импортируй из src/assets/ с query-параметрами vite-imagetools
+import heroWebp from '../assets/hero.jpg?w=400;800;1200&format=webp&as=srcset';
+import heroAvif from '../assets/hero.jpg?w=400;800;1200&format=avif&as=srcset';
+import heroFallback from '../assets/hero.jpg';
+
+// 2. Используй ContentImage — автоматически генерирует <picture> с srcset
+<ContentImage
+  src={heroFallback}
+  srcWebp={heroWebp}
+  srcAvif={heroAvif}
+  alt="Описание"
+  width={1200}
+  height={600}
+  sizes="(max-width: 768px) 100vw, 800px"
+  priority // ← добавь для LCP-изображения первого экрана
+/>;
+```
+
+Vite сгенерирует все размеры и форматы при сборке. PNG/JPG — только fallback.
+Tailwind purge работает автоматически через Vite + Tailwind v4. Инлайн-CSS библиотеки запрещены.
 
 ## 7. Git — Trunk-Based Development + Conventional Commits
 
