@@ -1,0 +1,4 @@
+# Config and tooling scripts — exclude from GitHub language stats
+commitlint.config.js linguist-detectable=false
+eslint.config.js linguist-detectable=false
+scripts/convert-images.js linguist-detectable=false
