@@ -1,6 +1,5 @@
-// TODO: replace '#' with real links
 export const SOCIAL = {
-  telegram: '#',
-  github: '#',
-  email: '#',
+  telegram: 'https://t.me/SashaBooth',
+  github: 'https://github.com/SaintBooth',
+  email: '#', // TODO: добавить mailto
 };
