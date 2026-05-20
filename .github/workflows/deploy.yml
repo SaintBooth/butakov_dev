@@ -8,15 +8,13 @@ on:
 
 jobs:
   check:
-    name: Lint & Build
+    name: Type Check & Lint
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -30,53 +28,42 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build
-        run: npm run build
-        env:
-          VITE_WEB3FORMS_KEY: ${{ secrets.VITE_WEB3FORMS_KEY }}
-
   deploy:
-    name: Deploy to Production
+    name: Build & Deploy
     runs-on: ubuntu-latest
     needs: check
-    # Деплой только при пуше в main (не на PR)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          node-version: 24
-          cache: 'npm'
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/butakov-dev:latest
+          build-args: |
+            NEXT_PUBLIC_WEB3FORMS_KEY=${{ secrets.NEXT_PUBLIC_WEB3FORMS_KEY }}
 
-      - name: Build
-        run: npm run build
-        env:
-          VITE_WEB3FORMS_KEY: ${{ secrets.VITE_WEB3FORMS_KEY }}
-
-      - name: Setup SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-
-      - name: Deploy via rsync
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PATH: ${{ secrets.SSH_PATH }}
-        run: |
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key" \
-            dist/ \
-            "$SSH_USER@$SSH_HOST:$SSH_PATH/"
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/butakov
+            docker pull ghcr.io/${{ github.repository_owner }}/butakov-dev:latest
+            docker compose up -d --force-recreate
+            docker image prune -f --filter "dangling=true"

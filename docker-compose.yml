@@ -1,0 +1,18 @@
+name: butakov  # explicit project name — avoids directory-based auto-naming
+
+services:
+  web:
+    image: ghcr.io/saintbooth/butakov-dev:latest
+    container_name: butakov-web   # unique name, won't clash with other stacks
+    restart: unless-stopped
+    ports:
+      - "3001:3000"               # 3001 on host → 3000 in container
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - butakov-net
+
+networks:
+  butakov-net:
+    name: butakov-net             # explicit name prevents conflicts with other projects
