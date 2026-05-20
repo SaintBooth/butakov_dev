@@ -17,6 +17,7 @@ export default function Header({ onContactClick }) {
               alt="Александр Бутаков"
               width="180"
               height="48"
+              fetchpriority="high"
               className="h-8 md:h-12 w-auto object-contain"
             />
           </div>

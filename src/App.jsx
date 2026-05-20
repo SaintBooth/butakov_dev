@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 
 import Header from './sections/Header.jsx';
 import Hero from './sections/Hero.jsx';
@@ -9,14 +9,13 @@ import PromptSpace from './sections/PromptSpace.jsx';
 import Process from './sections/Process.jsx';
 import Footer from './sections/Footer.jsx';
 import MobileNav from './sections/MobileNav.jsx';
-import PrivacyModal from './sections/PrivacyModal.jsx';
-
 import Cases from './features/cases/Cases.jsx';
-import CaseModal from './features/cases/CaseModal.jsx';
 import Blog from './features/blog/Blog.jsx';
-import ArticleModal from './features/blog/ArticleModal.jsx';
-
 import Contact from './features/contact/Contact.jsx';
+
+const CaseModal = lazy(() => import('./features/cases/CaseModal.jsx'));
+const ArticleModal = lazy(() => import('./features/blog/ArticleModal.jsx'));
+const PrivacyModal = lazy(() => import('./sections/PrivacyModal.jsx'));
 
 const YM_ID = 107722106;
 
@@ -54,7 +53,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-teal-500/30 relative overflow-hidden" style={{ fontFamily: "'Geist', sans-serif" }}>
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-teal-500/30 relative overflow-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-teal-200/30 blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] rounded-full bg-blue-200/30 blur-[150px]" />
@@ -93,15 +92,17 @@ export default function App() {
       <Footer onPrivacyClick={() => setIsPrivacyOpen(true)} />
       <MobileNav onContactClick={() => scrollToContact()} />
 
-      {selectedCase && (
-        <CaseModal item={selectedCase} onClose={() => setSelectedCase(null)} onContactClick={() => scrollToContact()} />
-      )}
-      {selectedArticle && (
-        <ArticleModal post={selectedArticle} onClose={() => setSelectedArticle(null)} onContactClick={() => scrollToContact()} />
-      )}
-      {isPrivacyOpen && (
-        <PrivacyModal onClose={() => setIsPrivacyOpen(false)} />
-      )}
+      <Suspense fallback={null}>
+        {selectedCase && (
+          <CaseModal item={selectedCase} onClose={() => setSelectedCase(null)} onContactClick={() => scrollToContact()} />
+        )}
+        {selectedArticle && (
+          <ArticleModal post={selectedArticle} onClose={() => setSelectedArticle(null)} onContactClick={() => scrollToContact()} />
+        )}
+        {isPrivacyOpen && (
+          <PrivacyModal onClose={() => setIsPrivacyOpen(false)} />
+        )}
+      </Suspense>
     </div>
   );
 }
