@@ -7,8 +7,12 @@ export default function Services({ onContactClick }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Стек и Услуги</h2>
-            <p className="text-slate-600 text-lg font-medium">Подбираю технологию строго под вашу бизнес-задачу, чтобы вы не переплачивали за разработку и поддержку.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Какой стек подходит для вашей задачи?
+            </h2>
+            <p className="text-slate-600 text-lg font-medium">
+              Подбираю технологию под задачу — не переплатите за лишнюю сложность и поддержку.
+            </p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -5,8 +5,12 @@ export default function Process() {
     <section id="process" className="py-24 relative z-10 border-t border-white/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Прозрачный старт</h2>
-          <p className="text-slate-600 text-lg max-w-2xl mx-auto font-medium">От первой заявки до готового результата без лишней бюрократии.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            Как начать работу вместе?
+          </h2>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto font-medium">
+            Три шага от заявки до запуска — прозрачно, без лишней бюрократии.
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
           <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-white shadow-sm z-0" />

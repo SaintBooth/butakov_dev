@@ -1,33 +1,28 @@
-import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, ArrowRight, BookOpen, Calendar, Clock } from 'lucide-react';
-import { blogPosts } from '../data/blogPosts.js';
+import { ArrowRight, BookOpen, Calendar, Clock } from 'lucide-react';
+import { useSlider } from '../../components/ui/Slider/useSlider.js';
+import { SliderControls } from '../../components/ui/Slider/SliderControls.jsx';
+import { blogPosts } from './blogPosts.js';
 
 export default function Blog({ onArticleSelect }) {
-  const sliderRef = useRef(null);
-
-  const scroll = (dir) => {
-    if (!sliderRef.current) return;
-    const amount = window.innerWidth > 1024 ? 480 : 432;
-    sliderRef.current.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
-  };
+  const { ref, scroll } = useSlider();
 
   return (
     <section id="blog" className="py-24 relative z-10 border-t border-white/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 md:mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Статьи и мысли</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Что я думаю об IT и разработке?
+            </h2>
           </div>
-          <div className="mt-6 md:mt-0 hidden md:flex items-center gap-2">
-            <button onClick={() => scroll('left')} className="w-12 h-12 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm flex items-center justify-center text-slate-600 hover:text-teal-600 hover:bg-white/80 transition-all active:scale-95">
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button onClick={() => scroll('right')} className="w-12 h-12 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm flex items-center justify-center text-slate-600 hover:text-teal-600 hover:bg-white/80 transition-all active:scale-95">
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </div>
+          <SliderControls
+            onLeft={() => scroll('left')}
+            onRight={() => scroll('right')}
+            className="mt-6 md:mt-0 hidden md:flex"
+          />
         </div>
-        <div ref={sliderRef} className="flex overflow-x-auto gap-6 sm:gap-8 snap-x snap-mandatory no-scrollbar pb-12 pt-4 scroll-smooth">
+
+        <div ref={ref} className="flex overflow-x-auto gap-6 sm:gap-8 snap-x snap-mandatory no-scrollbar pb-12 pt-4 scroll-smooth">
           {blogPosts.map((post) => (
             <div
               key={post.id}

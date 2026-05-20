@@ -8,8 +8,12 @@ export default function Experience() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-3xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Бизнес-подход к разработке</h2>
-            <p className="text-slate-600 text-lg font-medium">Мои решения основаны на 10-летнем управленческом и техническом опыте в B2B и E-commerce.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Как мой опыт помогает вашему бизнесу?
+            </h2>
+            <p className="text-slate-600 text-lg font-medium">
+              10+ лет в разработке, e-commerce и digital-маркетинге. Понимаю юнит-экономику, а не только технологии.
+            </p>
           </div>
         </div>
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-8">
@@ -49,7 +53,7 @@ export default function Experience() {
                 <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
                   <UserCog className="w-5 h-5 text-indigo-600" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">Бизнес скилы</h3>
+                <h3 className="text-lg font-bold text-slate-900">Бизнес-скилы</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {softSkills.map(skill => (

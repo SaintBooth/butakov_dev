@@ -5,9 +5,11 @@ export default function B2bGuarantees() {
     <section id="b2b" className="py-24 relative z-10 border-t border-white/40 bg-white/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Надежный партнер для бизнеса</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            Почему выбирают меня, а не студию?
+          </h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto font-medium">
-            Почему осознанные компании выбирают работу со мной, а не со студиями или фрилансерами.
+            Официальный договор, гарантия 6 месяцев и прямая коммуникация без менеджеров-посредников.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 
-import Header from './components/Header.jsx';
-import Hero from './components/Hero.jsx';
-import Services from './components/Services.jsx';
-import B2bGuarantees from './components/B2bGuarantees.jsx';
-import Experience from './components/Experience.jsx';
-import PromptSpace from './components/PromptSpace.jsx';
-import Cases from './components/Cases.jsx';
-import Blog from './components/Blog.jsx';
-import Process from './components/Process.jsx';
+import Header from './sections/Header.jsx';
+import Hero from './sections/Hero.jsx';
+import Services from './sections/Services.jsx';
+import B2bGuarantees from './sections/B2bGuarantees.jsx';
+import Experience from './sections/Experience.jsx';
+import PromptSpace from './sections/PromptSpace.jsx';
+import Process from './sections/Process.jsx';
+import Footer from './sections/Footer.jsx';
+import MobileNav from './sections/MobileNav.jsx';
+import PrivacyModal from './sections/PrivacyModal.jsx';
+
+import Cases from './features/cases/Cases.jsx';
+import CaseModal from './features/cases/CaseModal.jsx';
+import Blog from './features/blog/Blog.jsx';
+import ArticleModal from './features/blog/ArticleModal.jsx';
+
 import Contact from './features/contact/Contact.jsx';
-import Footer from './components/Footer.jsx';
-import MobileNav from './components/MobileNav.jsx';
-import CaseModal from './components/modals/CaseModal.jsx';
-import ArticleModal from './components/modals/ArticleModal.jsx';
-import PrivacyModal from './components/modals/PrivacyModal.jsx';
 
 const YM_ID = 107722106;
 
