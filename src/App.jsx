@@ -9,7 +9,7 @@ import PromptSpace from './components/PromptSpace.jsx';
 import Cases from './components/Cases.jsx';
 import Blog from './components/Blog.jsx';
 import Process from './components/Process.jsx';
-import Contact from './components/Contact.jsx';
+import Contact from './features/contact/Contact.jsx';
 import Footer from './components/Footer.jsx';
 import MobileNav from './components/MobileNav.jsx';
 import CaseModal from './components/modals/CaseModal.jsx';
