@@ -1,0 +1,29 @@
+# SPA routing
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Maintenance mode — включить: touch maintenance.flag | выключить: rm maintenance.flag
+  RewriteCond %{DOCUMENT_ROOT}/maintenance.flag -f
+  RewriteCond %{REQUEST_URI} !^/503\.html$
+  RewriteCond %{REQUEST_URI} !^/favicon\.svg$
+  RewriteRule ^ /503.html [R=503,L]
+
+  # SPA fallback
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# Retry-After + noindex при техработах
+<IfModule mod_headers.c>
+  <If "-f '%{DOCUMENT_ROOT}/maintenance.flag'">
+    Header always set Retry-After "3600"
+    Header always set X-Robots-Tag "noindex, nofollow"
+  </If>
+</IfModule>
+
+# Custom error pages
+ErrorDocument 503 /503.html
+ErrorDocument 500 /503.html
