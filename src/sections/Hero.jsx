@@ -9,12 +9,16 @@ export default function Hero({ onContactClick }) {
           Открыт к B2B сотрудничеству
         </div>
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-slate-900 leading-tight">
-          Технический <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">партнер</span>{' '}
+          Технический{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
+            партнер
+          </span>{' '}
           <br className="hidden md:block" />
           для вашего бизнеса
         </h1>
         <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-          Помогаю бизнесу реализовывать понятные цели через надежные веб-приложения, e-commerce и ИИ. Работаю от бизнес-задачи, официально, с гарантией.
+          Помогаю бизнесу реализовывать понятные цели через надежные веб-приложения, e-commerce и
+          ИИ. Работаю от бизнес-задачи, официально, с гарантией.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button

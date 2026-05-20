@@ -26,7 +26,9 @@ export default function Services({ onContactClick }) {
                 <service.Icon className="w-8 h-8 text-teal-500" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-4">{service.title}</h3>
-              <p className="text-slate-600 mb-8 leading-relaxed font-medium flex-grow">{service.description}</p>
+              <p className="text-slate-600 mb-8 leading-relaxed font-medium flex-grow">
+                {service.description}
+              </p>
               <button
                 onClick={() => onContactClick(service.title)}
                 className="flex items-center gap-2 text-teal-600 font-bold hover:text-teal-700 transition-colors group/btn mt-auto"

@@ -38,8 +38,12 @@ export default function Contact({ selectedService, onServiceChange, onPrivacyCli
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="bg-white/60 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-14 shadow-2xl shadow-teal-900/10 border border-white">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Давайте обсудим задачу</h2>
-            <p className="text-slate-600 font-medium">Оставьте контакты и опишите, к каким метрикам вы стремитесь.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Давайте обсудим задачу
+            </h2>
+            <p className="text-slate-600 font-medium">
+              Оставьте контакты и опишите, к каким метрикам вы стремитесь.
+            </p>
           </div>
 
           {isSubmitted ? (
@@ -48,7 +52,9 @@ export default function Contact({ selectedService, onServiceChange, onPrivacyCli
                 <CheckCircle2 className="w-12 h-12 text-teal-500" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Заявка успешно отправлена!</h3>
-              <p className="text-slate-600 font-medium">Я свяжусь с вами в ближайшее время для обсуждения деталей.</p>
+              <p className="text-slate-600 font-medium">
+                Я свяжусь с вами в ближайшее время для обсуждения деталей.
+              </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
@@ -86,7 +92,11 @@ export default function Contact({ selectedService, onServiceChange, onPrivacyCli
                   className="w-full bg-white/50 backdrop-blur-sm border border-white/80 rounded-xl px-5 py-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:bg-white transition-all appearance-none cursor-pointer font-medium shadow-sm"
                 >
                   <option value="">Выберите услугу (необязательно)</option>
-                  {services.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
+                  {services.map((s) => (
+                    <option key={s.id} value={s.title}>
+                      {s.title}
+                    </option>
+                  ))}
                   <option value="Другое">Комплексная задача / Другое</option>
                 </select>
               </div>
@@ -107,14 +117,22 @@ export default function Contact({ selectedService, onServiceChange, onPrivacyCli
                 className="w-full py-5 rounded-xl bg-slate-900 text-white font-bold text-lg hover:bg-teal-500 transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 {isSubmitting ? 'Отправка...' : 'Обсудить проект'}
-                {!isSubmitting && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                {!isSubmitting && (
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                )}
               </button>
 
               <p className="text-xs text-center text-slate-500 mt-4 font-medium">
-                Нажимая на кнопку, вы даете согласие на обработку персональных данных в соответствии с{' '}
-                <button type="button" onClick={onPrivacyClick} className="text-teal-600 hover:text-teal-700 underline">
+                Нажимая на кнопку, вы даете согласие на обработку персональных данных в соответствии
+                с{' '}
+                <button
+                  type="button"
+                  onClick={onPrivacyClick}
+                  className="text-teal-600 hover:text-teal-700 underline"
+                >
                   Политикой конфиденциальности (152-ФЗ)
-                </button>.
+                </button>
+                .
               </p>
             </form>
           )}

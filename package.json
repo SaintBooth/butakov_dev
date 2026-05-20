@@ -8,7 +8,17 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "images": "node scripts/convert-images.js"
+    "images": "node scripts/convert-images.js",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,json,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -19,6 +29,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "^9.39.4",
     "@tailwindcss/vite": "^4.2.1",
     "@types/react": "^19.2.14",
@@ -29,7 +41,10 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
     "postcss": "^8.5.8",
+    "prettier": "^3.8.3",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.2.1",
     "vite": "^8.0.0",

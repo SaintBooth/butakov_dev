@@ -71,6 +71,7 @@ export const contactSchema = z.object({
 ## 5. GEO & AI Search SEO (2026-стандарт)
 
 ### Schema.org JSON-LD
+
 - Каждая страница/секция с уникальным контентом — валидная JSON-LD разметка соответствующего типа (`ProfessionalService`, `FAQPage`, `Article`, `Service`).
 - Разметка живет в `index.html` (статически, видна краулерам до JS) — **не** в `useEffect`.
 - Минимальный набор для текущего сайта: `ProfessionalService` + `FAQPage` + `hasOfferCatalog`.
@@ -87,6 +88,7 @@ export const contactSchema = z.object({
 ```
 
 ### Структура контента для ИИ-сборщиков
+
 - Каждый ключевой раздел начинается с **Direct Answer** ≤ 50 слов: прямой ответ на вопрос, который пользователь мог бы задать голосом.
 - Используй списки (`ul/ol`) и таблицы для перечислений — не сплошной текст.
 - H2/H3 — вопросительный или конверсационный стиль:
@@ -95,10 +97,12 @@ export const contactSchema = z.object({
   - ❌ `«О нас»`, `«Наши преимущества»`
 
 ### FAQPage
+
 - Блок B2B-гарантий и блок процесса → дублировать как `FAQPage` в JSON-LD.
 - Вопросы формулировать под голосовой поиск: полные предложения, не обрывки.
 
 ### Что требует данных от клиента (TODO)
+
 - `telephone` — номер телефона для NAP
 - `geo` — координаты (lat/lon) если есть физический офис
 - `sameAs` — ссылки на соцсети (заполнить `src/config/social.js`)
@@ -106,25 +110,62 @@ export const contactSchema = z.object({
 ## 6. Core Web Vitals — PageSpeed Green Zone (90-100)
 
 ### LCP < 2.5s
+
 - Шрифты: **локальные woff2** + `font-display: swap` + `<link rel="preload">`. Запрещена загрузка с Google Fonts в runtime.
 - LCP-изображение (логотип, hero): `fetchpriority="high"`, без `loading="lazy"`.
 - Hero-секция: контент первого экрана — без отложенного рендера.
 
 ### INP < 200ms
+
 - **Динамические импорты** (`lazy()` + `Suspense`) для всего, что не видно на первом экране: модалки, тяжёлые слайдеры, чаты.
 - Тяжёлые вычисления → `requestIdleCallback()` или серверные Server Actions.
 - JS bundle: не импортировать в основной chunk то, что нужно только при взаимодействии.
 
 ### CLS < 0.1
+
 - Все `<img>`, `<video>`, `<iframe>` — обязательны `width` + `height` или `aspect-ratio`.
 - Динамический контент резервирует фиксированное место (skeleton-размер = финальный блок).
 
 ### Изображения
+
 - Форматы: **WebP/AVIF** через `<picture>` + `srcset`. PNG/JPG — только fallback.
 - При добавлении изображений использовать `vite-imagetools` для автоконвертации.
 - Tailwind purge в проде — работает автоматически через Vite + Tailwind v4. Инлайн-CSS библиотеки запрещены.
 
-## 7. Общие правила кода
+## 7. Git — Trunk-Based Development + Conventional Commits
+
+### Стратегия ветвления
+
+- `main` — всегда stable, production-ready. Прямые коммиты только в экстренных случаях.
+- Фичи — короткоживущие ветки (≤2 дня), шаблон: `feat/TASK-123-short-desc`, `fix/BUG-404-cart-loop`
+- Разрешённые типы: `feat/`, `fix/`, `docs/`, `style/`, `refactor/`, `perf/`, `chore/`
+
+### Conventional Commits v1.0.0
+
+```
+<type>(<scope>): <description>   ← строчные, без точки, ≤50 символов
+```
+
+| type       | когда                               |
+| ---------- | ----------------------------------- |
+| `feat`     | новый функционал                    |
+| `fix`      | исправление бага                    |
+| `refactor` | рефакторинг без изменения поведения |
+| `perf`     | оптимизация производительности      |
+| `style`    | форматирование, пробелы (не логика) |
+| `docs`     | только документация                 |
+| `chore`    | зависимости, конфиг сборки          |
+| `test`     | тесты                               |
+
+Примеры: `feat(contact): add zod validation`, `perf(images): webp/avif with picture element`
+
+### Git Hooks (автоматически)
+
+- **pre-commit**: `lint-staged` → eslint --fix + prettier --write на staged-файлах
+- **commit-msg**: `commitlint` → валидация формата Conventional Commits
+- Проект использует JS (не TS), поэтому `tsc --noEmit` не применяется до миграции на TypeScript.
+
+## 8. Общие правила кода
 
 - **Нет хардкода**: URL, ключи, ID — в `config/` или `.env`.
 - **Нет комментариев "что делает"**: код должен читаться сам. Комментарий — только "почему" (неочевидный инвариант, обход бага).

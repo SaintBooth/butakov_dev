@@ -26,25 +26,43 @@ export default function App() {
   const [selectedService, setSelectedService] = useState('');
 
   useEffect(() => {
-    /* eslint-disable */
-    (function(m,e,t,r,i,k,a){
-      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
-      k=e.createElement(t);a=e.getElementsByTagName(t)[0];
-      k.async=1;k.src=r;a.parentNode.insertBefore(k,a);
-    })(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
-    /* eslint-enable */
+    (function (m, e, t, r, i, k, a) {
+      m[i] =
+        m[i] ||
+        function () {
+          (m[i].a = m[i].a || []).push(arguments);
+        };
+      m[i].l = 1 * new Date();
+      for (var j = 0; j < document.scripts.length; j++) {
+        if (document.scripts[j].src === r) {
+          return;
+        }
+      }
+      k = e.createElement(t);
+      a = e.getElementsByTagName(t)[0];
+      k.async = 1;
+      k.src = r;
+      a.parentNode.insertBefore(k, a);
+    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js', 'ym');
+
     window.ym(YM_ID, 'init', {
-      ssr: true, webvisor: true, clickmap: true, ecommerce: 'dataLayer',
-      referrer: document.referrer, url: location.href,
-      accurateTrackBounce: true, trackLinks: true,
+      ssr: true,
+      webvisor: true,
+      clickmap: true,
+      ecommerce: 'dataLayer',
+      referrer: document.referrer,
+      url: location.href,
+      accurateTrackBounce: true,
+      trackLinks: true,
     });
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = (selectedCase || selectedArticle || isPrivacyOpen) ? 'hidden' : 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
+    document.body.style.overflow =
+      selectedCase || selectedArticle || isPrivacyOpen ? 'hidden' : 'unset';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [selectedCase, selectedArticle, isPrivacyOpen]);
 
   const scrollToContact = (serviceName = '') => {
@@ -69,7 +87,15 @@ export default function App() {
         }
       `}</style>
 
-      <noscript><div><img src="https://mc.yandex.ru/watch/107722106" style={{ position: 'absolute', left: '-9999px' }} alt="" /></div></noscript>
+      <noscript>
+        <div>
+          <img
+            src="https://mc.yandex.ru/watch/107722106"
+            style={{ position: 'absolute', left: '-9999px' }}
+            alt=""
+          />
+        </div>
+      </noscript>
 
       <Header onContactClick={() => scrollToContact()} />
 
@@ -94,14 +120,20 @@ export default function App() {
 
       <Suspense fallback={null}>
         {selectedCase && (
-          <CaseModal item={selectedCase} onClose={() => setSelectedCase(null)} onContactClick={() => scrollToContact()} />
+          <CaseModal
+            item={selectedCase}
+            onClose={() => setSelectedCase(null)}
+            onContactClick={() => scrollToContact()}
+          />
         )}
         {selectedArticle && (
-          <ArticleModal post={selectedArticle} onClose={() => setSelectedArticle(null)} onContactClick={() => scrollToContact()} />
+          <ArticleModal
+            post={selectedArticle}
+            onClose={() => setSelectedArticle(null)}
+            onContactClick={() => scrollToContact()}
+          />
         )}
-        {isPrivacyOpen && (
-          <PrivacyModal onClose={() => setIsPrivacyOpen(false)} />
-        )}
+        {isPrivacyOpen && <PrivacyModal onClose={() => setIsPrivacyOpen(false)} />}
       </Suspense>
     </div>
   );

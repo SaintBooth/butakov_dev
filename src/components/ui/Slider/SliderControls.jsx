@@ -1,7 +1,8 @@
 import { clsx } from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const btnClass = 'w-12 h-12 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm flex items-center justify-center text-slate-600 hover:text-teal-600 hover:bg-white/80 transition-all active:scale-95';
+const btnClass =
+  'w-12 h-12 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm flex items-center justify-center text-slate-600 hover:text-teal-600 hover:bg-white/80 transition-all active:scale-95';
 
 export function SliderControls({ onLeft, onRight, className }) {
   return (

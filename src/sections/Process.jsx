@@ -15,7 +15,10 @@ export default function Process() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
           <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-white shadow-sm z-0" />
           {processSteps.map((item) => (
-            <div key={item.step} className="relative z-10 flex flex-col items-center text-center px-6 md:px-2">
+            <div
+              key={item.step}
+              className="relative z-10 flex flex-col items-center text-center px-6 md:px-2"
+            >
               <div className="w-24 h-24 rounded-full bg-white/80 backdrop-blur-xl border-4 border-white flex items-center justify-center text-2xl font-extrabold text-teal-500 mb-6 shadow-xl shadow-slate-200/50">
                 {item.step}
               </div>

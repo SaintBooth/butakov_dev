@@ -9,12 +9,16 @@ export default function B2bGuarantees() {
             Почему выбирают меня, а не студию?
           </h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto font-medium">
-            Официальный договор, гарантия 6 месяцев и прямая коммуникация без менеджеров-посредников.
+            Официальный договор, гарантия 6 месяцев и прямая коммуникация без
+            менеджеров-посредников.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {b2bGuarantees.map((item) => (
-            <div key={item.title} className="relative z-10 flex flex-col p-8 bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-white shadow-xl shadow-slate-200/40 hover:-translate-y-1 transition-transform">
+            <div
+              key={item.title}
+              className="relative z-10 flex flex-col p-8 bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-white shadow-xl shadow-slate-200/40 hover:-translate-y-1 transition-transform"
+            >
               <div className="w-16 h-16 rounded-2xl bg-white/80 border border-white flex items-center justify-center mb-6 shadow-sm">
                 <item.Icon className="w-8 h-8 text-teal-600" />
               </div>

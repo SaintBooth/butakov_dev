@@ -1,4 +1,10 @@
-export function LogoImage({ width, height, className, priority = false, alt = 'Александр Бутаков' }) {
+export function LogoImage({
+  width,
+  height,
+  className,
+  priority = false,
+  alt = 'Александр Бутаков',
+}) {
   return (
     <picture>
       <source srcSet="/butakov-01.avif" type="image/avif" />

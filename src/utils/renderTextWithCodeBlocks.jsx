@@ -14,7 +14,10 @@ export function renderTextWithCodeBlocks(text, baseKey) {
       const plainText = text.slice(lastIndex, start).trim();
       if (plainText) {
         parts.push(
-          <p key={`${baseKey}-text-${start}`} className="text-slate-600 leading-relaxed font-medium whitespace-pre-line">
+          <p
+            key={`${baseKey}-text-${start}`}
+            className="text-slate-600 leading-relaxed font-medium whitespace-pre-line"
+          >
             {plainText}
           </p>
         );
@@ -22,7 +25,10 @@ export function renderTextWithCodeBlocks(text, baseKey) {
     }
 
     parts.push(
-      <pre key={`${baseKey}-code-${start}`} className="bg-slate-900 text-slate-100 rounded-xl p-4 overflow-x-auto border border-slate-700/40 shadow-sm">
+      <pre
+        key={`${baseKey}-code-${start}`}
+        className="bg-slate-900 text-slate-100 rounded-xl p-4 overflow-x-auto border border-slate-700/40 shadow-sm"
+      >
         <code>{codeContent.trim()}</code>
       </pre>
     );
@@ -34,7 +40,10 @@ export function renderTextWithCodeBlocks(text, baseKey) {
     const tailText = text.slice(lastIndex).trim();
     if (tailText) {
       parts.push(
-        <p key={`${baseKey}-text-tail`} className="text-slate-600 leading-relaxed font-medium whitespace-pre-line">
+        <p
+          key={`${baseKey}-text-tail`}
+          className="text-slate-600 leading-relaxed font-medium whitespace-pre-line"
+        >
           {tailText}
         </p>
       );

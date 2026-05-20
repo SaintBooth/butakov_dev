@@ -12,7 +12,8 @@ export default function Experience() {
               Как мой опыт помогает вашему бизнесу?
             </h2>
             <p className="text-slate-600 text-lg font-medium">
-              10+ лет в разработке, e-commerce и digital-маркетинге. Понимаю юнит-экономику, а не только технологии.
+              10+ лет в разработке, e-commerce и digital-маркетинге. Понимаю юнит-экономику, а не
+              только технологии.
             </p>
           </div>
         </div>
@@ -43,8 +44,13 @@ export default function Experience() {
                 <h3 className="text-lg font-bold text-slate-900">Стек технологий</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {hardSkills.map(skill => (
-                  <span key={skill} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg shadow-sm">{skill}</span>
+                {hardSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg shadow-sm"
+                  >
+                    {skill}
+                  </span>
                 ))}
               </div>
             </div>
@@ -56,8 +62,13 @@ export default function Experience() {
                 <h3 className="text-lg font-bold text-slate-900">Бизнес-скилы</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {softSkills.map(skill => (
-                  <span key={skill} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg shadow-sm">{skill}</span>
+                {softSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg shadow-sm"
+                  >
+                    {skill}
+                  </span>
                 ))}
               </div>
             </div>
