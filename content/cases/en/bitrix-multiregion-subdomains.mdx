@@ -1,0 +1,78 @@
+---
+title: "Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains"
+date: "2026-07-08"
+tags: ["Bitrix", "Nginx", "PHP", "SEO"]
+metric: "27 cities, 0 duplicates"
+excerpt: "Regional subdomains for 27 cities: wildcard routing, SEO duplicate protection and returning users to their local catalog."
+---
+
+## Problem
+
+A 1C-Bitrix project with the Aspro: Max template. Timeweb Cloud hosting, the classic Nginx + Apache pair. The task sounded simple: regional site versions for 27 Russian cities on subdomains, with sane SEO and an unbroken user journey.
+
+Aspro ships regional support out of the box, sort of. I enabled it, rolled out the subdomains and went to check. Then the list of problems started.
+
+Requests to the new subdomains never reached the site at all — the default Nginx block caught them and served the BitrixVM stub page. The city-picker popup generated links to the main domain instead of subdomains. It took me a while to figure out why: the Aspro component expects iblock properties filled in a very specific way, and none of it is properly documented.
+
+The worst part surfaced later. The blog and company news opened on all 27 subdomains. Do the math: every section multiplied by 27 cities. Hundreds of thousands of duplicate pages, with search bots burning their crawl budget on copies of the same article. Yandex does not forgive that.
+
+Then the user journey. A visitor browses their city's catalog, clicks through to read a blog post on the main domain, then heads back to the catalog. And lands in the main domain's catalog, city forgotten. On top of that, links to shared sections inside product cards pointed at subdomains and collected pointless 301 redirects, leaking link equity for nothing.
+
+## Solution
+
+Infrastructure first. I set up wildcard DNS (`*.domain.ru`) and wrote an Nginx config that proxies subdomain requests to Apache while passing the original `$host`. Without that header the Bitrix core has no idea which subdomain it is on. One line, and nothing works without it. Duplicates got closed in the same place: any request to `/blog/` or `/company/news/` on a subdomain gets a 301 to the main domain. PHP and the database are not even involved, the redirect fires instantly.
+
+```nginx
+server {
+    server_name ~^(?<city>[\w-]+)\.domain\.ru$;
+
+    location ~ ^/(blog|company/news)/ {
+        return 301 https://domain.ru$request_uri;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+    }
+}
+```
+
+To bring users back to their city I wrote an `OnPageStart` event handler. The logic: if a visitor ends up on the main domain inside a local section like `/catalog/`, the script reads the region ID from `$_COOKIE['current_region']`, looks up the subdomain in the regions iblock and sends the visitor there. GET parameters survive the trip, so chosen filters and pagination don't reset. I also explicitly blocked the script from firing in AJAX requests, REST API and CLI. Learned that the hard way: without the guard the handler breaks imports.
+
+```php
+public static function returnToRegion(): void
+{
+    if (self::isAjaxOrApi() || php_sapi_name() === 'cli') {
+        return;
+    }
+
+    $regionId = (int)($_COOKIE['current_region'] ?? 0);
+    $subdomain = self::getRegionSubdomain($regionId);
+
+    if ($subdomain && self::isLocalSection()) {
+        LocalRedirect('https://' . $subdomain . $_SERVER['REQUEST_URI'], true, '302 Found');
+    }
+}
+```
+
+That left the internal blog and news links in the markup. An `OnEndBufferContent` handler solved it: regular expressions scan the final HTML right before it goes to the browser and replace regional links with absolute main-domain URLs. Yandex and Google bots see clean direct links, with zero internal redirects.
+
+```php
+public static function fixGlobalLinks(string &$content): void
+{
+    $content = preg_replace(
+        '#https?://[\w-]+\.domain\.ru(/(?:blog|company/news)/)#',
+        'https://domain.ru$1',
+        $content
+    );
+}
+```
+
+All of the code moved out of `init.php` into a separate static class, `regional_handlers.php`. In Bitrix projects `init.php` turns into a dumping ground anyway. An isolated class is easier to read, survives core and template updates, and is simple to extend.
+
+## Result
+
+- **0 content duplicates** — bots see clean direct links
+- Part of the load moved from PHP to fast Nginx
+- Users move freely between the global blog and their city's catalog
+- Adding city number 28 or 50 takes **one iblock element** — infrastructure and code pick it up automatically
