@@ -1,11 +1,12 @@
 import { MessageSquare, Github, Mail, ShieldCheck } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { SOCIAL } from '../config/social';
 import { PrivacyModalTrigger } from '../features/privacy/PrivacyModalTrigger';
 
 const NAV_LINKS = [
-  { href: '#services', label: 'Стек и Услуги' },
-  { href: '#b2b', label: 'Гарантии для B2B' },
-  { href: '#cases', label: 'Кейсы' },
+  { href: '/#services', label: 'Стек и Услуги' },
+  { href: '/#b2b', label: 'Гарантии для B2B' },
+  { href: '/#cases', label: 'Кейсы' },
 ];
 
 const REQUISITES = [
@@ -58,13 +59,13 @@ export default function Footer() {
           <div className="flex flex-col gap-3">
             <h4 className="text-white font-bold mb-2">Навигация</h4>
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className="text-slate-400 hover:text-teal-400 text-sm transition-colors w-fit"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <PrivacyModalTrigger>Политика конфиденциальности</PrivacyModalTrigger>
           </div>
