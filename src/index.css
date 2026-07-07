@@ -4,3 +4,9 @@
 :root {
   font-family: var(--font-geist), sans-serif;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

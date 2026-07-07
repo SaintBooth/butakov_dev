@@ -2,8 +2,8 @@ import { ArrowRight } from 'lucide-react';
 
 export default function Hero() {
   return (
-    <section className="relative pt-36 pb-16 lg:pt-48 lg:pb-24 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+    <section className="relative overflow-hidden min-h-dvh flex flex-col justify-center pt-20 pb-16 md:pt-24 md:pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm text-sm font-semibold text-slate-700 mb-8">
           <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
           Открыт к B2B сотрудничеству
