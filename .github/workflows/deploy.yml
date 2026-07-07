@@ -35,35 +35,72 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
-      packages: write
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      - uses: actions/setup-node@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 24
+          cache: 'npm'
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_WEB3FORMS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_KEY }}
+          NEXT_TELEMETRY_DISABLED: 1
+
+      # Netangels shared hosting runs the app via Passenger: entry point app.js,
+      # restart by touching the site's reload file. No docker on this host.
+      - name: Assemble standalone bundle
+        run: |
+          mkdir -p bundle
+          cp -r .next/standalone/. bundle/
+          mkdir -p bundle/.next/static
+          cp -r .next/static/. bundle/.next/static/
+          cp -r public bundle/public
+          # project package.json has "type": "module", so the shim must be ESM
+          {
+            echo "import { chdir } from 'node:process';"
+            echo "import { dirname } from 'node:path';"
+            echo "import { fileURLToPath } from 'node:url';"
+            echo "chdir(dirname(fileURLToPath(import.meta.url)));"
+            echo "await import('./server.js');"
+          } > bundle/app.js
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/butakov-dev:latest
-          build-args: |
-            NEXT_PUBLIC_WEB3FORMS_KEY=${{ secrets.NEXT_PUBLIC_WEB3FORMS_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: mkdir -p ${{ secrets.SSH_PATH }}/app
 
-      - name: Deploy to VPS
+      - name: Upload bundle
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'bundle/*'
+          target: ${{ secrets.SSH_PATH }}/app.new
+          strip_components: 1
+          rm: true
+
+      - name: Activate release
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/butakov
-            docker pull ghcr.io/${{ github.repository_owner }}/butakov-dev:latest
-            docker compose up -d --force-recreate
-            docker image prune -f --filter "dangling=true"
+            set -e
+            cd ${{ secrets.SSH_PATH }}
+            rm -rf app.old
+            mv app app.old
+            mv app.new app
+            touch reload
+            rm -rf app.old
