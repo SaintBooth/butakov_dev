@@ -53,8 +53,8 @@ jobs:
           NEXT_PUBLIC_WEB3FORMS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_KEY }}
           NEXT_TELEMETRY_DISABLED: 1
 
-      # Netangels shared hosting runs the app via Passenger: entry point app.js,
-      # restart by touching the site's reload file. No docker on this host.
+      # Netangels shared hosting runs the app from APP_PATH (entry point app.js)
+      # and passes the listen address as APP_PORT/APP_IP. No docker on this host.
       - name: Assemble standalone bundle
         run: |
           mkdir -p bundle
@@ -67,6 +67,8 @@ jobs:
             echo "import { chdir } from 'node:process';"
             echo "import { dirname } from 'node:path';"
             echo "import { fileURLToPath } from 'node:url';"
+            echo "if (process.env.APP_PORT && !process.env.PORT) process.env.PORT = process.env.APP_PORT;"
+            echo "if (process.env.APP_IP && !process.env.HOSTNAME) process.env.HOSTNAME = process.env.APP_IP;"
             echo "chdir(dirname(fileURLToPath(import.meta.url)));"
             echo "await import('./server.js');"
           } > bundle/app.js
