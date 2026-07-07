@@ -1,6 +1,10 @@
+'use client';
+
 import { clsx } from 'clsx';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useState } from 'react';
 import { services } from '../../data/services';
+import { PrivacyModalTrigger } from '../privacy/PrivacyModalTrigger';
 import type { ContactFormData } from './contactSchema';
 import { useContactForm } from './useContactForm';
 
@@ -22,23 +26,15 @@ function inputClass(hasError: boolean): string {
   );
 }
 
-interface ContactProps {
-  selectedService: string;
-  onServiceChange: (value: string) => void;
-  onPrivacyClick: () => void;
-}
-
-export default function Contact({
-  selectedService,
-  onServiceChange,
-  onPrivacyClick,
-}: ContactProps) {
+// Contact manages selectedService state internally — no props needed from parent
+export default function Contact() {
+  const [selectedService, setSelectedService] = useState('');
   const { isSubmitted, isSubmitting, errors, submit, clearError } = useContactForm();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const result = await submit(e, selectedService);
     if (result.success) {
-      onServiceChange('');
+      setSelectedService('');
     } else if (result.reason === 'server') {
       alert('Упс! Что-то пошло не так. Пожалуйста, напишите мне в Telegram.');
     } else if (result.reason === 'network') {
@@ -103,7 +99,7 @@ export default function Contact({
                 <select
                   name="service"
                   value={selectedService}
-                  onChange={(e) => onServiceChange(e.target.value)}
+                  onChange={(e) => setSelectedService(e.target.value)}
                   className="w-full bg-white/50 backdrop-blur-sm border border-white/80 rounded-xl px-5 py-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:bg-white transition-all appearance-none cursor-pointer font-medium shadow-sm"
                 >
                   <option value="">Выберите услугу (необязательно)</option>
@@ -140,13 +136,9 @@ export default function Contact({
               <p className="text-xs text-center text-slate-500 mt-4 font-medium">
                 Нажимая на кнопку, вы даете согласие на обработку персональных данных в соответствии
                 с{' '}
-                <button
-                  type="button"
-                  onClick={onPrivacyClick}
-                  className="text-teal-600 hover:text-teal-700 underline"
-                >
+                <PrivacyModalTrigger className="text-teal-600 hover:text-teal-700 underline">
                   Политикой конфиденциальности (152-ФЗ)
-                </button>
+                </PrivacyModalTrigger>
                 .
               </p>
             </form>

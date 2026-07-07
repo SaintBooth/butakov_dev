@@ -16,7 +16,11 @@ Thumbs.db
 .idea/
 .vscode/settings.json
 
-# Vite cache
+# Next.js
+.next/
+*.tsbuildinfo
+
+# Vite cache (kept for reference, Vite removed)
 .vite/
 
 # Lock files (keep package-lock.json, ignore yarn/pnpm)

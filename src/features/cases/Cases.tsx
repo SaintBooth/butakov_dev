@@ -1,3 +1,5 @@
+'use client';
+
 import { ArrowRight, ArrowUpRight, LineChart } from 'lucide-react';
 import { useSlider } from '../../components/ui/Slider/useSlider';
 import { SliderControls } from '../../components/ui/Slider/SliderControls';
@@ -6,10 +8,9 @@ import { portfolioCases } from './portfolioCases';
 
 interface CasesProps {
   onCaseSelect: (item: PortfolioCase) => void;
-  onContactClick: () => void;
 }
 
-export default function Cases({ onCaseSelect, onContactClick }: CasesProps) {
+export default function Cases({ onCaseSelect }: CasesProps) {
   const { ref, scroll } = useSlider();
 
   return (
@@ -26,13 +27,13 @@ export default function Cases({ onCaseSelect, onContactClick }: CasesProps) {
           </div>
           <div className="mt-6 md:mt-0 hidden md:flex items-center gap-6">
             <SliderControls onLeft={() => scroll('left')} onRight={() => scroll('right')} />
-            <button
-              onClick={onContactClick}
+            <a
+              href="#contact"
               className="text-teal-600 font-bold hover:text-teal-700 transition-colors flex items-center gap-2 group ml-4 pl-8 border-l border-slate-300/50"
             >
               Обсудить проект{' '}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </a>
           </div>
         </div>
 
@@ -84,13 +85,13 @@ export default function Cases({ onCaseSelect, onContactClick }: CasesProps) {
         </div>
 
         <div className="mt-4 text-center md:hidden">
-          <button
-            onClick={onContactClick}
+          <a
+            href="#contact"
             className="inline-flex text-teal-600 font-bold hover:text-teal-700 transition-colors items-center gap-2 group"
           >
             Обсудить проект{' '}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
         </div>
       </div>
     </section>

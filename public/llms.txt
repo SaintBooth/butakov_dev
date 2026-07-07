@@ -1,0 +1,22 @@
+# butakov.dev — Alexander Butakov, IT Consultant
+
+## Services
+- Complex web services and startups (Django 5, Next.js 15)
+- E-commerce on 1C-Bitrix with 1C:UT integration
+- Digital marketing & Performance (Yandex Direct)
+- Corporate WordPress sites
+- Legacy support (Bitrix, WordPress)
+- AI consulting — LLM and neural network integration
+
+## Engineering Cases
+- Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms)
+- High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed)
+- Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability)
+- Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss (97% RAM freed)
+- SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops (+14% form conversion)
+- WordPress Recovery After Fatal Error During PHP 8.3 Migration (Uptime 99.99%)
+
+## Contact
+- Telegram: https://t.me/SashaBooth
+- Email: hello@butakov.dev
+- Site: https://butakov.dev

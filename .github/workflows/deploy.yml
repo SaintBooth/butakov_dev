@@ -8,15 +8,13 @@ on:
 
 jobs:
   check:
-    name: Lint & Build
+    name: Type Check & Lint
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -30,24 +28,18 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build
-        run: npm run build
-        env:
-          VITE_WEB3FORMS_KEY: ${{ secrets.VITE_WEB3FORMS_KEY }}
-
   deploy:
-    name: Deploy to Production
+    name: Build & Deploy
     runs-on: ubuntu-latest
     needs: check
-    # Деплой только при пуше в main (не на PR)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
@@ -58,25 +50,57 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_WEB3FORMS_KEY: ${{ secrets.VITE_WEB3FORMS_KEY }}
+          NEXT_PUBLIC_WEB3FORMS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_KEY }}
+          NEXT_TELEMETRY_DISABLED: 1
 
-      - name: Setup SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+      # Netangels shared hosting runs the app via Passenger: entry point app.js,
+      # restart by touching the site's reload file. No docker on this host.
+      - name: Assemble standalone bundle
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          mkdir -p bundle
+          cp -r .next/standalone/. bundle/
+          mkdir -p bundle/.next/static
+          cp -r .next/static/. bundle/.next/static/
+          cp -r public bundle/public
+          # project package.json has "type": "module", so the shim must be ESM
+          {
+            echo "import { chdir } from 'node:process';"
+            echo "import { dirname } from 'node:path';"
+            echo "import { fileURLToPath } from 'node:url';"
+            echo "chdir(dirname(fileURLToPath(import.meta.url)));"
+            echo "await import('./server.js');"
+          } > bundle/app.js
 
-      - name: Deploy via rsync
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PATH: ${{ secrets.SSH_PATH }}
-        run: |
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key" \
-            dist/ \
-            "$SSH_USER@$SSH_HOST:$SSH_PATH/"
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: mkdir -p ${{ secrets.SSH_PATH }}/app
+
+      - name: Upload bundle
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'bundle/*'
+          target: ${{ secrets.SSH_PATH }}/app.new
+          strip_components: 1
+          rm: true
+
+      - name: Activate release
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.SSH_PATH }}
+            rm -rf app.old
+            mv app app.old
+            mv app.new app
+            touch reload
+            rm -rf app.old

@@ -1,0 +1,61 @@
+---
+title: "Архитектура прогрева кеша для каталога на 200 тыс. SKU"
+date: "2024-06-01"
+tags: ["1C Bitrix", "Bash", "Redis"]
+metric: "Ответ сервера 190 мс"
+excerpt: "Система фоновой регенерации кеша после тяжёлых обновлений БД — без перегрузки сервера и ручного сброса."
+---
+
+## Проблема
+
+Время генерации страницы без попадания в кеш достигало **2524ms**. Старт PHP-процесса, инициализация сессии и десятки запросов к БД для сборки фильтра — при агрессивном обходе краулерами свободные воркеры заканчивались мгновенно, CPU уходил в 100%. Полный прогрев каталога штатными средствами занял бы десятки часов и положил бы сервис.
+
+## Решение
+
+PHP-скрипт очистки таблиц SEO-модуля и сброса тегированного кеша:
+
+```php
+<?php
+define("NO_KEEP_STATISTIC", true);
+define("NOT_CHECK_PERMISSIONS", true);
+$_SERVER["DOCUMENT_ROOT"] = __DIR__;
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+
+if (\Bitrix\Main\Loader::includeModule('seo.module')) {
+    \Seo\Module\Models\CacheTable::clearCache();
+    $GLOBALS['CACHE_MANAGER']->ClearByTag('seo_module');
+    echo "Cache cleared.\n";
+}
+```
+
+Bash-скрипт прогрева: парсит sitemap, отфильтровывает из 7329 URL 318 целевых разделов каталога и прогревает их с троттлингом:
+
+```bash
+#!/bin/bash
+SITE="https://client-site.com"
+DOCROOT="/var/www/client/data/www/client-site.com"
+
+php -f $DOCROOT/clear_seo.php
+
+SEO_URLS=$(curl -s $SITE/seo-sitemap/sitemap-1.xml | grep -oP '(?<=<loc>).*?(?=</loc>)')
+IBLOCK_MAPS=$(curl -s $SITE/sitemap.xml | grep -oP '(?<=<loc>).*?(?=</loc>)' | grep 'sitemap-iblock')
+SECTION_URLS=$(echo "$IBLOCK_MAPS" | xargs -I {} curl -s {} | grep -oP '(?<=<loc>).*?(?=</loc>)' | sed 's#[^/]*/*$##' | sort | uniq)
+
+ALL_URLS=$(echo -e "$SEO_URLS\n$SECTION_URLS" | grep "http" | sort | uniq)
+echo "$ALL_URLS" > /tmp/warmup_urls.txt
+wget -q --spider -i /tmp/warmup_urls.txt --wait=1 --random-wait
+rm -f /tmp/warmup_urls.txt
+```
+
+Запуск по cron в окно простоя БД (после завершения импорта цен):
+
+```bash
+30 11 * * * /var/www/client/data/www/client-site.com/safe_warmup.sh
+```
+
+## Результат
+
+- Время ответа снизилось до **190ms**
+- Пики нагрузки на CPU полностью устранены
+- SEO-метатеги на 100% актуальны для краулеров
+- Рутинный ручной сброс кеша больше не нужен

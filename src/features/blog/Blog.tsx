@@ -1,3 +1,5 @@
+'use client';
+
 import { ArrowRight, BookOpen, Calendar, Clock } from 'lucide-react';
 import { useSlider } from '../../components/ui/Slider/useSlider';
 import { SliderControls } from '../../components/ui/Slider/SliderControls';

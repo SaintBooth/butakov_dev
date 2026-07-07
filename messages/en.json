@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "services": "Stack & Services",
+    "b2b": "B2B Partnership",
+    "cases": "Cases",
+    "experience": "Experience",
+    "cta": "Discuss a project"
+  },
+  "hero": {
+    "badge": "Open to B2B collaboration",
+    "title": "Technical partner for your business",
+    "subtitle": "I help businesses achieve clear goals through reliable web applications, e-commerce, and AI. Working from business goals, officially, with a guarantee.",
+    "cta": "Contact me",
+    "guarantees": "Learn about guarantees"
+  },
+  "contact": {
+    "title": "Let's discuss your project",
+    "subtitle": "Leave your contact and describe what metrics you're aiming for.",
+    "name": "Your name *",
+    "contactField": "Telegram / Phone *",
+    "service": "What are you interested in?",
+    "message": "About the project",
+    "submit": "Discuss project",
+    "submitting": "Sending...",
+    "success": "Request sent successfully!",
+    "successSub": "I will contact you shortly to discuss the details.",
+    "privacy": "Privacy Policy (152-FZ)",
+    "privacyText": "By clicking the button, you consent to the processing of personal data in accordance with the"
+  },
+  "journal": {
+    "title": "Engineering Journal",
+    "subtitle": "Real cases with code, metrics, and solutions.",
+    "readMore": "Read case",
+    "discussSimilar": "Discuss a similar project"
+  }
+}

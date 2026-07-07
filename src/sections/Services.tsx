@@ -1,11 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { services } from '../data/services';
 
-interface ServicesProps {
-  onContactClick: (serviceName: string) => void;
-}
-
-export default function Services({ onContactClick }: ServicesProps) {
+export default function Services() {
   return (
     <section id="services" className="py-24 relative z-10 border-t border-white/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,13 +29,13 @@ export default function Services({ onContactClick }: ServicesProps) {
               <p className="text-slate-600 mb-8 leading-relaxed font-medium flex-grow">
                 {service.description}
               </p>
-              <button
-                onClick={() => onContactClick(service.title)}
+              <a
+                href="#contact"
                 className="flex items-center gap-2 text-teal-600 font-bold hover:text-teal-700 transition-colors group/btn mt-auto"
               >
                 Обсудить задачу
                 <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-              </button>
+              </a>
             </div>
           ))}
         </div>

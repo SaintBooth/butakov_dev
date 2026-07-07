@@ -1,10 +1,12 @@
 import { MessageSquare, Github, Mail, ShieldCheck } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { SOCIAL } from '../config/social';
+import { PrivacyModalTrigger } from '../features/privacy/PrivacyModalTrigger';
 
 const NAV_LINKS = [
-  { href: '#services', label: 'Стек и Услуги' },
-  { href: '#b2b', label: 'Гарантии для B2B' },
-  { href: '#cases', label: 'Кейсы' },
+  { href: '/#services', label: 'Стек и Услуги' },
+  { href: '/#b2b', label: 'Гарантии для B2B' },
+  { href: '/#cases', label: 'Кейсы' },
 ];
 
 const REQUISITES = [
@@ -13,11 +15,7 @@ const REQUISITES = [
   'ОГРНИП: 326965800043687',
 ];
 
-interface FooterProps {
-  onPrivacyClick: () => void;
-}
-
-export default function Footer({ onPrivacyClick }: FooterProps) {
+export default function Footer() {
   return (
     <footer className="bg-slate-950 pt-16 pb-32 md:pb-12 border-t border-slate-900 relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,20 +59,15 @@ export default function Footer({ onPrivacyClick }: FooterProps) {
           <div className="flex flex-col gap-3">
             <h4 className="text-white font-bold mb-2">Навигация</h4>
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className="text-slate-400 hover:text-teal-400 text-sm transition-colors w-fit"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <button
-              onClick={onPrivacyClick}
-              className="text-slate-400 hover:text-teal-400 text-sm transition-colors w-fit text-left"
-            >
-              Политика конфиденциальности
-            </button>
+            <PrivacyModalTrigger>Политика конфиденциальности</PrivacyModalTrigger>
           </div>
           <div className="flex flex-col gap-3">
             <h4 className="text-white font-bold mb-2">Реквизиты</h4>

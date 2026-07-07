@@ -1,3 +1,4 @@
+'use client';
 import { clsx } from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 

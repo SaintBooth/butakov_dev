@@ -1,3 +1,4 @@
+'use client';
 import { X, ArrowRight, LineChart } from 'lucide-react';
 import Modal from '../../components/ui/Modal/Modal';
 import type { PortfolioCase } from '../../types';
@@ -6,10 +7,9 @@ import { renderTextWithCodeBlocks } from '../../utils/renderTextWithCodeBlocks';
 interface CaseModalProps {
   item: PortfolioCase;
   onClose: () => void;
-  onContactClick: () => void;
 }
 
-export default function CaseModal({ item, onClose, onContactClick }: CaseModalProps) {
+export default function CaseModal({ item, onClose }: CaseModalProps) {
   return (
     <Modal
       onClose={onClose}
@@ -91,16 +91,14 @@ export default function CaseModal({ item, onClose, onContactClick }: CaseModalPr
           <p className="text-sm text-slate-500 font-medium text-center sm:text-left">
             Готовы обсудить подобную задачу?
           </p>
-          <button
-            onClick={() => {
-              onClose();
-              setTimeout(onContactClick, 150);
-            }}
+          <a
+            href="#contact"
+            onClick={onClose}
             className="w-full sm:w-auto px-8 py-4 rounded-xl bg-slate-900 text-white font-bold hover:bg-teal-500 transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-2 group"
           >
             Обсудить проект
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
         </div>
       </div>
     </Modal>

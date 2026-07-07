@@ -1,0 +1,42 @@
+---
+title: "High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks"
+date: "2024-03-15"
+tags: ["BitrixVM", "Redis", "Nginx", "MySQL"]
+metric: "+40% server response speed"
+excerpt: "Full infrastructure migration resolving database deadlocks, CRM mobile crashes and AI crawler overload."
+---
+
+## Problem
+
+Database entered deep locks during stock updates. Mobile CRM app showed blank screens or access errors — multisite routing bug caused the core to confuse the public store domain with the internal portal domain. Additionally, AI neural network bots aggressively scanning the smart filter exhausted all web server worker processes.
+
+## Solution
+
+Full audit and migration to high-performance storage. Session storage moved to RAM to eliminate locks during parallel AJAX requests:
+
+```ini
+session.save_handler = redis
+session.save_path = "tcp://127.0.0.1:6379"
+```
+
+Hard multisite separation via direct SQL:
+
+```sql
+UPDATE b_lang SET SERVER_NAME='crm.example.com' WHERE LID='s1';
+UPDATE b_lang SET SERVER_NAME='example.com' WHERE LID='s2';
+```
+
+Strict filtering of aggressive AI parsers at Nginx level:
+
+```nginx
+if ($http_user_agent ~* "meta-externalagent|FacebookBot|Bytespider") { return 403; }
+```
+
+Unified cache for storefront and portal by assigning a static session identifier.
+
+## Result
+
+- Server response speed **+40%**
+- Peak CPU load reduced **5x**
+- Mobile CRM fully restored
+- Purchase conversion **+15%**
