@@ -18,6 +18,7 @@ Thumbs.db
 
 # Next.js
 .next/
+*.tsbuildinfo
 
 # Vite cache (kept for reference, Vite removed)
 .vite/
