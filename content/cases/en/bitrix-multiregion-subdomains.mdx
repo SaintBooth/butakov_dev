@@ -3,7 +3,7 @@ title: "Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Su
 date: "2026-07-08"
 tags: ["Bitrix", "Nginx", "PHP", "SEO"]
 metric: "27 cities, 0 duplicates"
-excerpt: "Regional subdomains for 27 cities: wildcard routing, SEO duplicate protection and returning users to their local catalog."
+excerpt: "Regional subdomains for 27 cities: an explicit domain list instead of wildcard routing, SEO duplicate protection, returning users to their city, and isolating a CRM portal on the same server."
 ---
 
 ## Problem
@@ -18,13 +18,17 @@ The worst part surfaced later. The blog and company news opened on all 27 subdom
 
 Then the user journey. A visitor browses their city's catalog, clicks through to read a blog post on the main domain, then heads back to the catalog. And lands in the main domain's catalog, city forgotten. On top of that, links to shared sections inside product cards pointed at subdomains and collected pointless 301 redirects, leaking link equity for nothing.
 
+CRM went down while I was still setting up regionality for the store. The same server also runs a Bitrix24 corporate portal on `crm.example.com`. The moment I applied the base subdomain infrastructure settings, the portal stopped opening deals: clicking a lead froze the interface into a white screen, and the console filled with Vue router errors: `AbortError: Transition was skipped`. The portal's core tried to load the store's menu files and crashed with a Fatal Error.
+
 ## Solution
 
-Infrastructure first. I set up wildcard DNS (`*.example.com`) and wrote an Nginx config that proxies subdomain requests to Apache while passing the original `$host`. Without that header the Bitrix core has no idea which subdomain it is on. One line, and nothing works without it. Duplicates got closed in the same place: any request to `/blog/` or `/company/news/` on a subdomain gets a 301 to the main domain. PHP and the database are not even involved, the redirect fires instantly.
+Infrastructure first. I set up wildcard DNS (`*.example.com`) and wrote an Nginx regex that matched any example.com subdomain — fast to write, and exactly what killed the CRM: the greedy regex also caught `crm.example.com` and routed it into the store's `DOCUMENT_ROOT`. I did not want to debug that in production, so I dropped the regex and listed all 27 cities explicitly, with the CRM subdomain deliberately left out.
+
+While proxying to Apache I also passed through the original `$host` — without that header the Bitrix core has no idea which subdomain it is on. One line, and nothing works without it. Duplicates got closed in the same place: any request to `/blog/` or `/company/news/` on a subdomain gets a 301 to the main domain. PHP and the database are not even involved, the redirect fires instantly.
 
 ```nginx
 server {
-    server_name ~^(?<city>[\w-]+)\.example\.com$;
+    server_name example.com www.example.com ekb.example.com spb.example.com krasnodar.example.com; # and 24 more cities
 
     location ~ ^/(blog|company/news)/ {
         return 301 https://example.com$request_uri;
@@ -149,26 +153,30 @@ class RegionalSeoHandlers
 
 Wiring it up takes a couple of calls in `init.php`. I try to keep `init.php` itself empty: in Bitrix projects it turns into a dumping ground anyway. Just a `require` and handler registration — an isolated class is easier to read, survives core and template updates, and is simple to extend.
 
+I also added a host check right there: if the request is for `crm.example.com`, the handlers never get registered at all. Nginx already keeps CRM traffic out of the store, but the extra guard in PHP costs nothing. And if someone adds another subdomain to this server later, it won't let the same story repeat.
+
 ```php
 <?php
 // /local/php_interface/init.php
 
-if (file_exists(__DIR__ . '/include/regional_handlers.php')) {
-    require_once(__DIR__ . '/include/regional_handlers.php');
+if (strpos($_SERVER['HTTP_HOST'] ?? '', 'crm.example.com') === false) {
+    if (file_exists(__DIR__ . '/include/regional_handlers.php')) {
+        require_once(__DIR__ . '/include/regional_handlers.php');
 
-    // Return the visitor to their region when leaving global sections
-    AddEventHandler(
-        "main",
-        "OnPageStart",
-        ["RegionalSeoHandlers", "returnToRegionalDomain"]
-    );
+        // Return the visitor to their region when leaving global sections
+        AddEventHandler(
+            "main",
+            "OnPageStart",
+            ["RegionalSeoHandlers", "returnToRegionalDomain"]
+        );
 
-    // Strip regional links to global sections from the HTML
-    AddEventHandler(
-        "main",
-        "OnEndBufferContent",
-        ["RegionalSeoHandlers", "forceAbsoluteLinksForMainSections"]
-    );
+        // Strip regional links to global sections from the HTML
+        AddEventHandler(
+            "main",
+            "OnEndBufferContent",
+            ["RegionalSeoHandlers", "forceAbsoluteLinksForMainSections"]
+        );
+    }
 }
 ```
 
@@ -177,4 +185,5 @@ if (file_exists(__DIR__ . '/include/regional_handlers.php')) {
 - **0 content duplicates** — bots see clean direct links
 - Part of the load moved from PHP to fast Nginx
 - Users move freely between the global blog and their city's catalog
+- The store and CRM share a server without stepping on each other: Nginx and the PHP core keep them apart
 - Adding city number 28 or 50 takes **one iblock element** — infrastructure and code pick it up automatically
