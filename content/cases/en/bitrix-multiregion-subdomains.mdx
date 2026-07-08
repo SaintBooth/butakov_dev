@@ -20,14 +20,14 @@ Then the user journey. A visitor browses their city's catalog, clicks through to
 
 ## Solution
 
-Infrastructure first. I set up wildcard DNS (`*.domain.ru`) and wrote an Nginx config that proxies subdomain requests to Apache while passing the original `$host`. Without that header the Bitrix core has no idea which subdomain it is on. One line, and nothing works without it. Duplicates got closed in the same place: any request to `/blog/` or `/company/news/` on a subdomain gets a 301 to the main domain. PHP and the database are not even involved, the redirect fires instantly.
+Infrastructure first. I set up wildcard DNS (`*.example.com`) and wrote an Nginx config that proxies subdomain requests to Apache while passing the original `$host`. Without that header the Bitrix core has no idea which subdomain it is on. One line, and nothing works without it. Duplicates got closed in the same place: any request to `/blog/` or `/company/news/` on a subdomain gets a 301 to the main domain. PHP and the database are not even involved, the redirect fires instantly.
 
 ```nginx
 server {
-    server_name ~^(?<city>[\w-]+)\.domain\.ru$;
+    server_name ~^(?<city>[\w-]+)\.example\.com$;
 
     location ~ ^/(blog|company/news)/ {
-        return 301 https://domain.ru$request_uri;
+        return 301 https://example.com$request_uri;
     }
 
     location / {
@@ -37,38 +37,140 @@ server {
 }
 ```
 
-To bring users back to their city I wrote an `OnPageStart` event handler. The logic: if a visitor ends up on the main domain inside a local section like `/catalog/`, the script reads the region ID from `$_COOKIE['current_region']`, looks up the subdomain in the regions iblock and sends the visitor there. GET parameters survive the trip, so chosen filters and pagination don't reset. I also explicitly blocked the script from firing in AJAX requests, REST API and CLI. Learned that the hard way: without the guard the handler breaks imports.
+Now the PHP part. All the logic lives in one class with two event handlers. I cleaned it up for the article: the domain became `example.com`, and wherever you need to plug in your own values there's a TODO comment. The first method brings the visitor back to their city. If someone ends up on the main domain inside a regular section like the catalog, the script reads the region ID from the `current_region` cookie (set by the Aspro component), pulls the region's domain from the iblock and redirects there with all GET parameters intact. Filters, pagination and utm tags survive the trip. The second method is the SEO patch: on `OnEndBufferContent` regular expressions scan the final HTML right before it goes to the browser and replace regional links to the blog and news with absolute main-domain URLs. Yandex and Google bots see clean direct links, with zero internal redirects.
+
+Note the guard blocks at the top of both methods. They stop the scripts from firing in the admin panel, AJAX requests, REST API and CLI. Learned that the hard way: without the guard the handler breaks imports.
+
+The file `/local/php_interface/include/regional_handlers.php`:
 
 ```php
-public static function returnToRegion(): void
+<?php
+/**
+ * Event handlers for subdomain routing and SEO optimization
+ * on multi-region 1C-Bitrix projects (Aspro: Max template)
+ */
+class RegionalSeoHandlers
 {
-    if (self::isAjaxOrApi() || php_sapi_name() === 'cli') {
-        return;
+    /**
+     * Returns the visitor to their regional subdomain when they leave shared sections.
+     * Protects the user context from being lost (falling out of the region).
+     */
+    public static function returnToRegionalDomain()
+    {
+        // 1. Skip admin panel, REST API, AJAX and CLI so we don't break system processes
+        if (defined('ADMIN_SECTION') && ADMIN_SECTION === true) return;
+        if (php_sapi_name() === 'cli') return;
+        if (isset($_SERVER['HTTP_BX_AJAX']) || isset($_REQUEST['ajax']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) return;
+        if (strpos($_SERVER['REQUEST_URI'], '/bitrix/') === 0 || strpos($_SERVER['REQUEST_URI'], '/rest/') === 0) return;
+
+        $host = str_replace('www.', '', $_SERVER['HTTP_HOST']);
+        $uri = $_SERVER['REQUEST_URI'];
+
+        // TODO: set your main domain (no protocol)
+        $mainDomain = 'example.com';
+
+        // 2. Excluded sections that physically exist only on the main domain
+        // TODO: list your shared section directories separated by |
+        $isExcluded = preg_match('#^/(blog|company/news)/#i', $uri);
+
+        // 3. Visitor is on the main domain but entered a regular section (catalog, cart, etc.)
+        if ($host === $mainDomain && !$isExcluded) {
+
+            // Read the region ID straight from the user's cookie (set by the Aspro component)
+            $regionCookieId = isset($_COOKIE['current_region']) ? (int)$_COOKIE['current_region'] : 0;
+
+            if ($regionCookieId > 0 && \Bitrix\Main\Loader::includeModule('iblock')) {
+
+                // Fetch the region's domain directly from the iblock database
+                $dbRegion = \CIBlockElement::GetList(
+                    [],
+                    ['ID' => $regionCookieId, 'ACTIVE' => 'Y'],
+                    false,
+                    false,
+                    ['ID', 'IBLOCK_ID', 'PROPERTY_MAIN_DOMAIN']
+                );
+
+                if ($arRegion = $dbRegion->Fetch()) {
+                    $regionDomain = $arRegion['PROPERTY_MAIN_DOMAIN_VALUE'];
+                    $regionDomain = trim(str_replace(['http://', 'https://'], '', $regionDomain));
+
+                    // 4. Instant redirect if the domain exists and differs from the main one
+                    if (!empty($regionDomain) && $regionDomain !== $mainDomain) {
+                        // Keep GET parameters (filters, pagination, utm tags)
+                        $queryString = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
+                        $newUrl = 'https://' . $regionDomain . current(explode('?', $uri)) . $queryString;
+
+                        LocalRedirect($newUrl, true, '301 Moved Permanently');
+                    }
+                }
+            }
+        }
     }
 
-    $regionId = (int)($_COOKIE['current_region'] ?? 0);
-    $subdomain = self::getRegionSubdomain($regionId);
+    /**
+     * SEO patch: forcibly replaces relative and wrongly generated
+     * regional links with absolute main-domain URLs.
+     */
+    public static function forceAbsoluteLinksForMainSections(&$content)
+    {
+        // Skip system and AJAX requests
+        if (
+            (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ||
+            php_sapi_name() === 'cli' ||
+            strpos($_SERVER['REQUEST_URI'], '/bitrix/') === 0 ||
+            strpos($_SERVER['REQUEST_URI'], '/rest/') === 0 ||
+            (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') ||
+            (isset($_REQUEST['ajax']) && strtolower((string)$_REQUEST['ajax']) === 'y')
+        ) {
+            return;
+        }
 
-    if ($subdomain && self::isLocalSection()) {
-        LocalRedirect('https://' . $subdomain . $_SERVER['REQUEST_URI'], true, '302 Found');
+        // TODO: set your main domain (with protocol)
+        $mainDomain = 'https://example.com';
+
+        // Rule 1: relative links (e.g. href="/blog/...")
+        // TODO: list your shared sections
+        $content = preg_replace(
+            '/(href=["\'])\/(blog|company\/news)\//i',
+            '$1' . $mainDomain . '/$2/',
+            $content
+        );
+
+        // Rule 2: links where the component already inserted a subdomain (href="https://ekb.example.com/blog/...")
+        // TODO: escape the dots in your domain name (e.g. example\.com)
+        $content = preg_replace(
+            '/(href=["\'])https?:\/\/[a-zA-Z0-9-]+\.example\.com\/(blog|company\/news)\//i',
+            '$1' . $mainDomain . '/$2/',
+            $content
+        );
     }
 }
 ```
 
-That left the internal blog and news links in the markup. An `OnEndBufferContent` handler solved it: regular expressions scan the final HTML right before it goes to the browser and replace regional links with absolute main-domain URLs. Yandex and Google bots see clean direct links, with zero internal redirects.
+Wiring it up takes a couple of calls in `init.php`. I try to keep `init.php` itself empty: in Bitrix projects it turns into a dumping ground anyway. Just a `require` and handler registration — an isolated class is easier to read, survives core and template updates, and is simple to extend.
 
 ```php
-public static function fixGlobalLinks(string &$content): void
-{
-    $content = preg_replace(
-        '#https?://[\w-]+\.domain\.ru(/(?:blog|company/news)/)#',
-        'https://domain.ru$1',
-        $content
+<?php
+// /local/php_interface/init.php
+
+if (file_exists(__DIR__ . '/include/regional_handlers.php')) {
+    require_once(__DIR__ . '/include/regional_handlers.php');
+
+    // Return the visitor to their region when leaving global sections
+    AddEventHandler(
+        "main",
+        "OnPageStart",
+        ["RegionalSeoHandlers", "returnToRegionalDomain"]
+    );
+
+    // Strip regional links to global sections from the HTML
+    AddEventHandler(
+        "main",
+        "OnEndBufferContent",
+        ["RegionalSeoHandlers", "forceAbsoluteLinksForMainSections"]
     );
 }
 ```
-
-All of the code moved out of `init.php` into a separate static class, `regional_handlers.php`. In Bitrix projects `init.php` turns into a dumping ground anyway. An isolated class is easier to read, survives core and template updates, and is simple to extend.
 
 ## Result
 
