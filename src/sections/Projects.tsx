@@ -31,17 +31,7 @@ export default async function Projects() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-[2.5rem]" />
               <div className="relative z-10 flex flex-col flex-grow">
                 <div className="flex items-center gap-3 mb-6">
-                  <div
-                    className={clsx(
-                      'w-12 h-12 flex items-center justify-center shadow-lg flex-shrink-0',
-                      project.markClassName
-                    )}
-                    style={project.markStyle}
-                  >
-                    {project.markLabel && (
-                      <span className="text-white font-extrabold text-sm">{project.markLabel}</span>
-                    )}
-                  </div>
+                  <project.MarkIcon className="w-12 h-12 flex-shrink-0" />
                   <h3 className={clsx('text-2xl text-white tracking-tight', project.wordmarkClass)}>
                     {project.name}
                   </h3>

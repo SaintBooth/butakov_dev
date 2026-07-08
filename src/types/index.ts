@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import type { ComponentType, CSSProperties } from 'react';
 
 export interface PortfolioCase {
   id: number;
@@ -51,9 +51,7 @@ export interface ProjectMeta {
   name: string;
   wordmarkClass: string;
   url: string;
-  markClassName: string;
-  markStyle: CSSProperties;
-  markLabel?: string;
+  MarkIcon: ComponentType<{ className?: string; style?: CSSProperties }>;
   accentTextClass: string;
   accentBorderClass: string;
   accentShadowClass: string;
