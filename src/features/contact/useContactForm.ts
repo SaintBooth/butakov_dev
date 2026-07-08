@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ContactFormData } from './contactSchema';
-import { contactSchema, web3formsResponseSchema } from './contactSchema';
+import { createContactSchema, web3formsResponseSchema } from './contactSchema';
 
 const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? '';
 
@@ -17,12 +17,13 @@ interface UseContactFormResult {
   clearError: (field: keyof ContactFormData) => void;
 }
 
-export function useContactForm(): UseContactFormResult {
+export function useContactForm(t: (key: string) => string): UseContactFormResult {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
 
   const validate = (rawData: unknown): boolean => {
+    const contactSchema = createContactSchema(t);
     const result = contactSchema.safeParse(rawData);
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof ContactFormData, string>> = {};

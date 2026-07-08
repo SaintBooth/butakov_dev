@@ -1,18 +1,17 @@
 import { ChevronRight } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { services } from '../data/services';
 
-export default function Services() {
+export default async function Services() {
+  const t = await getTranslations('services');
+
   return (
     <section id="services" className="py-24 relative z-10 border-t border-white/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Какой стек подходит для вашей задачи?
-            </h2>
-            <p className="text-slate-600 text-lg font-medium">
-              Подбираю технологию под задачу — не переплатите за лишнюю сложность и поддержку.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t('heading')}</h2>
+            <p className="text-slate-600 text-lg font-medium">{t('subheading')}</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -25,15 +24,17 @@ export default function Services() {
               <div className="bg-white/80 backdrop-blur-sm w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0">
                 <service.Icon className="w-8 h-8 text-teal-500" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">{service.title}</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                {t(`items.${service.id}.title`)}
+              </h3>
               <p className="text-slate-600 mb-8 leading-relaxed font-medium flex-grow">
-                {service.description}
+                {t(`items.${service.id}.description`)}
               </p>
               <a
                 href="#contact"
                 className="flex items-center gap-2 text-teal-600 font-bold hover:text-teal-700 transition-colors group/btn mt-auto"
               >
-                Обсудить задачу
+                {t('cta')}
                 <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
               </a>
             </div>

@@ -1,5 +1,6 @@
 'use client';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Modal from '../components/ui/Modal/Modal';
 
 interface PrivacyModalProps {
@@ -7,6 +8,8 @@ interface PrivacyModalProps {
 }
 
 export default function PrivacyModal({ onClose }: PrivacyModalProps) {
+  const t = useTranslations('privacy');
+
   return (
     <Modal
       onClose={onClose}
@@ -18,37 +21,24 @@ export default function PrivacyModal({ onClose }: PrivacyModalProps) {
       >
         <X className="w-5 h-5" />
       </button>
-      <h2 className="text-3xl font-bold text-slate-900 mb-6 pr-8">Политика конфиденциальности</h2>
+      <h2 className="text-3xl font-bold text-slate-900 mb-6 pr-8">{t('title')}</h2>
       <div className="prose prose-sm prose-slate max-w-none">
-        <p>
-          Настоящая Политика конфиденциальности составлена в соответствии с требованиями
-          Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок
-          обработки персональных данных Индивидуальным предпринимателем Бутаковым Александром
-          Сергеевичем (далее – Оператор).
-        </p>
-        <h3 className="font-bold text-slate-800 mt-6 mb-2">1. Основные понятия</h3>
-        <p>1.1. Веб-сайт — https://butakov.dev.</p>
-        <p>1.2. Пользователь — любой посетитель веб-сайта https://butakov.dev.</p>
-        <h3 className="font-bold text-slate-800 mt-6 mb-2">2. Цели сбора персональных данных</h3>
-        <p>
-          Информирование пользователя; заключение и исполнение гражданско-правовых договоров;
-          предоставление доступа к сервисам и материалам сайта.
-        </p>
-        <h3 className="font-bold text-slate-800 mt-6 mb-2">3. Права и обязанности</h3>
-        <p>
-          Оператор имеет право получать от Пользователя достоверные данные. Пользователь имеет право
-          на получение информации об обработке его персональных данных.
-        </p>
-        <p className="text-slate-400 italic mt-8 text-xs">
-          * Базовый шаблон. Рекомендуется заменить на полный юридически верифицированный документ.
-        </p>
+        <p>{t('intro')}</p>
+        <h3 className="font-bold text-slate-800 mt-6 mb-2">{t('section1Title')}</h3>
+        <p>{t('section1Website')}</p>
+        <p>{t('section1User')}</p>
+        <h3 className="font-bold text-slate-800 mt-6 mb-2">{t('section2Title')}</h3>
+        <p>{t('section2Body')}</p>
+        <h3 className="font-bold text-slate-800 mt-6 mb-2">{t('section3Title')}</h3>
+        <p>{t('section3Body')}</p>
+        <p className="text-slate-400 italic mt-8 text-xs">{t('disclaimer')}</p>
       </div>
       <div className="mt-8 pt-6 border-t border-slate-100 text-center">
         <button
           onClick={onClose}
           className="px-8 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-teal-500 transition-all"
         >
-          Понятно, закрыть
+          {t('close')}
         </button>
       </div>
     </Modal>

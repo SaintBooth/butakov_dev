@@ -1,13 +1,8 @@
 import { MessageSquare, Github, Mail, ShieldCheck } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { SOCIAL } from '../config/social';
 import { PrivacyModalTrigger } from '../features/privacy/PrivacyModalTrigger';
-
-const NAV_LINKS = [
-  { href: '/#services', label: 'Стек и Услуги' },
-  { href: '/#b2b', label: 'Гарантии для B2B' },
-  { href: '/#cases', label: 'Кейсы' },
-];
 
 const REQUISITES = [
   'ИП Бутаков Александр Сергеевич',
@@ -15,7 +10,15 @@ const REQUISITES = [
   'ОГРНИП: 326965800043687',
 ];
 
-export default function Footer() {
+export default async function Footer() {
+  const t = await getTranslations('footer');
+
+  const navLinks = [
+    { href: '/#services', label: t('services') },
+    { href: '/#b2b', label: t('b2b') },
+    { href: '/#cases', label: t('cases') },
+  ];
+
   return (
     <footer className="bg-slate-950 pt-16 pb-32 md:pb-12 border-t border-slate-900 relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,10 +31,7 @@ export default function Footer() {
               height="40"
               className="h-10 w-10 object-contain"
             />
-            <p className="text-slate-400 text-sm">
-              Разрабатываю и усиливаю digital-продукты: 1С-Битрикс, WordPress, React/Next.js, Django
-              и AI-автоматизация.
-            </p>
+            <p className="text-slate-400 text-sm">{t('tagline')}</p>
             <div className="flex items-center gap-4 mt-2">
               <a
                 href={SOCIAL.telegram}
@@ -57,8 +57,8 @@ export default function Footer() {
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <h4 className="text-white font-bold mb-2">Навигация</h4>
-            {NAV_LINKS.map((link) => (
+            <h4 className="text-white font-bold mb-2">{t('navHeading')}</h4>
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -67,23 +67,23 @@ export default function Footer() {
                 {link.label}
               </Link>
             ))}
-            <PrivacyModalTrigger>Политика конфиденциальности</PrivacyModalTrigger>
+            <PrivacyModalTrigger>{t('privacyLink')}</PrivacyModalTrigger>
           </div>
           <div className="flex flex-col gap-3">
-            <h4 className="text-white font-bold mb-2">Реквизиты</h4>
+            <h4 className="text-white font-bold mb-2">{t('requisitesHeading')}</h4>
             {REQUISITES.map((r) => (
               <p key={r} className="text-slate-400 text-sm">
                 {r}
               </p>
             ))}
             <p className="text-slate-400 text-sm mt-2 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-teal-500" /> Работа по договору, ЭДО
+              <ShieldCheck className="w-4 h-4 text-teal-500" /> {t('contractLabel')}
             </p>
           </div>
         </div>
         <div className="pt-8 border-t border-slate-900/80 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-slate-600 text-sm font-medium">
-            © {new Date().getFullYear()} butakov.dev. Все права защищены.
+            © {new Date().getFullYear()} butakov.dev. {t('rights')}
           </p>
         </div>
       </div>

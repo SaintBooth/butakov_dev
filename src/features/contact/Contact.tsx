@@ -2,6 +2,7 @@
 
 import { clsx } from 'clsx';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { services } from '../../data/services';
 import { PrivacyModalTrigger } from '../privacy/PrivacyModalTrigger';
@@ -28,17 +29,19 @@ function inputClass(hasError: boolean): string {
 
 // Contact manages selectedService state internally — no props needed from parent
 export default function Contact() {
+  const t = useTranslations('contact');
+  const tServices = useTranslations('services');
   const [selectedService, setSelectedService] = useState('');
-  const { isSubmitted, isSubmitting, errors, submit, clearError } = useContactForm();
+  const { isSubmitted, isSubmitting, errors, submit, clearError } = useContactForm(t);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const result = await submit(e, selectedService);
     if (result.success) {
       setSelectedService('');
     } else if (result.reason === 'server') {
-      alert('Упс! Что-то пошло не так. Пожалуйста, напишите мне в Telegram.');
+      alert(t('errorServer'));
     } else if (result.reason === 'network') {
-      alert('Ошибка отправки. Проверьте подключение к интернету.');
+      alert(t('errorNetwork'));
     }
   };
 
@@ -49,12 +52,8 @@ export default function Contact() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="bg-white/60 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-14 shadow-2xl shadow-teal-900/10 border border-white">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Давайте обсудим задачу
-            </h2>
-            <p className="text-slate-600 font-medium">
-              Оставьте контакты и опишите, к каким метрикам вы стремитесь.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t('title')}</h2>
+            <p className="text-slate-600 font-medium">{t('subtitle')}</p>
           </div>
 
           {isSubmitted ? (
@@ -62,31 +61,29 @@ export default function Contact() {
               <div className="w-24 h-24 bg-teal-50 rounded-full flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-12 h-12 text-teal-500" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Заявка успешно отправлена!</h3>
-              <p className="text-slate-600 font-medium">
-                Я свяжусь с вами в ближайшее время для обсуждения деталей.
-              </p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">{t('success')}</h3>
+              <p className="text-slate-600 font-medium">{t('successSub')}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
-                  <label className="text-sm font-bold text-slate-700">Ваше имя *</label>
+                  <label className="text-sm font-bold text-slate-700">{t('name')}</label>
                   <input
                     name="name"
                     type="text"
-                    placeholder="Иван Иванов"
+                    placeholder={t('namePlaceholder')}
                     className={inputClass(!!errors.name)}
                     onChange={() => clearError('name' as keyof ContactFormData)}
                   />
                   <FieldError message={errors.name} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-bold text-slate-700">Telegram / Телефон *</label>
+                  <label className="text-sm font-bold text-slate-700">{t('contactField')}</label>
                   <input
                     name="contact"
                     type="text"
-                    placeholder="@username или +7..."
+                    placeholder={t('contactPlaceholder')}
                     className={inputClass(!!errors.contact)}
                     onChange={() => clearError('contact' as keyof ContactFormData)}
                   />
@@ -95,29 +92,32 @@ export default function Contact() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">Что вас интересует?</label>
+                <label className="text-sm font-bold text-slate-700">{t('service')}</label>
                 <select
                   name="service"
                   value={selectedService}
                   onChange={(e) => setSelectedService(e.target.value)}
                   className="w-full bg-white/50 backdrop-blur-sm border border-white/80 rounded-xl px-5 py-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:bg-white transition-all appearance-none cursor-pointer font-medium shadow-sm"
                 >
-                  <option value="">Выберите услугу (необязательно)</option>
-                  {services.map((s) => (
-                    <option key={s.id} value={s.title}>
-                      {s.title}
-                    </option>
-                  ))}
-                  <option value="Другое">Комплексная задача / Другое</option>
+                  <option value="">{t('serviceEmpty')}</option>
+                  {services.map((s) => {
+                    const title = tServices(`items.${s.id}.title`);
+                    return (
+                      <option key={s.id} value={title}>
+                        {title}
+                      </option>
+                    );
+                  })}
+                  <option value={t('serviceOther')}>{t('serviceOther')}</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">О проекте</label>
+                <label className="text-sm font-bold text-slate-700">{t('message')}</label>
                 <textarea
                   name="message"
                   rows={4}
-                  placeholder="Опишите вашу бизнес-задачу, каких результатов хотите достичь или прикрепите ссылку на ТЗ..."
+                  placeholder={t('messagePlaceholder')}
                   className="w-full bg-white/50 backdrop-blur-sm border border-white/80 rounded-xl px-5 py-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:bg-white transition-all resize-none font-medium shadow-sm"
                 />
               </div>
@@ -127,17 +127,16 @@ export default function Contact() {
                 disabled={isSubmitting}
                 className="w-full py-5 rounded-xl bg-slate-900 text-white font-bold text-lg hover:bg-teal-500 transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.98]"
               >
-                {isSubmitting ? 'Отправка...' : 'Обсудить проект'}
+                {isSubmitting ? t('submitting') : t('submit')}
                 {!isSubmitting && (
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 )}
               </button>
 
               <p className="text-xs text-center text-slate-500 mt-4 font-medium">
-                Нажимая на кнопку, вы даете согласие на обработку персональных данных в соответствии
-                с{' '}
+                {t('privacyText')}{' '}
                 <PrivacyModalTrigger className="text-teal-600 hover:text-teal-700 underline">
-                  Политикой конфиденциальности (152-ФЗ)
+                  {t('privacy')}
                 </PrivacyModalTrigger>
                 .
               </p>

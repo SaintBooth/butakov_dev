@@ -1,25 +1,9 @@
 import { FileSignature, ShieldCheck, Zap, Building2 } from 'lucide-react';
-import type { B2bGuarantee } from '../types';
+import type { B2bGuaranteeMeta } from '../types';
 
-export const b2bGuarantees: B2bGuarantee[] = [
-  {
-    Icon: FileSignature,
-    title: 'Официальный договор',
-    desc: 'Работаем по договору, подписываем NDA. Предоставляю все закрывающие документы и чеки. Принимаю безналичный расчет.',
-  },
-  {
-    Icon: ShieldCheck,
-    title: 'Гарантия 6 месяцев',
-    desc: 'Предоставляю полгода бесплатной технической поддержки. Если после сдачи проекта обнаружится баг — исправлю его бесплатно.',
-  },
-  {
-    Icon: Zap,
-    title: 'One-man band + AI',
-    desc: 'Я работаю один, используя мощь современных нейросетей для ускорения рутины. Вы не оплачиваете раздутый штат менеджеров агентства.',
-  },
-  {
-    Icon: Building2,
-    title: 'Работаю от бизнес-целей',
-    desc: 'Ценю партнеров, которые понимают, зачем им IT-продукт. Вникаю в юнит-экономику и помогаю достичь метрик, минуя хаотичные эксперименты.',
-  },
+export const b2bGuarantees: B2bGuaranteeMeta[] = [
+  { id: 'contract', Icon: FileSignature },
+  { id: 'guarantee', Icon: ShieldCheck },
+  { id: 'solo-ai', Icon: Zap },
+  { id: 'goals', Icon: Building2 },
 ];

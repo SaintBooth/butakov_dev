@@ -1,4 +1,5 @@
 import { Sparkles, Cpu, ExternalLink, BrainCircuit } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 const PROMPTSPACE_URL = 'https://promptspace.ru/';
 const TECH_STACK = [
@@ -8,7 +9,9 @@ const TECH_STACK = [
   'HashiCorp Vault',
 ];
 
-export default function PromptSpace() {
+export default async function PromptSpace() {
+  const t = await getTranslations('promptSpace');
+
   return (
     <section
       id="promptspace"
@@ -22,20 +25,16 @@ export default function PromptSpace() {
           <div className="lg:w-[55%] space-y-6 relative z-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/60 border border-slate-700/50 text-xs font-bold text-teal-400 mb-2 shadow-sm backdrop-blur-md">
               <Sparkles className="w-4 h-4" />
-              Собственный SaaS Продукт
+              {t('badge')}
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-white leading-tight">
               PromptSpace
             </h2>
-            <p className="text-xl text-teal-400 font-bold">Платформа монетизации AI-промптов</p>
-            <p className="text-slate-300 leading-relaxed font-medium">
-              Я с нуля спроектировал и запустил маркетплейс, где промпты надежно защищены (152-ФЗ,
-              Envelope-шифрование), а платежи автоматически расщепляются между платформой и
-              авторами.
-            </p>
+            <p className="text-xl text-teal-400 font-bold">{t('tagline')}</p>
+            <p className="text-slate-300 leading-relaxed font-medium">{t('description')}</p>
             <div className="mt-6 p-5 rounded-2xl bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm">
               <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Cpu className="w-4 h-4" /> Под капотом
+                <Cpu className="w-4 h-4" /> {t('underHood')}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {TECH_STACK.map((tech) => (
@@ -55,7 +54,7 @@ export default function PromptSpace() {
                 rel="noopener noreferrer"
                 className="inline-flex px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25 items-center gap-2 group"
               >
-                Посмотреть архитектуру{' '}
+                {t('cta')}{' '}
                 <ExternalLink className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </a>
             </div>

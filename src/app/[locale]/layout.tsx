@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { YandexMetrika } from '@/components/YandexMetrika';
-import { SCHEMA_BUSINESS, SCHEMA_PERSON, SCHEMA_FAQ } from '@/config/schema';
+import { getSchemaBusiness, getSchemaPerson, getSchemaFaq } from '@/config/schema';
 import Header from '@/sections/Header';
 import Footer from '@/sections/Footer';
 import MobileNav from '@/sections/MobileNav';
@@ -14,16 +14,6 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-geist' });
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
 
 const locales = ['en', 'ru'];
-
-export const metadata: Metadata = {
-  title: 'Александр Бутаков | Технический партнер и Разработчик веб-приложений',
-  description:
-    'Разработка сложных веб-сервисов, интернет-магазинов и внедрение ИИ. Настройка Яндекс Директ и перфоманс-маркетинг. Ваш надежный IT-партнер.',
-  icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-  },
-};
 
 // Required for SSG — tells Next.js which locales to pre-render at build time
 export function generateStaticParams() {
@@ -35,14 +25,34 @@ interface Props {
   params: Promise<{ locale: string }>;
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'metadata' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    icons: {
+      icon: '/favicon.svg',
+      shortcut: '/favicon.svg',
+    },
+  };
+}
+
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
 
   if (!locales.includes(locale)) notFound();
 
   const messages = await getMessages();
+  const tSchema = await getTranslations('schema');
+  const tServices = await getTranslations('services');
 
-  const schemas = [SCHEMA_BUSINESS, SCHEMA_PERSON, SCHEMA_FAQ];
+  const schemas = [
+    getSchemaBusiness(tSchema, tServices),
+    getSchemaPerson(tSchema),
+    getSchemaFaq(tSchema),
+  ];
 
   return (
     <html lang={locale} className={`${geist.variable} ${geistMono.variable}`}>

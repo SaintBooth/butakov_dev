@@ -26,28 +26,21 @@ export interface BlogPost {
   gradient: string;
 }
 
-export interface Service {
+export interface ServiceMeta {
   id: string;
-  title: string;
-  description: string;
   Icon: LucideIcon;
 }
 
-export interface B2bGuarantee {
+export interface B2bGuaranteeMeta {
+  id: string;
   Icon: LucideIcon;
-  title: string;
-  desc: string;
 }
 
-export interface ExperienceItem {
+export interface ExperienceMeta {
+  id: string;
   period: string;
-  role: string;
-  company: string;
-  description: string;
 }
 
-export interface ProcessStep {
-  step: string;
-  title: string;
-  desc: string;
+export interface ProcessStepMeta {
+  id: string;
 }

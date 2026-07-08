@@ -1,36 +1,247 @@
 {
   "nav": {
+    "ariaLabel": "Main navigation",
     "services": "Stack & Services",
     "b2b": "B2B Partnership",
     "cases": "Cases",
     "experience": "Experience",
-    "cta": "Discuss a project"
+    "journal": "Journal",
+    "cta": "Discuss a project",
+    "home": "Home",
+    "contactShort": "Contact"
   },
   "hero": {
-    "badge": "Open to B2B collaboration",
-    "title": "Technical partner for your business",
-    "subtitle": "I help businesses achieve clear goals through reliable web applications, e-commerce, and AI. Working from business goals, officially, with a guarantee.",
+    "badge": "Open to B2B partnerships",
+    "titlePrefix": "Technical",
+    "titleAccent": "partner",
+    "titleSuffix": "for your business",
+    "subtitle": "Web apps, e-commerce, and AI, from business problem to shipped result. Signed contract and 6 months of guarantee on every project.",
     "cta": "Contact me",
     "guarantees": "Learn about guarantees"
+  },
+  "services": {
+    "heading": "Which stack fits your project?",
+    "subheading": "I match the technology to the task, so you don't overpay for complexity or support you don't need.",
+    "cta": "Discuss the task",
+    "items": {
+      "custom-web": {
+        "title": "Complex web platforms & startups",
+        "description": "Custom platforms, SaaS, marketplaces, and dashboards with non-trivial logic, built on Django 5 and Next.js 15."
+      },
+      "ecommerce": {
+        "title": "E-commerce on 1C-Bitrix",
+        "description": "Online stores of any complexity, synced reliably with 1C:UT."
+      },
+      "marketing": {
+        "title": "Digital marketing & performance",
+        "description": "Yandex Direct setup and management, full-funnel analytics, and optimization against your target KPIs."
+      },
+      "corporate": {
+        "title": "Corporate websites (WordPress)",
+        "description": "Fast, SEO-ready business sites. Content you can manage yourself. Built to scale."
+      },
+      "legacy": {
+        "title": "Support & legacy",
+        "description": "I take over existing Bitrix and WordPress projects: fix bugs, update, speed them up."
+      },
+      "ai-consulting": {
+        "title": "AI consulting",
+        "description": "I integrate LLMs into your workflows: support bots, content generation, data analytics."
+      }
+    }
+  },
+  "b2bGuarantees": {
+    "heading": "Why work with me instead of an agency?",
+    "subheading": "Signed contract, 6-month guarantee, and direct communication, no account managers in between.",
+    "items": {
+      "contract": {
+        "title": "Signed contract",
+        "desc": "We work under a contract with an NDA. I provide all closing documents and receipts, and accept bank transfers."
+      },
+      "guarantee": {
+        "title": "6-month guarantee",
+        "desc": "Six months of free technical support after handover. If a bug shows up, I fix it for free."
+      },
+      "solo-ai": {
+        "title": "One-man band + AI",
+        "desc": "I work solo and use AI to speed up routine work. You don't pay for a bloated agency team."
+      },
+      "goals": {
+        "title": "Business-goal driven",
+        "desc": "I work with partners who know why they need the product. I dig into the unit economics and aim at metrics, not experiments."
+      }
+    }
+  },
+  "process": {
+    "heading": "How do we start working together?",
+    "subheading": "Three steps from inquiry to launch, transparent and without red tape.",
+    "steps": {
+      "01": {
+        "title": "Scoping the task",
+        "desc": "You come with a clear goal, I propose a technical solution without over-engineering."
+      },
+      "02": {
+        "title": "Estimate & roadmap",
+        "desc": "A transparent estimate, timeline, and step-by-step plan, fixed in the contract."
+      },
+      "03": {
+        "title": "Development",
+        "desc": "Sprints with regular demos. You always see the progress."
+      }
+    }
+  },
+  "experience": {
+    "heading": "How does my experience help your business?",
+    "subheading": "10+ years in development, e-commerce, and digital marketing. I understand unit economics, not just technology.",
+    "stackLabel": "Tech stack",
+    "softLabel": "Business skills",
+    "items": {
+      "promptspace": {
+        "role": "Founder & Full-stack Architect",
+        "company": "PromptSpace",
+        "description": "Building a platform for monetizing AI prompts. Designed the microservice architecture, built semantic search, envelope encryption, and the payment system."
+      },
+      "armedika": {
+        "role": "Web Marketer / Webmaster",
+        "company": "Armedika LLC",
+        "description": "Supported and grew e-commerce projects on 1C-Bitrix, synced with 1C:UT. Ran email marketing (Unisender), paid search, content, and media optimization for the catalog."
+      },
+      "kazanova": {
+        "role": "Head of E-commerce",
+        "company": "Kazanova National Company",
+        "description": "Ran the e-commerce division: team, profitability, tech roadmap, and marketing strategy end to end."
+      },
+      "ura": {
+        "role": "Head of Web Analytics",
+        "company": "URA.RU",
+        "description": "Collected and analyzed big data, ran A/B tests, built full-funnel analytics, and drove SEO strategy."
+      },
+      "a2": {
+        "role": "Web Developer / Performance Marketer",
+        "company": "UK A2, Lesnye Traditsii, Estetis, and others",
+        "description": "Website development, analytics setup (AmoCRM, Roistat), paid search, and end-to-end SEO across multiple companies."
+      }
+    }
+  },
+  "skills": {
+    "hard": [
+      "React / Next.js",
+      "Python / Django",
+      "1C-Bitrix",
+      "Yandex Direct",
+      "WordPress",
+      "PostgreSQL / pgvector",
+      "Celery / Redis",
+      "HashiCorp Vault",
+      "Web Analytics (A/B, GA, Roistat)",
+      "Technical SEO",
+      "REST API / LLM Integration"
+    ],
+    "soft": [
+      "B2B Negotiations",
+      "Strategic Planning",
+      "Expectation Management",
+      "Data-Driven Approach",
+      "Autonomy",
+      "C-Level Communication"
+    ]
   },
   "contact": {
     "title": "Let's discuss your project",
     "subtitle": "Leave your contact and describe what metrics you're aiming for.",
     "name": "Your name *",
+    "namePlaceholder": "John Smith",
     "contactField": "Telegram / Phone *",
+    "contactPlaceholder": "@username or +1...",
     "service": "What are you interested in?",
+    "serviceEmpty": "Select a service (optional)",
+    "serviceOther": "Complex project / Other",
     "message": "About the project",
+    "messagePlaceholder": "Describe your business task, the results you're aiming for, or attach a link to the brief...",
     "submit": "Discuss project",
     "submitting": "Sending...",
     "success": "Request sent successfully!",
     "successSub": "I will contact you shortly to discuss the details.",
+    "errorServer": "Oops! Something went wrong. Please message me on Telegram.",
+    "errorNetwork": "Send failed. Check your internet connection.",
     "privacy": "Privacy Policy (152-FZ)",
-    "privacyText": "By clicking the button, you consent to the processing of personal data in accordance with the"
+    "privacyText": "By clicking the button, you consent to the processing of personal data in accordance with the",
+    "errors": {
+      "name": "Enter your name (at least 2 characters)",
+      "contact": "Enter your Telegram or phone number"
+    }
+  },
+  "footer": {
+    "tagline": "I build and grow digital products: 1C-Bitrix, WordPress, React/Next.js, Django, and AI automation.",
+    "navHeading": "Navigation",
+    "services": "Stack & Services",
+    "b2b": "B2B Guarantees",
+    "cases": "Cases",
+    "privacyLink": "Privacy Policy",
+    "requisitesHeading": "Legal details",
+    "contractLabel": "Contract-based, paperless documents",
+    "rights": "All rights reserved."
   },
   "journal": {
     "title": "Engineering Journal",
     "subtitle": "Real cases with code, metrics, and solutions.",
     "readMore": "Read case",
     "discussSimilar": "Discuss a similar project"
+  },
+  "promptSpace": {
+    "badge": "My own SaaS product",
+    "tagline": "Platform for monetizing AI prompts",
+    "description": "I designed and launched this marketplace from scratch. Prompts are protected end to end (152-FZ compliant, envelope encryption), and payments split automatically between the platform and the authors.",
+    "underHood": "Under the hood",
+    "cta": "See the architecture"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "This Privacy Policy is drafted in accordance with Federal Law No. 152-FZ \"On Personal Data\" dated 27.07.2006 and defines how personal data is processed by Individual Entrepreneur Alexander Butakov (hereinafter, the Operator).",
+    "section1Title": "1. Key terms",
+    "section1Website": "1.1. Website: https://butakov.dev.",
+    "section1User": "1.2. User: any visitor of the website https://butakov.dev.",
+    "section2Title": "2. Purpose of collecting personal data",
+    "section2Body": "Informing the user; concluding and performing civil-law contracts; providing access to the site's services and materials.",
+    "section3Title": "3. Rights and obligations",
+    "section3Body": "The Operator is entitled to receive accurate data from the User. The User is entitled to receive information about how their personal data is processed.",
+    "disclaimer": "* Base template. We recommend replacing it with a fully legally verified document.",
+    "close": "Got it, close"
+  },
+  "schema": {
+    "business": {
+      "areaServedName": "Russia",
+      "offerCatalogName": "IT development and marketing services"
+    },
+    "person": {
+      "name": "Alexander Butakov",
+      "jobTitle": "IT consultant and web application developer"
+    },
+    "faq": {
+      "contract": {
+        "q": "Do you work under an official contract?",
+        "a": "Yes. I work under a contract and sign an NDA. I provide all closing documents and receipts, and accept bank transfers through Russia's e-document system. Sole proprietor Alexander Butakov, INN 667011271708."
+      },
+      "guarantee": {
+        "q": "What's the warranty on development work?",
+        "a": "Six months of free technical support. If a bug shows up after handover, I fix it for free."
+      },
+      "soloAi": {
+        "q": "Why is working with you cheaper than an agency?",
+        "a": "I work solo and use AI tools to speed up routine work. You don't pay for a bloated management layer, and you get direct access to the person doing the work."
+      },
+      "process": {
+        "q": "How do we start working together?",
+        "a": "Three steps: you send an inquiry, I prepare an estimate and roadmap, then we work in sprints with regular demos."
+      },
+      "remote": {
+        "q": "Do you work with clients from other cities or regions?",
+        "a": "Yes, I work remotely across Russia. All communication happens over Telegram or video calls, paperwork through the e-document system."
+      }
+    }
+  },
+  "metadata": {
+    "title": "Alexander Butakov | Technical Partner and Web Application Developer",
+    "description": "Custom web services, online stores, and AI integration. Yandex Direct setup and performance marketing. A reliable technical partner for your business."
   }
 }
