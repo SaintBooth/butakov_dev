@@ -6,9 +6,9 @@
 - **Запрещено** добавлять внешние отступы (`margin`, `top`, `left`) на корневом элементе компонента. Позиционирование — задача родителя.
 - Стилизация через **Tailwind CSS**.
 - Модификаторы состояний через пропсы + **`clsx`** или **`cva`** (Class Variance Authority). Не через условные классы в строках.
-- Структура папки компонента: `components/ui/Button/Button.jsx` (+ `Button.stories.jsx` если есть).
+- Структура папки компонента: `components/ui/Button/Button.tsx` (+ `Button.stories.tsx` если есть).
 
-```jsx
+```tsx
 // ✅ Правильно: компонент не знает где он стоит
 export function Card({ variant = 'default', className, children }) {
   return <div className={cn(cardVariants({ variant }), className)}>{children}</div>;
@@ -20,27 +20,34 @@ export function Card() {
 }
 ```
 
-## 2. Архитектура — Feature-Sliced Design
+## 2. Архитектура — Feature-Sliced Design + App Router
 
-Группировка по **бизнес-фичам**, не по типу файла.
+Роутинг — Next.js App Router (`src/app/`), бизнес-логика — по фичам, не по типу файла.
 
 ```
 src/
+├── app/
+│   └── [locale]/          # next-intl: en/ru
+│       ├── layout.tsx     # общий chrome (Header/Footer/MobileNav), metadata, schema.org
+│       ├── page.tsx       # главная
+│       └── journal/       # инженерный журнал (MDX-кейсы)
+│           ├── page.tsx
+│           └── [slug]/page.tsx
 ├── features/
-│   ├── contact/          # форма заявки
-│   │   ├── Contact.jsx
-│   │   ├── contactSchema.js   # zod-схема
-│   │   └── useContactForm.js
-│   ├── cases/            # портфолио кейсов
-│   └── blog/
+│   ├── contact/           # форма заявки
+│   │   ├── Contact.tsx
+│   │   ├── contactSchema.ts   # zod-схема
+│   │   └── useContactForm.ts
+│   └── cases/              # портфолио кейсов на главной
+├── sections/                # секции главной страницы (Hero, Services, Footer...)
 ├── components/
-│   └── ui/               # переиспользуемые атомарные UI
-│       ├── Button/
-│       ├── Modal/
-│       └── Slider/
-├── data/                 # статические данные (контент)
-├── config/               # конфиги (social, seo и т.д.)
-└── utils/                # чистые утилиты без side-effects
+│   ├── ui/                 # переиспользуемые атомарные UI (Button, Modal, Slider...)
+│   └── mdx/                 # компоненты для журнала (CodeBlock, CopyButton, Alert)
+├── content/cases/{en,ru}/*.mdx  # кейсы журнала
+├── data/                    # статические данные (контент)
+├── config/                   # конфиги (social, schema и т.д.)
+├── i18n/                     # next-intl navigation/request конфиг
+└── utils/                    # чистые утилиты без side-effects
 ```
 
 ## 3. Управление состоянием
@@ -54,10 +61,10 @@ src/
 
 - **Все данные из форм** перед отправкой валидируются через zod-схему.
 - **Все ответы от внешних API** (Web3Forms, любые third-party) валидируются через zod.
-- Схема живет рядом с фичей: `features/contact/contactSchema.js`.
+- Схема живет рядом с фичей: `features/contact/contactSchema.ts`.
 
-```js
-// features/contact/contactSchema.js
+```ts
+// features/contact/contactSchema.ts
 import { z } from 'zod';
 
 export const contactSchema = z.object({
@@ -73,7 +80,7 @@ export const contactSchema = z.object({
 ### Schema.org JSON-LD
 
 - Каждая страница/секция с уникальным контентом — валидная JSON-LD разметка соответствующего типа (`ProfessionalService`, `FAQPage`, `Article`, `Service`).
-- Разметка живет в `index.html` (статически, видна краулерам до JS) — **не** в `useEffect`.
+- Разметка живет в `src/config/schema.ts` и рендерится в `[locale]/layout.tsx` как `<script type="application/ld+json">` в серверном компоненте (видна краулерам до гидрации) — **не** в `useEffect`.
 - Минимальный набор для текущего сайта: `ProfessionalService` + `FAQPage` + `hasOfferCatalog`.
 - NAP (Name, Address, Phone) — обязательны для `LocalBusiness`. Гео-координаты (`geo`) — при наличии физического адреса.
 
@@ -105,54 +112,45 @@ export const contactSchema = z.object({
 
 - `telephone` — номер телефона для NAP
 - `geo` — координаты (lat/lon) если есть физический офис
-- `sameAs` — ссылки на соцсети (заполнить `src/config/social.js`)
+- `sameAs` — ссылки на соцсети (заполнить `src/config/social.ts`)
 
 ## 6. Core Web Vitals — PageSpeed Green Zone (90-100)
 
 ### LCP < 2.5s
 
-- Шрифты: **локальные woff2** + `font-display: swap` + `<link rel="preload">`. Запрещена загрузка с Google Fonts в runtime.
-- LCP-изображение (логотип, hero): `fetchpriority="high"`, без `loading="lazy"`.
-- Hero-секция: контент первого экрана — без отложенного рендера.
+- Шрифты: **`next/font`** (Geist через `next/font/google` или локальный woff2), автоматический `font-display: swap` и preload. Запрещена загрузка шрифтов вручную через `<link>` в рантайме.
+- LCP-изображение (логотип, hero): `priority` на `<Image>`, без `loading="lazy"`.
+- Hero-секция и весь контент первого экрана рендерятся на сервере (RSC) — без клиентского отложенного рендера.
 
 ### INP < 200ms
 
-- **Динамические импорты** (`lazy()` + `Suspense`) для всего, что не видно на первом экране: модалки, тяжёлые слайдеры, чаты.
-- Тяжёлые вычисления → `requestIdleCallback()` или серверные Server Actions.
-- JS bundle: не импортировать в основной chunk то, что нужно только при взаимодействии.
+- Интерактивные куски — **client components** (`'use client'`) минимального размера, обёрнутые в `Suspense` там, где это уместно.
+- Модалки, тяжёлые слайдеры, чаты — через `next/dynamic` с `ssr: false`, если им не нужен SSR.
+- Тяжёлые вычисления → серверные компоненты/Server Actions, а не клиентский JS.
 
 ### CLS < 0.1
 
-- Все `<img>`, `<video>`, `<iframe>` — обязательны `width` + `height` или `aspect-ratio`.
+- Все `<Image>` — обязательны `width` + `height` (или `fill` + `aspect-ratio` на контейнере).
 - Динамический контент резервирует фиксированное место (skeleton-размер = финальный блок).
 
-### Изображения — автоматически через vite-imagetools
+### Изображения — через `next/image`
 
-**Логотип/статика** (`public/`) — конвертируется вручную: `npm run images` → WebP + AVIF → `<LogoImage>`.
+**Логотип/статика** (`public/`) → `<LogoImage>` (`src/components/ui/LogoImage`), оптимизация вручную через `npm run images` (WebP/AVIF).
 
-**Контентные изображения** (`src/assets/`) — автоматически через `vite-imagetools` + `<ContentImage>`:
+**Контентные изображения** — через `<ContentImage>` (`src/components/ui/ContentImage`), тонкая обёртка над `next/image`. Next.js сам генерирует WebP/AVIF и `srcset` при сборке — ручных query-параметров и импортов из `assets/` не нужно:
 
-```jsx
-// 1. Импортируй из src/assets/ с query-параметрами vite-imagetools
-import heroWebp from '../assets/hero.jpg?w=400;800;1200&format=webp&as=srcset';
-import heroAvif from '../assets/hero.jpg?w=400;800;1200&format=avif&as=srcset';
-import heroFallback from '../assets/hero.jpg';
-
-// 2. Используй ContentImage — автоматически генерирует <picture> с srcset
+```tsx
 <ContentImage
-  src={heroFallback}
-  srcWebp={heroWebp}
-  srcAvif={heroAvif}
+  src="/images/hero.jpg"
   alt="Описание"
   width={1200}
   height={600}
   sizes="(max-width: 768px) 100vw, 800px"
-  priority // ← добавь для LCP-изображения первого экрана
-/>;
+  priority // ← для LCP-изображения первого экрана
+/>
 ```
 
-Vite сгенерирует все размеры и форматы при сборке. PNG/JPG — только fallback.
-Tailwind purge работает автоматически через Vite + Tailwind v4. Инлайн-CSS библиотеки запрещены.
+Tailwind purge работает автоматически через Tailwind v4 (`@tailwindcss/postcss`). Инлайн-CSS библиотеки запрещены.
 
 ## 7. Git — Trunk-Based Development + Conventional Commits
 
@@ -185,7 +183,7 @@ Tailwind purge работает автоматически через Vite + Tai
 
 - **pre-commit**: `lint-staged` → eslint --fix + prettier --write на staged-файлах
 - **commit-msg**: `commitlint` → валидация формата Conventional Commits
-- Проект использует JS (не TS), поэтому `tsc --noEmit` не применяется до миграции на TypeScript.
+- CI (`.github/workflows/deploy.yml`) на каждый push/PR в `main` гоняет `tsc --noEmit` и `next lint` перед деплоем.
 
 ## 8. Общие правила кода
 
@@ -196,15 +194,19 @@ Tailwind purge работает автоматически через Vite + Tai
 
 ## Текущий стек
 
-- React 19 + Vite 8
-- Tailwind CSS v4
+- Next.js 15 (App Router, RSC) + React 19 + TypeScript (strict)
+- next-intl — i18n (en/ru, `localePrefix: 'as-needed'`)
+- Tailwind CSS v4 (`@tailwindcss/postcss`)
+- next-mdx-remote + shiki — инженерный журнал (`content/cases/{en,ru}/*.mdx`), код-блоки в стиле Хабра
 - Lucide React (иконки)
-- Web3Forms (отправка формы) — ключ в `VITE_WEB3FORMS_KEY`
+- Web3Forms (отправка формы) — ключ в `NEXT_PUBLIC_WEB3FORMS_KEY`
 - Яндекс Метрика ID: 107722106
-- Хостинг: Netangels, SSH alias `butakov`, деплой: `bash deploy.sh`
+- Хостинг прод: Netangels (Node.js-сайт, PM/Passenger-подобный супервизор), SSH alias `butakov`
+- Деплой: push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) собирает Next.js standalone-бандл и выкладывает на прод автоматически. Никаких ручных `deploy.sh`/`rsync`.
 
-## Адаптация правил к текущему стеку (Vite SPA, не Next.js)
+## Архитектура и данные
 
-- **Server-First** → здесь нет SSR. Данные статические (захардкожены в `src/data/`). При переходе на Next.js — вынести в Server Components.
-- **Drizzle ORM** → нет БД в этом проекте. Актуально для будущего backend.
-- **End-to-End Type Safety** → сейчас JS, не TS. При добавлении TypeScript — типизировать data-файлы.
+- **Server-First на месте.** Секции — server components по умолчанию; интерактив выносится в отдельные клиентские компоненты (`'use client'`).
+- **Инженерный журнал** — MDX-кейсы, frontmatter валидируется zod-схемой в `src/utils/cases.ts` (title/date/tags/metric/excerpt). Список сортируется по дате (новые сверху). Публикация кейса = обычный commit с новым `.mdx`, деплоится автодеплоем.
+- **Drizzle ORM** → БД в проекте нет. Актуально для будущего backend.
+- **End-to-End Type Safety** → выполнено: проект на TypeScript strict, data-файлы (`src/data/*.ts`) типизированы.
