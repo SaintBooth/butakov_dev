@@ -188,13 +188,6 @@
     "readMore": "Read case",
     "discussSimilar": "Discuss a similar project"
   },
-  "promptSpace": {
-    "badge": "My own SaaS product",
-    "tagline": "Platform for monetizing AI prompts",
-    "description": "I designed and launched this marketplace from scratch. Prompts are protected end to end (152-FZ compliant, envelope encryption), and payments split automatically between the platform and the authors.",
-    "underHood": "Under the hood",
-    "cta": "See the architecture"
-  },
   "privacy": {
     "title": "Privacy Policy",
     "intro": "This Privacy Policy is drafted in accordance with Federal Law No. 152-FZ \"On Personal Data\" dated 27.07.2006 and defines how personal data is processed by Individual Entrepreneur Alexander Butakov (hereinafter, the Operator).",
@@ -243,5 +236,23 @@
   "metadata": {
     "title": "Alexander Butakov | Technical Partner and Web Application Developer",
     "description": "Custom web services, online stores, and AI integration. Yandex Direct setup and performance marketing. A reliable technical partner for your business."
+  },
+  "projects": {
+    "heading": "What do I build when I'm not on the clock?",
+    "subheading": "Alongside client work, I run two of my own SaaS products, from architecture to production.",
+    "underHood": "Under the hood",
+    "cta": "See the architecture",
+    "items": {
+      "promptspace": {
+        "badge": "AI marketplace",
+        "tagline": "AI prompt marketplace",
+        "description": "A marketplace for ready-made AI prompts for Claude, ChatGPT, and Midjourney. Designed and launched from scratch: the catalog, secure payments with envelope encryption, and automatic payout splits for authors."
+      },
+      "solvops": {
+        "badge": "AI for field support",
+        "tagline": "AI assistant for knowledge bases",
+        "description": "An AI assistant for field-team knowledge bases. A technician scans a QR code, describes the issue by text or photo, and gets a verified fix in seconds instead of waiting hours for an engineer. In pilots, it resolves 94% of requests without escalation."
+      }
+    }
   }
 }

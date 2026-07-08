@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import type { CSSProperties } from 'react';
 
 export interface PortfolioCase {
   id: number;
@@ -43,4 +44,19 @@ export interface ExperienceMeta {
 
 export interface ProcessStepMeta {
   id: string;
+}
+
+export interface ProjectMeta {
+  id: string;
+  name: string;
+  wordmarkClass: string;
+  url: string;
+  markClassName: string;
+  markStyle: CSSProperties;
+  markLabel?: string;
+  accentTextClass: string;
+  accentBorderClass: string;
+  accentShadowClass: string;
+  ctaButtonClass: string;
+  techStack: string[];
 }
