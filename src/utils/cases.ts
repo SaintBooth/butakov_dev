@@ -52,8 +52,10 @@ export async function getAllCaseFrontmatters(locale: string) {
       return { slug, frontmatter: result?.frontmatter };
     })
   );
-  return cases.filter((c) => c.frontmatter) as Array<{
-    slug: string;
-    frontmatter: CaseFrontmatter;
-  }>;
+  return (
+    cases.filter((c) => c.frontmatter) as Array<{
+      slug: string;
+      frontmatter: CaseFrontmatter;
+    }>
+  ).sort((a, b) => b.frontmatter.date.localeCompare(a.frontmatter.date));
 }

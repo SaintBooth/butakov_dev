@@ -1,5 +1,6 @@
 import { isValidElement } from 'react';
 import { codeToHtml } from 'shiki';
+import { CopyButton } from './CopyButton';
 
 interface CodeBlockProps {
   children?: React.ReactNode;
@@ -15,13 +16,18 @@ export async function CodeBlock({ children, className }: CodeBlockProps) {
 
   const html = await codeToHtml(code, {
     lang,
-    theme: 'github-dark',
+    theme: 'github-light',
+    colorReplacements: {
+      // github-light ships a plain white canvas; match the site's slate-50 panels instead
+      '#fff': '#f8fafc',
+      '#ffffff': '#f8fafc',
+    },
   });
 
   return (
-    <div
-      className="rounded-xl overflow-x-auto border border-slate-700/40 shadow-sm my-4 text-sm"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <div className="group relative rounded-xl border border-slate-200 overflow-hidden my-5 text-sm leading-relaxed [&_pre]:p-4 [&_pre]:overflow-x-auto">
+      <CopyButton code={code} />
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
   );
 }
