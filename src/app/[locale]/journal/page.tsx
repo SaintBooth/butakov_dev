@@ -1,8 +1,31 @@
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { getAllCaseFrontmatters } from '@/utils/cases';
 
 interface Props {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const isRu = locale === 'ru';
+  const base = 'https://butakov.dev';
+  const ruPrefix = locale === 'en' ? '' : '/ru';
+
+  return {
+    title: isRu ? 'Инженерный журнал | butakov.dev' : 'Engineering Journal | butakov.dev',
+    description: isRu
+      ? 'Реальные инженерные кейсы: Bitrix, Redis, highload, миграции — с кодом и метриками результата.'
+      : 'Real engineering cases: Bitrix, Redis, highload, migrations — with code and result metrics.',
+    alternates: {
+      canonical: `${base}${ruPrefix}/journal`,
+      languages: {
+        en: `${base}/journal`,
+        ru: `${base}/ru/journal`,
+        'x-default': `${base}/journal`,
+      },
+    },
+  };
 }
 
 export default async function JournalPage({ params }: Props) {

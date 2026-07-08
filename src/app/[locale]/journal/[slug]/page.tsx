@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { getCaseBySlug, getCaseSlugs } from '@/utils/cases';
+import { getSchemaArticle } from '@/config/schema';
 import { Link } from '@/i18n/navigation';
 
 interface Props {
@@ -41,9 +43,24 @@ export default async function CasePage({ params }: Props) {
 
   const { content, frontmatter: fm } = result;
   const isRu = locale === 'ru';
+  const tSchema = await getTranslations({ locale, namespace: 'schema' });
+  const base = 'https://butakov.dev';
+  const ruPrefix = locale === 'en' ? '' : '/ru';
+
+  const articleSchema = getSchemaArticle({
+    headline: fm.title,
+    description: fm.excerpt,
+    datePublished: fm.date,
+    url: `${base}${ruPrefix}/journal/${slug}`,
+  });
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+
       {/* Breadcrumbs */}
       <nav
         className="flex items-center gap-2 text-sm text-slate-500 mb-8 flex-wrap"
@@ -80,6 +97,12 @@ export default async function CasePage({ params }: Props) {
           <span className="w-1 h-1 rounded-full bg-slate-300" />
           <span className="font-bold text-teal-600">{fm.metric}</span>
         </div>
+        <p className="mt-3 text-sm text-slate-500">
+          {isRu ? 'Автор: ' : 'Author: '}
+          <span className="font-semibold text-slate-700">{tSchema('person.name')}</span>
+          {' — '}
+          {tSchema('person.jobTitle')}
+        </p>
       </div>
 
       {/* MDX Content */}

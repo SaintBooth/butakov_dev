@@ -51,6 +51,27 @@ export function getSchemaPerson(tSchema: Translator) {
   };
 }
 
+export function getSchemaArticle(opts: {
+  headline: string;
+  description: string;
+  datePublished: string;
+  url: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: opts.headline,
+    description: opts.description,
+    datePublished: opts.datePublished,
+    dateModified: opts.datePublished,
+    url: opts.url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url },
+    image: 'https://butakov.dev/butakov-01.png',
+    author: { '@id': 'https://butakov.dev/#person' },
+    publisher: { '@id': 'https://butakov.dev/#business' },
+  };
+}
+
 export function getSchemaFaq(tSchema: Translator) {
   return {
     '@context': 'https://schema.org',

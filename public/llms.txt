@@ -11,6 +11,7 @@
 ## Engineering Cases
 - Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms)
 - High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed)
+- Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains (27 cities, 0 duplicates)
 - Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability)
 - Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss (97% RAM freed)
 - SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops (+14% form conversion)
