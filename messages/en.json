@@ -19,6 +19,11 @@
     "cta": "Contact me",
     "guarantees": "Learn about guarantees"
   },
+  "casesSection": {
+    "heading": "How have my solutions helped real businesses?",
+    "subheading": "Not just code, but concrete metrics: conversion, response speed, uptime.",
+    "cta": "Discuss the project"
+  },
   "services": {
     "heading": "Which stack fits your project?",
     "subheading": "I match the technology to the task, so you don't overpay for complexity or support you don't need.",

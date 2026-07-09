@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowRight, ArrowUpRight, LineChart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useSlider } from '../../components/ui/Slider/useSlider';
 import { SliderControls } from '../../components/ui/Slider/SliderControls';
 import type { PortfolioCase } from '../../types';
@@ -11,6 +12,7 @@ interface CasesProps {
 }
 
 export default function Cases({ onCaseSelect }: CasesProps) {
+  const t = useTranslations('casesSection');
   const { ref, scroll } = useSlider();
 
   return (
@@ -18,12 +20,8 @@ export default function Cases({ onCaseSelect }: CasesProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 md:mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Как мои решения помогли реальному бизнесу?
-            </h2>
-            <p className="text-slate-600 text-lg font-medium">
-              Не просто код — конкретные метрики: конверсия, скорость ответа, аптайм.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t('heading')}</h2>
+            <p className="text-slate-600 text-lg font-medium">{t('subheading')}</p>
           </div>
           <div className="mt-6 md:mt-0 hidden md:flex items-center gap-6">
             <SliderControls onLeft={() => scroll('left')} onRight={() => scroll('right')} />
@@ -31,7 +29,7 @@ export default function Cases({ onCaseSelect }: CasesProps) {
               href="#contact"
               className="text-teal-600 font-bold hover:text-teal-700 transition-colors flex items-center gap-2 group ml-4 pl-8 border-l border-slate-300/50"
             >
-              Обсудить проект{' '}
+              {t('cta')}{' '}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
@@ -89,7 +87,7 @@ export default function Cases({ onCaseSelect }: CasesProps) {
             href="#contact"
             className="inline-flex text-teal-600 font-bold hover:text-teal-700 transition-colors items-center gap-2 group"
           >
-            Обсудить проект{' '}
+            {t('cta')}{' '}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </a>
         </div>
