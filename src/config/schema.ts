@@ -3,6 +3,8 @@ import { services } from '../data/services';
 
 type Translator = ReturnType<typeof useTranslations>;
 
+export const DEFAULT_OG_IMAGE = 'https://butakov.dev/butakov-01.png';
+
 const OFFER_IDS = ['custom-web', 'ecommerce', 'marketing', 'corporate', 'ai-consulting'] as const;
 const FAQ_IDS = ['contract', 'guarantee', 'soloAi', 'process', 'remote'] as const;
 
@@ -67,7 +69,7 @@ export function getSchemaArticle(opts: {
     dateModified: opts.datePublished,
     url: opts.url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url },
-    image: opts.image ?? 'https://butakov.dev/butakov-01.png',
+    image: opts.image ?? DEFAULT_OG_IMAGE,
     author: { '@id': 'https://butakov.dev/#person' },
     publisher: { '@id': 'https://butakov.dev/#business' },
   };

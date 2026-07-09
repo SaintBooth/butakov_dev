@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { getAllCaseFrontmatters } from '@/utils/cases';
-import { getSchemaBreadcrumb } from '@/config/schema';
+import { getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -34,13 +34,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url,
-      images: [{ url: `${base}/butakov-01.png` }],
+      images: [{ url: DEFAULT_OG_IMAGE }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${base}/butakov-01.png`],
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }

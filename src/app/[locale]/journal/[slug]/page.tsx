@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getCaseBySlug, getCaseSlugs } from '@/utils/cases';
-import { getSchemaArticle, getSchemaBreadcrumb } from '@/config/schema';
+import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
 import { Link } from '@/i18n/navigation';
 
 interface Props {
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const base = 'https://butakov.dev';
   const ruPrefix = locale === 'en' ? '' : '/ru';
   const url = `${base}${ruPrefix}/journal/${slug}`;
-  const image = fm.image ? `${base}${fm.image}` : `${base}/butakov-01.png`;
+  const image = fm.image ? `${base}${fm.image}` : DEFAULT_OG_IMAGE;
 
   return {
     title: `${fm.title} | butakov.dev`,
