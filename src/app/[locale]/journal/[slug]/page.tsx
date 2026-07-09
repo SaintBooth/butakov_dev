@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { getCaseBySlug, getCaseSlugs } from '@/utils/cases';
 import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
 import { Link } from '@/i18n/navigation';
+import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
@@ -57,7 +58,7 @@ export default async function CasePage({ params }: Props) {
   const result = await getCaseBySlug(locale, slug);
   if (!result) notFound();
 
-  const { content, frontmatter: fm } = result;
+  const { content, frontmatter: fm, headings, readingTime } = result;
   const isRu = locale === 'ru';
   const tSchema = await getTranslations({ locale, namespace: 'schema' });
   const base = 'https://butakov.dev';
@@ -76,8 +77,11 @@ export default async function CasePage({ params }: Props) {
     { name: fm.title, url: `${base}${ruPrefix}/journal/${slug}` },
   ]);
 
+  const authorName = tSchema('person.name');
+  const authorInitial = authorName.charAt(0);
+
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-28">
+    <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-28">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -104,7 +108,7 @@ export default async function CasePage({ params }: Props) {
       </nav>
 
       {/* Header */}
-      <div className="mb-10">
+      <div className="mb-8">
         <div className="flex flex-wrap gap-2 mb-4">
           {fm.tags.map((tag) => (
             <span
@@ -118,22 +122,35 @@ export default async function CasePage({ params }: Props) {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
           {fm.title}
         </h1>
-        <p className="text-lg text-slate-600 font-medium mb-4 max-w-2xl">{fm.excerpt}</p>
-        <div className="flex items-center gap-3 text-sm text-slate-500">
-          <span>{fm.date}</span>
-          <span className="w-1 h-1 rounded-full bg-slate-300" />
-          <span className="font-bold text-teal-600">{fm.metric}</span>
+        <p className="text-lg text-slate-600 font-medium mb-6">{fm.excerpt}</p>
+
+        <div className="flex items-center gap-3 py-4 border-y border-slate-100">
+          <div className="w-9 h-9 rounded-full bg-teal-500 text-white font-bold flex items-center justify-center flex-shrink-0">
+            {authorInitial}
+          </div>
+          <div className="min-w-0 text-sm">
+            <div className="font-semibold text-slate-800">{authorName}</div>
+            <div className="flex items-center gap-2 text-slate-500">
+              <span>{fm.date}</span>
+              <span className="w-1 h-1 rounded-full bg-slate-300" />
+              <span>
+                {readingTime} {isRu ? 'мин чтения' : 'min read'}
+              </span>
+              <span className="w-1 h-1 rounded-full bg-slate-300" />
+              <span className="font-bold text-teal-600">{fm.metric}</span>
+            </div>
+          </div>
         </div>
-        <p className="mt-3 text-sm text-slate-500">
-          {isRu ? 'Автор: ' : 'Author: '}
-          <span className="font-semibold text-slate-700">{tSchema('person.name')}</span>
-          {' — '}
-          {tSchema('person.jobTitle')}
-        </p>
       </div>
 
+      <ArticleToc
+        title={isRu ? 'Содержание' : 'Contents'}
+        headings={headings}
+        className="mb-10 p-5 rounded-2xl bg-slate-50 border border-slate-100"
+      />
+
       {/* MDX Content */}
-      <article className="prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-pre:p-0 prose-pre:bg-transparent">
+      <article className="prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-pre:p-0 prose-pre:bg-transparent">
         {content}
       </article>
 

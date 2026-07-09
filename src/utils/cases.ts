@@ -1,8 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import { compileMDX } from 'next-mdx-remote/rsc';
+import rehypeSlug from 'rehype-slug';
+import GithubSlugger from 'github-slugger';
 import { z } from 'zod';
 import { CodeBlock, Alert } from '@/components/mdx';
+
+export interface CaseHeading {
+  depth: 2 | 3;
+  text: string;
+  id: string;
+}
 
 // Zod schema validates frontmatter at build time — catches typos and missing fields
 export const CaseFrontmatterSchema = z.object({
@@ -32,7 +40,7 @@ export async function getCaseBySlug(locale: string, slug: string) {
 
   const result = await compileMDX<unknown>({
     source,
-    options: { parseFrontmatter: true },
+    options: { parseFrontmatter: true, mdxOptions: { rehypePlugins: [rehypeSlug] } },
     components: {
       // Replace default <pre> with Shiki-powered CodeBlock
       pre: CodeBlock as React.ComponentType<React.HTMLAttributes<HTMLElement>>,
@@ -42,7 +50,36 @@ export async function getCaseBySlug(locale: string, slug: string) {
 
   // Throws at build time if any MDX file has wrong/missing fields
   const frontmatter = CaseFrontmatterSchema.parse(result.frontmatter);
-  return { content: result.content, frontmatter };
+  const headings = extractHeadings(source);
+  const readingTime = estimateReadingTime(source);
+  return { content: result.content, frontmatter, headings, readingTime };
+}
+
+// Mirrors rehype-slug's id generation (same github-slugger algorithm) so TOC anchors match
+function extractHeadings(source: string): CaseHeading[] {
+  const slugger = new GithubSlugger();
+  const lines = source.split('\n');
+  const headings: CaseHeading[] = [];
+
+  for (const line of lines) {
+    const match = line.match(/^(##|###)\s+(.+)$/);
+    if (!match) continue;
+    const depth = match[1].length === 2 ? 2 : 3;
+    const text = match[2].trim();
+    headings.push({ depth, text, id: slugger.slug(text) });
+  }
+
+  return headings;
+}
+
+const WORDS_PER_MINUTE = 200;
+
+function estimateReadingTime(source: string): number {
+  const body = source
+    .replace(/^---[\s\S]*?---/, '') // frontmatter
+    .replace(/```[\s\S]*?```/g, ''); // code fences (not read at reading pace)
+  const words = body.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }
 
 export async function getAllCaseFrontmatters(locale: string) {
