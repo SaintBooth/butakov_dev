@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { getCaseBySlug, getCaseSlugs } from '@/utils/cases';
 import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
@@ -78,7 +79,6 @@ export default async function CasePage({ params }: Props) {
   ]);
 
   const authorName = tSchema('person.name');
-  const authorInitial = authorName.charAt(0);
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-28">
@@ -92,19 +92,18 @@ export default async function CasePage({ params }: Props) {
       />
 
       {/* Breadcrumbs */}
-      <nav
-        className="flex items-center gap-2 text-sm text-slate-500 mb-8 flex-wrap"
-        aria-label="Breadcrumb"
-      >
-        <Link href="/" className="hover:text-teal-600 transition-colors">
+      <nav className="flex items-center gap-2 text-sm text-slate-500 mb-8" aria-label="Breadcrumb">
+        <Link href="/" className="shrink-0 hover:text-teal-600 transition-colors">
           {isRu ? 'Главная' : 'Home'}
         </Link>
-        <span>/</span>
-        <Link href="/journal" className="hover:text-teal-600 transition-colors">
+        <span className="shrink-0">/</span>
+        <Link href="/journal" className="shrink-0 hover:text-teal-600 transition-colors">
           {isRu ? 'Журнал' : 'Journal'}
         </Link>
-        <span>/</span>
-        <span className="text-slate-900 font-semibold">{fm.title}</span>
+        <span className="shrink-0">/</span>
+        <span className="min-w-0 flex-1 truncate font-semibold text-slate-900" title={fm.title}>
+          {fm.title}
+        </span>
       </nav>
 
       {/* Header */}
@@ -125,9 +124,13 @@ export default async function CasePage({ params }: Props) {
         <p className="text-lg text-slate-600 font-medium mb-6">{fm.excerpt}</p>
 
         <div className="flex items-center gap-3 py-4 border-y border-slate-100">
-          <div className="w-9 h-9 rounded-full bg-teal-500 text-white font-bold flex items-center justify-center flex-shrink-0">
-            {authorInitial}
-          </div>
+          <Image
+            src="/logo-icon.png"
+            alt={authorName}
+            width={36}
+            height={36}
+            className="w-9 h-9 rounded-full flex-shrink-0"
+          />
           <div className="min-w-0 text-sm">
             <div className="font-semibold text-slate-800">{authorName}</div>
             <div className="flex items-center gap-2 text-slate-500">
