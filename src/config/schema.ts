@@ -86,6 +86,28 @@ export function getSchemaArticle(opts: {
   };
 }
 
+export function getSchemaItemList(opts: {
+  name: string;
+  items: Array<{ name: string; url: string; description?: string; datePublished?: string }>;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: opts.name,
+    itemListElement: opts.items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: item.name,
+        url: item.url,
+        ...(item.description ? { description: item.description } : {}),
+        ...(item.datePublished ? { datePublished: item.datePublished } : {}),
+      },
+    })),
+  };
+}
+
 export function getSchemaBreadcrumb(items: Array<{ name: string; url: string }>) {
   return {
     '@context': 'https://schema.org',

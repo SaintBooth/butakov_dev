@@ -22,7 +22,8 @@
   "casesSection": {
     "heading": "How have my solutions helped real businesses?",
     "subheading": "Not just code, but concrete metrics: conversion, response speed, uptime.",
-    "cta": "Discuss the project"
+    "cta": "Discuss the project",
+    "viewAll": "All cases"
   },
   "services": {
     "heading": "Which stack fits your project?",

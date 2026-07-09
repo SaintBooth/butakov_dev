@@ -1,96 +1,141 @@
-'use client';
+import { ArrowRight, LineChart } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '../../i18n/navigation';
+import { getAllCaseFrontmatters } from '../../utils/cases';
+import { getSchemaItemList } from '../../config/schema';
 
-import { ArrowRight, ArrowUpRight, LineChart } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useSlider } from '../../components/ui/Slider/useSlider';
-import { SliderControls } from '../../components/ui/Slider/SliderControls';
-import type { PortfolioCase } from '../../types';
-import { portfolioCases } from './portfolioCases';
+const MAX_CASES = 6;
+const DETAILED_COUNT = 3;
 
 interface CasesProps {
-  onCaseSelect: (item: PortfolioCase) => void;
+  locale: string;
 }
 
-export default function Cases({ onCaseSelect }: CasesProps) {
-  const t = useTranslations('casesSection');
-  const { ref, scroll } = useSlider();
+export default async function Cases({ locale }: CasesProps) {
+  const t = await getTranslations({ locale, namespace: 'casesSection' });
+  const tJournal = await getTranslations({ locale, namespace: 'journal' });
+  const allCases = await getAllCaseFrontmatters(locale);
+  const cases = allCases.slice(0, MAX_CASES);
+  const detailed = cases.slice(0, DETAILED_COUNT);
+  const brief = cases.slice(DETAILED_COUNT);
+
+  if (cases.length === 0) return null;
+
+  const base = 'https://butakov.dev';
+  const ruPrefix = locale === 'en' ? '' : '/ru';
+  const dateLocale = locale === 'ru' ? 'ru-RU' : 'en-US';
+  const itemListSchema = getSchemaItemList({
+    name: t('heading'),
+    items: cases.map(({ slug, frontmatter: fm }) => ({
+      name: fm.title,
+      url: `${base}${ruPrefix}/journal/${slug}`,
+      description: fm.excerpt,
+      datePublished: fm.date,
+    })),
+  });
 
   return (
-    <section id="cases" className="py-24 relative z-10 border-t border-white/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="cases"
+      className="py-24 relative z-10 border-t border-white/40 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50"
+    >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute -top-20 -left-32 w-[28rem] h-[28rem] rounded-full bg-teal-200/30 blur-3xl" />
+        <div className="absolute bottom-0 -right-24 w-[26rem] h-[26rem] rounded-full bg-cyan-200/30 blur-3xl" />
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12 md:mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-2xl">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t('heading')}</h2>
             <p className="text-slate-600 text-lg font-medium">{t('subheading')}</p>
           </div>
-          <div className="mt-6 md:mt-0 hidden md:flex items-center gap-6">
-            <SliderControls onLeft={() => scroll('left')} onRight={() => scroll('right')} />
-            <a
-              href="#contact"
-              className="text-teal-600 font-bold hover:text-teal-700 transition-colors flex items-center gap-2 group ml-4 pl-8 border-l border-slate-300/50"
-            >
-              {t('cta')}{' '}
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </a>
-          </div>
+          <Link
+            href="/journal"
+            className="mt-6 md:mt-0 shrink-0 text-teal-600 font-bold hover:text-teal-700 transition-colors flex items-center gap-2 group"
+          >
+            {t('viewAll')}{' '}
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
-        <div
-          ref={ref}
-          className="flex overflow-x-auto gap-6 sm:gap-8 snap-x snap-mandatory no-scrollbar desktop-no-scrollbar pb-12 pt-4 scroll-smooth"
-        >
-          {portfolioCases.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => onCaseSelect(item)}
-              className="shrink-0 w-[85vw] sm:w-[400px] lg:w-[450px] snap-start group bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white overflow-hidden hover:shadow-2xl hover:shadow-teal-500/10 transition-all flex flex-col h-full cursor-pointer shadow-xl shadow-slate-200/40"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
+          {detailed.map(({ slug, frontmatter: fm }) => (
+            <Link
+              key={slug}
+              href={`/journal/${slug}`}
+              className="group bg-white/80 backdrop-blur-xl rounded-[2rem] border border-slate-200/80 p-6 sm:p-8 hover:shadow-2xl hover:shadow-teal-500/10 hover:border-teal-300 transition-all flex flex-col shadow-lg shadow-slate-900/5"
             >
-              <div
-                className={`h-48 w-full bg-gradient-to-br ${item.gradient} relative overflow-hidden flex-shrink-0`}
-              >
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
-                <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md border border-white/50 shadow-sm px-3 py-1 rounded-full text-xs font-bold text-slate-900">
-                  {item.category}
-                </div>
-                <div className="absolute top-4 right-4 w-10 h-10 bg-white text-slate-900 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-                  <ArrowUpRight className="w-5 h-5" />
-                </div>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <span className="px-3 py-1 bg-teal-50 border border-teal-100 text-teal-700 text-xs font-bold rounded-full">
+                  {fm.tags[0]}
+                </span>
+                <time
+                  dateTime={fm.date}
+                  className="text-xs font-bold text-slate-400 uppercase tracking-wide"
+                >
+                  {new Date(fm.date).toLocaleDateString(dateLocale, {
+                    year: 'numeric',
+                    month: 'long',
+                  })}
+                </time>
               </div>
-              <div className="p-6 sm:p-8 flex flex-col flex-grow relative z-10 bg-white/40">
-                <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-teal-600 transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-slate-600 font-medium text-sm mb-6 flex-grow line-clamp-3">
-                  {item.description}
-                </p>
-                <div className="bg-white/60 backdrop-blur-md rounded-xl p-4 mb-6 flex items-start gap-3 border border-white shadow-sm mt-auto">
-                  <LineChart className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm font-bold text-teal-900">{item.metric}</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {item.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-white/60 backdrop-blur-sm border border-white text-slate-600 text-xs font-bold rounded-md shadow-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-teal-600 transition-colors">
+                {fm.title}
+              </h3>
+              <p className="text-slate-600 font-medium text-sm mb-6 flex-grow">{fm.excerpt}</p>
+              <div className="bg-teal-50/60 backdrop-blur-md rounded-xl p-4 mb-4 flex items-start gap-3 border border-teal-100 shadow-sm">
+                <LineChart className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                <span className="text-sm font-bold text-teal-900">{fm.metric}</span>
               </div>
-            </div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {fm.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-white/80 backdrop-blur-sm border border-slate-200/80 text-slate-600 text-xs font-bold rounded-md shadow-sm"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <span className="text-teal-600 font-bold text-sm flex items-center gap-2 group-hover:gap-3 transition-all">
+                {tJournal('readMore')} <ArrowRight className="w-4 h-4" />
+              </span>
+            </Link>
           ))}
         </div>
 
-        <div className="mt-4 text-center md:hidden">
-          <a
-            href="#contact"
-            className="inline-flex text-teal-600 font-bold hover:text-teal-700 transition-colors items-center gap-2 group"
-          >
-            {t('cta')}{' '}
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </a>
-        </div>
+        {brief.length > 0 && (
+          <div className="space-y-3">
+            {brief.map(({ slug, frontmatter: fm }) => (
+              <Link
+                key={slug}
+                href={`/journal/${slug}`}
+                className="group flex items-center justify-between gap-4 p-5 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/80 hover:border-teal-300 hover:-translate-y-0.5 transition-all shadow-sm shadow-slate-900/5"
+              >
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-teal-600 transition-colors">
+                    {fm.title}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mt-1">
+                    <span>
+                      {new Date(fm.date).toLocaleDateString(dateLocale, {
+                        year: 'numeric',
+                        month: 'long',
+                      })}
+                    </span>
+                    <span>·</span>
+                    <span className="text-teal-600">{fm.metric}</span>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-teal-600 shrink-0 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

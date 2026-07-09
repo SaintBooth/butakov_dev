@@ -1,21 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentType, CSSProperties } from 'react';
 
-export interface PortfolioCase {
-  id: number;
-  title: string;
-  category: string;
-  description: string;
-  problem?: string;
-  solution?: string;
-  fullDescription?: string;
-  metric: string;
-  result?: string;
-  tags: string[];
-  techStack?: string[];
-  gradient: string;
-}
-
 export interface BlogPost {
   id: number;
   title: string;
