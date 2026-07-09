@@ -6,6 +6,11 @@ export default async function Hero() {
 
   return (
     <section className="relative overflow-hidden min-h-dvh flex flex-col justify-center pt-20 pb-16 md:pt-24 md:pb-20">
+      <div className="absolute inset-0 -z-10" aria-hidden="true">
+        <div className="absolute -top-32 -left-24 w-[32rem] h-[32rem] rounded-full bg-teal-300/40 blur-3xl" />
+        <div className="absolute top-1/3 -right-24 w-[28rem] h-[28rem] rounded-full bg-cyan-300/30 blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 w-[24rem] h-[24rem] rounded-full bg-slate-200/50 blur-3xl" />
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm text-sm font-semibold text-slate-700 mb-8">
           <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
@@ -32,7 +37,7 @@ export default async function Hero() {
           </a>
           <a
             href="#b2b"
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/70 backdrop-blur-md text-slate-900 font-bold hover:bg-white/90 border border-white transition-all text-center shadow-sm active:scale-95"
+            className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-900 font-bold hover:bg-slate-50 border-2 border-slate-200 hover:border-teal-300 transition-all text-center shadow-md active:scale-95"
           >
             {t('guarantees')}
           </a>

@@ -9,7 +9,7 @@ export default function Header() {
   const t = useTranslations('nav');
 
   return (
-    <header className="fixed w-full z-50 top-0 border-b border-white/40 bg-white/60 backdrop-blur-2xl shadow-sm">
+    <header className="fixed w-full z-50 top-0 border-b border-slate-200/80 bg-white/80 backdrop-blur-2xl shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex justify-between items-center h-14 md:h-16" aria-label={t('ariaLabel')}>
           <Link href="/" className="flex-shrink-0" aria-label={t('home')}>
