@@ -56,6 +56,7 @@ export function getSchemaArticle(opts: {
   description: string;
   datePublished: string;
   url: string;
+  image?: string;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -66,9 +67,22 @@ export function getSchemaArticle(opts: {
     dateModified: opts.datePublished,
     url: opts.url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url },
-    image: 'https://butakov.dev/butakov-01.png',
+    image: opts.image ?? 'https://butakov.dev/butakov-01.png',
     author: { '@id': 'https://butakov.dev/#person' },
     publisher: { '@id': 'https://butakov.dev/#business' },
+  };
+}
+
+export function getSchemaBreadcrumb(items: Array<{ name: string; url: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
   };
 }
 

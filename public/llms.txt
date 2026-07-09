@@ -9,13 +9,13 @@
 - AI consulting — LLM and neural network integration
 
 ## Engineering Cases
-- Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms)
-- High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed)
-- Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains (27 cities, 0 duplicates)
-- Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability)
-- Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss (97% RAM freed)
-- SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops (+14% form conversion)
-- WordPress Recovery After Fatal Error During PHP 8.3 Migration (Uptime 99.99%)
+- Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains (27 cities, 0 duplicates): https://butakov.dev/journal/bitrix-multiregion-subdomains
+- Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms): https://butakov.dev/journal/bitrix-cache-warmup
+- High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed): https://butakov.dev/journal/bitrix-highload-ecommerce
+- Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss (97% RAM freed): https://butakov.dev/journal/redis-optimization
+- WordPress Recovery After Fatal Error During PHP 8.3 Migration (Uptime 99.99%): https://butakov.dev/journal/wordpress-php83-migration
+- SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops (+14% form conversion): https://butakov.dev/journal/spa-deployment-fix
+- Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability): https://butakov.dev/journal/bitrix-php8-legacy
 
 ## Contact
 - Telegram: https://t.me/SashaBooth

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getCaseBySlug, getCaseSlugs } from '@/utils/cases';
-import { getSchemaArticle } from '@/config/schema';
+import { getSchemaArticle, getSchemaBreadcrumb } from '@/config/schema';
 import { Link } from '@/i18n/navigation';
 
 interface Props {
@@ -21,17 +21,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { frontmatter: fm } = result;
   const base = 'https://butakov.dev';
   const ruPrefix = locale === 'en' ? '' : '/ru';
+  const url = `${base}${ruPrefix}/journal/${slug}`;
+  const image = fm.image ? `${base}${fm.image}` : `${base}/butakov-01.png`;
 
   return {
     title: `${fm.title} | butakov.dev`,
     description: fm.excerpt,
     alternates: {
-      canonical: `${base}${ruPrefix}/journal/${slug}`,
+      canonical: url,
       languages: {
         en: `${base}/journal/${slug}`,
         ru: `${base}/ru/journal/${slug}`,
         'x-default': `${base}/journal/${slug}`,
       },
+    },
+    openGraph: {
+      type: 'article',
+      title: fm.title,
+      description: fm.excerpt,
+      url,
+      publishedTime: fm.date,
+      images: [{ url: image }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fm.title,
+      description: fm.excerpt,
+      images: [image],
     },
   };
 }
@@ -52,13 +68,23 @@ export default async function CasePage({ params }: Props) {
     description: fm.excerpt,
     datePublished: fm.date,
     url: `${base}${ruPrefix}/journal/${slug}`,
+    image: fm.image ? `${base}${fm.image}` : undefined,
   });
+  const breadcrumbSchema = getSchemaBreadcrumb([
+    { name: isRu ? 'Главная' : 'Home', url: `${base}${ruPrefix}` },
+    { name: isRu ? 'Журнал' : 'Journal', url: `${base}${ruPrefix}/journal` },
+    { name: fm.title, url: `${base}${ruPrefix}/journal/${slug}` },
+  ]);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-28">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       {/* Breadcrumbs */}
@@ -92,6 +118,7 @@ export default async function CasePage({ params }: Props) {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
           {fm.title}
         </h1>
+        <p className="text-lg text-slate-600 font-medium mb-4 max-w-2xl">{fm.excerpt}</p>
         <div className="flex items-center gap-3 text-sm text-slate-500">
           <span>{fm.date}</span>
           <span className="w-1 h-1 rounded-full bg-slate-300" />

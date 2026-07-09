@@ -11,6 +11,7 @@ export const CaseFrontmatterSchema = z.object({
   tags: z.array(z.string()),
   metric: z.string().min(1),
   excerpt: z.string().min(1),
+  image: z.string().startsWith('/').optional(),
 });
 
 export type CaseFrontmatter = z.infer<typeof CaseFrontmatterSchema>;

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { getAllCaseFrontmatters } from '@/utils/cases';
+import { getSchemaBreadcrumb } from '@/config/schema';
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -11,19 +12,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const base = 'https://butakov.dev';
   const ruPrefix = locale === 'en' ? '' : '/ru';
+  const url = `${base}${ruPrefix}/journal`;
+  const title = isRu ? 'Инженерный журнал | butakov.dev' : 'Engineering Journal | butakov.dev';
+  const description = isRu
+    ? 'Реальные инженерные кейсы: Bitrix, Redis, highload, миграции — с кодом и метриками результата.'
+    : 'Real engineering cases: Bitrix, Redis, highload, migrations — with code and result metrics.';
 
   return {
-    title: isRu ? 'Инженерный журнал | butakov.dev' : 'Engineering Journal | butakov.dev',
-    description: isRu
-      ? 'Реальные инженерные кейсы: Bitrix, Redis, highload, миграции — с кодом и метриками результата.'
-      : 'Real engineering cases: Bitrix, Redis, highload, migrations — with code and result metrics.',
+    title,
+    description,
     alternates: {
-      canonical: `${base}${ruPrefix}/journal`,
+      canonical: url,
       languages: {
         en: `${base}/journal`,
         ru: `${base}/ru/journal`,
         'x-default': `${base}/journal`,
       },
+    },
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      url,
+      images: [{ url: `${base}/butakov-01.png` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${base}/butakov-01.png`],
     },
   };
 }
@@ -33,9 +50,20 @@ export default async function JournalPage({ params }: Props) {
   const cases = await getAllCaseFrontmatters(locale);
 
   const isRu = locale === 'ru';
+  const base = 'https://butakov.dev';
+  const ruPrefix = locale === 'en' ? '' : '/ru';
+  const breadcrumbSchema = getSchemaBreadcrumb([
+    { name: isRu ? 'Главная' : 'Home', url: `${base}${ruPrefix}` },
+    { name: isRu ? 'Инженерный журнал' : 'Engineering Journal', url: `${base}${ruPrefix}/journal` },
+  ]);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-slate-500 mb-8" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-teal-600 transition-colors">

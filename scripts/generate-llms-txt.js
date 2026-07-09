@@ -15,13 +15,20 @@ let caseLines = '';
 
 if (fs.existsSync(casesDir)) {
   const files = fs.readdirSync(casesDir).filter((f) => f.endsWith('.mdx'));
-  for (const file of files) {
-    const content = fs.readFileSync(path.join(casesDir, file), 'utf-8');
-    const titleMatch = content.match(/^title:\s*"(.+)"/m);
-    const metricMatch = content.match(/^metric:\s*"(.+)"/m);
-    if (titleMatch) {
-      caseLines += `- ${titleMatch[1]}${metricMatch ? ` (${metricMatch[1]})` : ''}\n`;
-    }
+  const cases = files
+    .map((file) => {
+      const content = fs.readFileSync(path.join(casesDir, file), 'utf-8');
+      const titleMatch = content.match(/^title:\s*"(.+)"/m);
+      const metricMatch = content.match(/^metric:\s*"(.+)"/m);
+      const dateMatch = content.match(/^date:\s*"(.+)"/m);
+      const slug = file.replace(/\.mdx$/, '');
+      return { titleMatch, metricMatch, dateMatch, slug };
+    })
+    .filter((c) => c.titleMatch && c.dateMatch)
+    .sort((a, b) => b.dateMatch[1].localeCompare(a.dateMatch[1]));
+
+  for (const { titleMatch, metricMatch, slug } of cases) {
+    caseLines += `- ${titleMatch[1]}${metricMatch ? ` (${metricMatch[1]})` : ''}: https://butakov.dev/journal/${slug}\n`;
   }
 }
 
