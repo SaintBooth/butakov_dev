@@ -125,11 +125,11 @@ export default async function CasePage({ params }: Props) {
 
         <div className="flex items-center gap-3 py-4 border-y border-slate-100">
           <Image
-            src="/logo-icon.png"
+            src="/author-avatar.webp"
             alt={authorName}
             width={36}
             height={36}
-            className="w-9 h-9 rounded-full flex-shrink-0"
+            className="w-9 h-9 rounded-full object-cover flex-shrink-0"
           />
           <div className="min-w-0 text-sm">
             <div className="font-semibold text-slate-800">{authorName}</div>
