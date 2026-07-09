@@ -59,6 +59,8 @@ export function getSchemaArticle(opts: {
   datePublished: string;
   url: string;
   image?: string;
+  keywords?: string[];
+  metric?: string;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -66,10 +68,19 @@ export function getSchemaArticle(opts: {
     headline: opts.headline,
     description: opts.description,
     datePublished: opts.datePublished,
-    dateModified: opts.datePublished,
     url: opts.url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url },
     image: opts.image ?? DEFAULT_OG_IMAGE,
+    ...(opts.keywords && opts.keywords.length > 0 ? { keywords: opts.keywords.join(', ') } : {}),
+    ...(opts.metric
+      ? {
+          additionalProperty: {
+            '@type': 'PropertyValue',
+            name: 'Result',
+            value: opts.metric,
+          },
+        }
+      : {}),
     author: { '@id': 'https://butakov.dev/#person' },
     publisher: { '@id': 'https://butakov.dev/#business' },
   };

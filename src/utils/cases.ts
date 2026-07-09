@@ -77,9 +77,37 @@ const WORDS_PER_MINUTE = 200;
 function estimateReadingTime(source: string): number {
   const body = source
     .replace(/^---[\s\S]*?---/, '') // frontmatter
-    .replace(/```[\s\S]*?```/g, ''); // code fences (not read at reading pace)
+    .replace(/```[\s\S]*?```/g, '') // code fences (not read at reading pace)
+    .replace(/`[^`]*`/g, '') // inline code
+    .replace(/<[^>]+>/g, ''); // JSX/MDX component tags
   const words = body.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
+}
+
+export interface RelatedCase {
+  slug: string;
+  frontmatter: CaseFrontmatter;
+}
+
+export async function getRelatedCases(
+  locale: string,
+  currentSlug: string,
+  currentTags: string[],
+  limit = 3
+): Promise<RelatedCase[]> {
+  const all = await getAllCaseFrontmatters(locale);
+  const others = all.filter((c) => c.slug !== currentSlug);
+
+  const scored = others
+    .map((c) => ({
+      ...c,
+      sharedTags: c.frontmatter.tags.filter((tag) => currentTags.includes(tag)).length,
+    }))
+    .sort(
+      (a, b) => b.sharedTags - a.sharedTags || b.frontmatter.date.localeCompare(a.frontmatter.date)
+    );
+
+  return scored.slice(0, limit).map(({ slug, frontmatter }) => ({ slug, frontmatter }));
 }
 
 export async function getAllCaseFrontmatters(locale: string) {

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
-import { getCaseBySlug, getCaseSlugs } from '@/utils/cases';
+import { getCaseBySlug, getCaseSlugs, getRelatedCases } from '@/utils/cases';
 import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
 import { Link } from '@/i18n/navigation';
 import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
@@ -71,7 +71,10 @@ export default async function CasePage({ params }: Props) {
     datePublished: fm.date,
     url: `${base}${ruPrefix}/journal/${slug}`,
     image: fm.image ? `${base}${fm.image}` : undefined,
+    keywords: fm.tags,
+    metric: fm.metric,
   });
+  const relatedCases = await getRelatedCases(locale, slug, fm.tags);
   const breadcrumbSchema = getSchemaBreadcrumb([
     { name: isRu ? 'Главная' : 'Home', url: `${base}${ruPrefix}` },
     { name: isRu ? 'Журнал' : 'Journal', url: `${base}${ruPrefix}/journal` },
@@ -121,7 +124,14 @@ export default async function CasePage({ params }: Props) {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
           {fm.title}
         </h1>
-        <p className="text-lg text-slate-600 font-medium mb-6">{fm.excerpt}</p>
+        <p className="text-lg text-slate-600 font-medium mb-5">{fm.excerpt}</p>
+
+        <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-xl bg-teal-50 border border-teal-100">
+          <span className="text-xs font-bold uppercase tracking-wider text-teal-600">
+            {isRu ? 'Результат' : 'Result'}
+          </span>
+          <span className="text-sm font-extrabold text-teal-700">{fm.metric}</span>
+        </div>
 
         <div className="flex items-center gap-3 py-4 border-y border-slate-100">
           <Image
@@ -139,8 +149,6 @@ export default async function CasePage({ params }: Props) {
               <span>
                 {readingTime} {isRu ? 'мин чтения' : 'min read'}
               </span>
-              <span className="w-1 h-1 rounded-full bg-slate-300" />
-              <span className="font-bold text-teal-600">{fm.metric}</span>
             </div>
           </div>
         </div>
@@ -156,6 +164,29 @@ export default async function CasePage({ params }: Props) {
       <article className="prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-pre:p-0 prose-pre:bg-transparent">
         {content}
       </article>
+
+      {/* Related cases */}
+      {relatedCases.length > 0 && (
+        <div className="mt-16 pt-8 border-t border-slate-100">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-5">
+            {isRu ? 'Похожие кейсы' : 'Related cases'}
+          </h2>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {relatedCases.map((related) => (
+              <Link
+                key={related.slug}
+                href={`/journal/${related.slug}`}
+                className="block p-4 rounded-xl border border-slate-100 hover:border-teal-200 transition-colors"
+              >
+                <div className="font-semibold text-slate-800 text-sm mb-1 line-clamp-2">
+                  {related.frontmatter.title}
+                </div>
+                <div className="text-xs font-bold text-teal-600">{related.frontmatter.metric}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Footer CTA */}
       <div className="mt-16 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
