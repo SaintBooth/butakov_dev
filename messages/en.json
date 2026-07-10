@@ -25,6 +25,15 @@
     "cta": "Discuss the project",
     "viewAll": "All cases"
   },
+  "githubSection": {
+    "heading": "What am I building on GitHub?",
+    "subheading": "Daily coding activity over the last year.",
+    "viewProfile": "GitHub profile",
+    "contributions": "contributions this year",
+    "repos": "repos",
+    "less": "Less",
+    "more": "More"
+  },
   "services": {
     "heading": "Which stack fits your project?",
     "subheading": "I match the technology to the task, so you don't overpay for complexity or support you don't need.",

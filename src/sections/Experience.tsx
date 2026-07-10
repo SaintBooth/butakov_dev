@@ -1,6 +1,7 @@
 import { Database, UserCog } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { experienceData } from '../data/experience';
+import GithubActivity from './GithubActivity';
 
 export default async function Experience() {
   const t = await getTranslations('experience');
@@ -76,6 +77,7 @@ export default async function Experience() {
                 ))}
               </div>
             </div>
+            <GithubActivity />
           </div>
         </div>
       </div>
