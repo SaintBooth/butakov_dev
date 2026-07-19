@@ -25,9 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ruPrefix = locale === 'en' ? '' : '/ru';
   const url = `${base}${ruPrefix}/journal/${slug}`;
   const image = fm.image ? `${base}${fm.image}` : DEFAULT_OG_IMAGE;
+  const metaTitle = fm.seoTitle ?? fm.title;
 
   return {
-    title: `${fm.title} | butakov.dev`,
+    title: `${metaTitle} | butakov.dev`,
     description: fm.excerpt,
     alternates: {
       canonical: url,
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     openGraph: {
       type: 'article',
-      title: fm.title,
+      title: metaTitle,
       description: fm.excerpt,
       url,
       publishedTime: fm.date,
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: fm.title,
+      title: metaTitle,
       description: fm.excerpt,
       images: [image],
     },

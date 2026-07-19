@@ -9,6 +9,7 @@
 - AI consulting — LLM and neural network integration
 
 ## Engineering Cases
+- Building an online store on WordPress with Claude Code: a budget case with 1C ERP integration ($0 in licenses, live in weeks): https://butakov.dev/journal/wordpress-claude-code-1c
 - Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains (27 cities, 0 duplicates): https://butakov.dev/journal/bitrix-multiregion-subdomains
 - Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms): https://butakov.dev/journal/bitrix-cache-warmup
 - High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed): https://butakov.dev/journal/bitrix-highload-ecommerce

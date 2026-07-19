@@ -1,0 +1,175 @@
+---
+title: "Building an online store on WordPress with Claude Code: a budget case with 1C ERP integration"
+seoTitle: "Building a WordPress store with Claude Code: a case study"
+date: "2026-07-19"
+tags: ["WordPress", "WooCommerce", "1C", "Claude Code"]
+metric: "$0 in licenses, live in weeks"
+excerpt: "A case study of building a designer clothing store on WordPress + WooCommerce: real-time sync with a 1C ERP, a custom block theme, local payments and shipping. Most of the code was written by the Claude Code AI agent, and the budget came in several times below an agency quote."
+---
+
+The project inputs were these. The client is a women's clothing brand from Yekaterinburg, Russia. Inventory lives in 1C:Retail, the POS and inventory system that runs most of Russian retail (if you have never met 1C, picture QuickBooks and Lightspeed fused into one very corporate product that talks to the outside world through XML). The design already existed as a React prototype in a quiet luxury aesthetic, and it had to be reproduced exactly. The budget was small: no four-figure annual platform licenses, no six-person team. One developer, an open source stack, a tight deadline.
+
+That dictated the stack: WordPress + WooCommerce, a block theme from scratch, ERP sync over the CommerceML protocol. The other unusual thing about this project is the process itself: almost all of the code was written in a pair with Claude Code. Vibe coding is when the developer sets the task and reviews the result while an AI agent writes the routine code. In demos it looks like magic. On a real project with an ERP, variable products, and privacy compliance it is ordinary engineering work, just noticeably faster.
+
+## The problem: a boutique store without a boutique budget
+
+In Russia, "we need a store synced with 1C" almost always gets the same answer: buy Bitrix. It is the dominant commercial CMS on that market, and it ships with a stock 1C exchange module, boxed pricing tiers, and a large pool of integrators. The closest US analogy is being told to buy Adobe Commerce because that is what the agencies know how to bill for.
+
+For a small clothing brand that logic breaks in two places: money and design.
+
+Money. The Bitrix license, annual renewals, and integrator fees add up to a budget comparable to this entire open source build. For a boutique with one retail location that spend is hard to justify.
+
+Design. The client did not want a "theme with a catalog." They wanted an exact reproduction of the prototype: a four-color palette, Lora and Raleway typography, zero border radii, an airy grid. Bending a stock theme into that shape takes longer than writing your own.
+
+The requirements did not go anywhere, though: real-time stock from 1C:Retail (clothing means variable products, and every size and color combination has its own stock count), payments through YooKassa with SBP support (the local card processor and instant payment rail, filling the slot Stripe fills in the US), CDEK courier delivery, a cookie banner and personal data consents under 152-FZ (Russia's rough equivalent of GDPR), and ecommerce events in Yandex Metrica.
+
+So: the functionality of a grown-up store, a minimal budget, and a custom design, all at the same time. The bet was on two things: a free WordPress + WooCommerce stack, and an AI agent instead of a team.
+
+## The solution
+
+The full project stack, with each point unpacked below:
+
+- CMS: WordPress with a fully block-based theme (FSE) built from scratch, no page builder plugins
+- E-commerce: WooCommerce + WooCommerce Blocks, mini cart through the Store API
+- Backend: PHP 8, a modular `inc/` structure, ACF with fields registered in code rather than through the UI
+- Frontend: ES modules with no jQuery, `IntersectionObserver` for animations, `history.pushState` for filter state, Lucide icons as an inline SVG sprite
+- Design tokens: `theme.json` as the single source, CSS variables generated from it
+- ERP sync: 1C:Retail over CommerceML 3.1, real time
+- Payments and services: YooKassa (cards and SBP), CDEK delivery, Unisender for email, Yandex Metrica with ecommerce events
+- Hosting and deploys: NetAngels, deploy over SSH
+- AI tooling: Claude Code plus MCP servers (Playwright for in-browser checks, SSH for deploys)
+
+### Stack and architecture: a block theme as a design system
+
+The foundation is WordPress with a fully block-based theme (FSE, Full Site Editing) and no page builder plugins. For a budget project this is a matter of principle: every builder like Elementor costs you performance, ties you to someone else's update schedule, and adds an extra layer between the design and the code.
+
+Instead, the design system from the React prototype moved into `theme.json`, the single source of truth for tokens. A four-color palette, an 8px spacing scale, two typefaces. WordPress generates CSS variables from it, and all further CSS references only the tokens:
+
+```css
+:root {
+  --color-bone: /* background, ~70% of the canvas */;
+  --color-ink: /* text and UI */;
+  --color-bordeaux: /* sale and accents */;
+  --color-pine: /* dark navigation */;
+}
+```
+
+Text hierarchy is built with transparent variants of the main color instead of a pile of grays. Radii are zero everywhere except pill-shaped tags. This rigid rule set later did real work in the AI part of the project; more on that below.
+
+The PHP layer is organized simply: `functions.php` does nothing itself, it only wires up modules from `inc/`, one responsibility per file:
+
+```php
+// functions.php: wiring only, no logic
+require_once get_theme_file_path( 'inc/setup.php' );
+require_once get_theme_file_path( 'inc/assets.php' );
+require_once get_theme_file_path( 'inc/woocommerce.php' );
+require_once get_theme_file_path( 'inc/ajax-handlers.php' );
+```
+
+Repeating sections live in block patterns; chrome like the header and footer lives in template parts. WooCommerce templates are overridden point by point, only where the stock markup did not match the design.
+
+### The AI workflow: what vibe coding looks like on a real project
+
+The agent did not build the store by itself. It wrote most of the code while I did the architecture, set the tasks, and reviewed the results. It is not less work than manual development, but the throughput is different.
+
+The workflow rests on three things.
+
+A contract in CLAUDE.md. Claude Code reads a project instruction file at the start of every session. I put the entire design system there as a set of prohibitions: the palette is exactly four colors, raw hex codes are banned, radius is zero, headings are uppercase with letter spacing, spacing comes only from the 8px scale. An LLM will happily improvise if you let it. Hard rules remove that improvisation: when the agent needs a new shade, it does not paste a hex value, it derives one with `oklch()` from an existing token, because that is what the rules say to do.
+
+File-based memory between sessions. The agent's context is finite and the project ran for months. Every meaningful lesson ("WooCommerce Blocks does not load jQuery", "1C delta exports wipe variations") went into markdown memory files. A new session starts not from zero but from a digest of every trap already stepped on. It is an engineer's external long-term memory, except the reader is an agent, not a person.
+
+Verification in a browser, not by eyeballing. The agent has Playwright access through MCP: it opens the page itself, clicks around, takes a screenshot, and compares it against the prototype. The rule is simple: no "bug fixed" verdict without a live check. It paid for itself on the product card story. Clicks on links died only on desktop and only in production. The agent reproduced the bug with a real Playwright click and found the cause: `setPointerCapture` in the carousel was intercepting pointer events and retargeting the click from the link to the carousel track. That diagnosis was impossible by eye; the carousel code looked correct.
+
+What the agent does badly. It confidently "fixes" the wrong cause unless you force it to reproduce the bug first. It drags off-system solutions into the markup when the rules are fuzzy. It loses context on long tasks without external memory. All three problems are solved by process, which is why this article spends so much time on process and not only on code.
+
+### The 1C integration: CommerceML and the traps the manuals keep quiet about
+
+The most expensive part of the project in hours. Also the most useful section for anyone wiring an ERP or POS system into WooCommerce over an XML exchange.
+
+The sync runs on the CommerceML protocol: 1C:Retail exports XML packets on a schedule and on events (real-time mode is on), and a WordPress-side plugin parses them and updates the catalog. The scheme is simple. The traps are in the details.
+
+One note before the traps: CommerceML is a Russian national standard, so the XML element names below are genuinely in Russian. That is not obfuscation, that is the protocol.
+
+Trap 1: stock counts that were not there. Symptom: the storefront showed wrong stock while the exchange completed without a single error. The cause only surfaced after diffing the raw XML against what actually landed in the database. In CommerceML 3.1 stock arrives in separate `rests_*.xml` files with a nested structure, split per warehouse inside `<Остатки><Остаток><Склад>`:
+
+```xml
+<Предложение>
+  <Ид>product-guid#variation-guid</Ид>
+  <Остатки>
+    <Остаток>
+      <Склад>
+        <Ид>warehouse-guid</Ид>
+        <Количество>3</Количество>
+      </Склад>
+    </Остаток>
+  </Остатки>
+</Предложение>
+```
+
+The plugin's parser expected a flat `<Количество>` one level up and silently skipped the nested variant. No errors, no warnings, the exchange looks healthy, the data is wrong. The fix was a parser patch. Since then I diff the plugin's code before every update: the next release can silently bring the old behavior back.
+
+Trap 2: two independent attribute pipelines. In CommerceML, item properties and variation characteristics are different mechanisms, and the plugin processes them along different code paths. A color entered as a property and a size entered as a characteristic arrive in WooCommerce differently. Until you trace both pipelines step by step, the result is unpredictable.
+
+Trap 3: delta exports versus variations. The fast exchange sends delta chunks, not the full catalog. On every chunk the plugin recreated the product's variation set, and variations missing from the current chunk simply disappeared. The size grid was slowly emptying out. The solution was a mode that preserves variations on partial exports, plus a database cleanup: about a thousand orphaned variations had piled up during debugging.
+
+Trap 4: GUIDs instead of slugs. Attribute terms were created with GUID slugs, which broke filter URLs and made the admin unreadable. Solved with mapping constants and a repair script that runs after each exchange.
+
+The takeaway for this section: an ERP-to-WordPress sync runs reliably in production, ours works in real time. But it is not "install the plugin and forget it." You will read the plugin's code, patch the parser, and write verification scripts. Put that in the estimate.
+
+### Payments, shipping, and the compliance layer
+
+The local services layer was assembled from standard blocks: YooKassa (cards and SBP) for payments, CDEK and the postal service for delivery, Unisender for email, Yandex Metrica ecommerce events for analytics. Swap in Stripe, ShipStation, Mailchimp, and GA4 and the shape of the work is the same. The line item that budget estimates keep forgetting is privacy compliance, 152-FZ here, GDPR or CCPA elsewhere: a cookie banner, consent checkboxes in forms, terms at checkout. None of it is technically hard, but these tasks surface in the final week and move the deadline if they were not planned from day one.
+
+### A frontend without jQuery: a surprise from WooCommerce Blocks
+
+Modern WooCommerce with block templates does not load jQuery on the storefront. At all. The classic tutorial snippets like `$('.variations_form').on('found_variation', …)` have nothing to run on. For a block theme I had to write a native variation resolver: collect the selected attributes, find the match in the variation data, update the price, photo, and availability:
+
+```js
+// No jQuery here: WooCommerce Blocks doesn't load it.
+const match = variations.find((v) =>
+  Object.entries(selected).every(
+    ([attr, value]) => !v.attributes[attr] || v.attributes[attr] === value
+  )
+);
+```
+
+More from the same series: AJAX catalog filters render into the block product template, filter state lives in the URL through `history.pushState` (a link with chosen filters survives being forwarded), the mini cart works through the Store API. Scroll animations run on `IntersectionObserver` and respect `prefers-reduced-motion`. Nothing exotic. Just modern frontend that the WordPress ecosystem still makes you assemble by hand.
+
+## The result
+
+What is in production as of publication.
+
+A working store on a custom block theme that reproduces the design prototype. A catalog with AJAX filters, variable product cards with sizes and colors, a wishlist, a product page with a swipe gallery on mobile.
+
+Real-time sync with 1C:Retail: prices, stock, and variations arrive from the ERP with no manual duplication. After the stock parser fix the storefront matches the warehouse.
+
+The local services layer: YooKassa and SBP payments, CDEK and postal delivery, privacy compliance closed.
+
+Iteration speed: two full rounds of client revisions, thirty items from typography to block restructuring, each cleared in a few days. Development time was measured in weeks, not months.
+
+Budget: zero license costs. WordPress, WooCommerce, and the whole stack are open source. The client's money went to work and hosting, not to annual renewals of a boxed platform.
+
+### When WordPress + AI fits, and when it doesn't
+
+It fits if you run a small or mid-size store with a custom design, inventory in an ERP without a deep enterprise contour, a budget that actually matters, and a developer willing to dig into exchange XML rather than only install plugins.
+
+It does not fit if you run a high-load marketplace with thousands of orders a day, complex logistics with real-time per-warehouse reservations, or corporate requirements for vendor support. In those cases a boxed platform or a custom build on a different stack earns its price.
+
+On the AI part, the conclusion is this. Claude Code does not replace a developer; it replaces part of a team. I would not have shipped a project of this size alone on this timeline without the agent, or I would have shipped it on a very different budget. But without a built process (rules in CLAUDE.md, external memory, mandatory browser verification) the agent produces confident, wrong code. Setting up the process matters more than learning to write clever prompts.
+
+## FAQ
+
+**How much does an online store on WordPress cost?**
+Several times less than a build on boxed commercial platforms: there are no license fees, and AI-assisted development cuts the manual hours. The exact price depends on the design, the integrations, and the catalog, and is quoted per spec.
+
+**Can 1C be integrated with WooCommerce?**
+Yes, over the CommerceML protocol, including real-time stock and variable products. The caveat: the stock plugins need hand-finishing, see the 1C section above.
+
+**What is vibe coding in plain terms?**
+Development where an AI agent writes the routine code and a human sets tasks, designs the architecture, and reviews the results. Speed goes up several-fold; quality holds only through review discipline.
+
+**Does Claude Code replace a developer?**
+No. It replaces part of a team: a junior frontend developer, a tester on routine checks, a technical writer. Architecture, task decomposition, and acceptance stay with the human.
+
+**Does WooCommerce work with YooKassa and SBP?**
+Yes, YooKassa ships an official WooCommerce module with card and SBP payments.
