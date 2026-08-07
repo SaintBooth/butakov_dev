@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const services = [
-  'Complex web services and startups (Django 5, Next.js 15)',
+  'Complex web platforms & startups (Django 5, Next.js 15)',
   'E-commerce on 1C-Bitrix with 1C:UT integration',
   'Digital marketing & Performance (Yandex Direct)',
   'Corporate WordPress sites',
@@ -10,10 +10,10 @@ const services = [
   'AI consulting — LLM and neural network integration',
 ];
 
-const casesDir = path.join(process.cwd(), 'content', 'cases', 'en');
-let caseLines = '';
+function readCases(locale, urlPrefix) {
+  const casesDir = path.join(process.cwd(), 'content', 'cases', locale);
+  if (!fs.existsSync(casesDir)) return '';
 
-if (fs.existsSync(casesDir)) {
   const files = fs.readdirSync(casesDir).filter((f) => f.endsWith('.mdx'));
   const cases = files
     .map((file) => {
@@ -27,22 +27,37 @@ if (fs.existsSync(casesDir)) {
     .filter((c) => c.titleMatch && c.dateMatch)
     .sort((a, b) => b.dateMatch[1].localeCompare(a.dateMatch[1]));
 
-  for (const { titleMatch, metricMatch, slug } of cases) {
-    caseLines += `- ${titleMatch[1]}${metricMatch ? ` (${metricMatch[1]})` : ''}: https://butakov.dev/journal/${slug}\n`;
-  }
+  return cases
+    .map(
+      ({ titleMatch, metricMatch, slug }) =>
+        `- [${titleMatch[1]}${metricMatch ? ` (${metricMatch[1]})` : ''}](https://butakov.dev${urlPrefix}/journal/${slug})`
+    )
+    .join('\n');
 }
 
+const enCases = readCases('en', '');
+const ruCases = readCases('ru', '/ru');
+
 const content = `# butakov.dev — Alexander Butakov, IT Consultant
+
+> IT consultant and software engineer: Django/Next.js platforms, 1C-Bitrix e-commerce, WordPress, and AI/LLM integration. Site available in English and Russian.
 
 ## Services
 ${services.map((s) => `- ${s}`).join('\n')}
 
 ## Engineering Cases
-${caseLines || '(cases coming soon)\n'}
+${enCases || '(cases coming soon)'}
+
+## Инженерный журнал (русская версия)
+${ruCases || '(скоро появятся кейсы)'}
+
 ## Contact
-- Telegram: https://t.me/SashaBooth
-- Email: hello@butakov.dev
-- Site: https://butakov.dev
+- [Telegram](https://t.me/SashaBooth)
+- [Email](mailto:hello@butakov.dev)
+- [Site](https://butakov.dev)
+
+## Optional
+- [Русская версия сайта](https://butakov.dev/ru)
 `;
 
 const publicDir = path.join(process.cwd(), 'public');

@@ -1,7 +1,9 @@
 # butakov.dev — Alexander Butakov, IT Consultant
 
+> IT consultant and software engineer: Django/Next.js platforms, 1C-Bitrix e-commerce, WordPress, and AI/LLM integration. Site available in English and Russian.
+
 ## Services
-- Complex web services and startups (Django 5, Next.js 15)
+- Complex web platforms & startups (Django 5, Next.js 15)
 - E-commerce on 1C-Bitrix with 1C:UT integration
 - Digital marketing & Performance (Yandex Direct)
 - Corporate WordPress sites
@@ -9,16 +11,29 @@
 - AI consulting — LLM and neural network integration
 
 ## Engineering Cases
-- Building an online store on WordPress with Claude Code: a budget case with 1C ERP integration ($0 in licenses, live in weeks): https://butakov.dev/journal/wordpress-claude-code-1c
-- Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains (27 cities, 0 duplicates): https://butakov.dev/journal/bitrix-multiregion-subdomains
-- Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms): https://butakov.dev/journal/bitrix-cache-warmup
-- High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed): https://butakov.dev/journal/bitrix-highload-ecommerce
-- Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss (97% RAM freed): https://butakov.dev/journal/redis-optimization
-- WordPress Recovery After Fatal Error During PHP 8.3 Migration (Uptime 99.99%): https://butakov.dev/journal/wordpress-php83-migration
-- SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops (+14% form conversion): https://butakov.dev/journal/spa-deployment-fix
-- Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability): https://butakov.dev/journal/bitrix-php8-legacy
+- [Building an online store on WordPress with Claude Code: a budget case with 1C ERP integration ($0 in licenses, live in weeks)](https://butakov.dev/journal/wordpress-claude-code-1c)
+- [Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains (27 cities, 0 duplicates)](https://butakov.dev/journal/bitrix-multiregion-subdomains)
+- [Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms)](https://butakov.dev/journal/bitrix-cache-warmup)
+- [High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks (+40% server response speed)](https://butakov.dev/journal/bitrix-highload-ecommerce)
+- [Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss (97% RAM freed)](https://butakov.dev/journal/redis-optimization)
+- [WordPress Recovery After Fatal Error During PHP 8.3 Migration (Uptime 99.99%)](https://butakov.dev/journal/wordpress-php83-migration)
+- [SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops (+14% form conversion)](https://butakov.dev/journal/spa-deployment-fix)
+- [Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability)](https://butakov.dev/journal/bitrix-php8-legacy)
+
+## Инженерный журнал (русская версия)
+- [Разработка интернет-магазина на WordPress в паре с Claude Code: бюджетный кейс с интеграцией 1С (0 ₽ лицензий, запуск за недели)](https://butakov.dev/ru/journal/wordpress-claude-code-1c)
+- [Мультирегиональность для интернет-магазина на Битриксе: 27 городов на поддоменах (27 городов, 0 дублей)](https://butakov.dev/ru/journal/bitrix-multiregion-subdomains)
+- [Архитектура прогрева кеша для каталога на 200 тыс. SKU (Ответ сервера 190 мс)](https://butakov.dev/ru/journal/bitrix-cache-warmup)
+- [Оптимизация высоконагруженного e-commerce: блокировки БД, падения CRM и атаки AI-ботов (+40% к скорости ответа сервера)](https://butakov.dev/ru/journal/bitrix-highload-ecommerce)
+- [Оптимизация Redis для Битрикс: фоновая очистка тегов без потери сессий (Освобождено 97% RAM)](https://butakov.dev/ru/journal/redis-optimization)
+- [Восстановление WordPress после фатальной ошибки при миграции на PHP 8.3 (Uptime 99.99%)](https://butakov.dev/ru/journal/wordpress-php83-migration)
+- [Деплой SPA: исправление конфликтов сборки и бесконечных циклов редиректа (+14% конверсии формы)](https://butakov.dev/ru/journal/spa-deployment-fix)
+- [Адаптация legacy-Битрикса под PHP 8: исправление ошибок ядра и админки (100% стабильность админки)](https://butakov.dev/ru/journal/bitrix-php8-legacy)
 
 ## Contact
-- Telegram: https://t.me/SashaBooth
-- Email: hello@butakov.dev
-- Site: https://butakov.dev
+- [Telegram](https://t.me/SashaBooth)
+- [Email](mailto:hello@butakov.dev)
+- [Site](https://butakov.dev)
+
+## Optional
+- [Русская версия сайта](https://butakov.dev/ru)

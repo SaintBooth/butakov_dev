@@ -92,8 +92,11 @@ export default function Contact() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">{t('service')}</label>
+                <label htmlFor="contact-service" className="text-sm font-bold text-slate-700">
+                  {t('service')}
+                </label>
                 <select
+                  id="contact-service"
                   name="service"
                   value={selectedService}
                   onChange={(e) => setSelectedService(e.target.value)}
