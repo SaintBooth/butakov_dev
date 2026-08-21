@@ -11,6 +11,7 @@
 - AI consulting — LLM and neural network integration
 
 ## Engineering Cases
+- [The Mirror, Not the Advisor: A Jungian AI Agent and My Own Boundaries With AI (Written without AI, credits, or tokens)](https://butakov.dev/journal/ai-jungian-mirror-agent)
 - [Building an online store on WordPress with Claude Code: a budget case with 1C ERP integration ($0 in licenses, live in weeks)](https://butakov.dev/journal/wordpress-claude-code-1c)
 - [Multi-Region Architecture for a Bitrix E-commerce Store: 27 Cities on Subdomains (27 cities, 0 duplicates)](https://butakov.dev/journal/bitrix-multiregion-subdomains)
 - [Cache Warmup Architecture for a 200k SKU Catalog (Server response 190ms)](https://butakov.dev/journal/bitrix-cache-warmup)
@@ -21,6 +22,7 @@
 - [Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability)](https://butakov.dev/journal/bitrix-php8-legacy)
 
 ## Инженерный журнал (русская версия)
+- [«Зеркало психики»: агент-психолог по Юнгу и мои личные границы с ИИ (Написано без ИИ, кредитов и токенов)](https://butakov.dev/ru/journal/ai-jungian-mirror-agent)
 - [Разработка интернет-магазина на WordPress в паре с Claude Code: бюджетный кейс с интеграцией 1С (0 ₽ лицензий, запуск за недели)](https://butakov.dev/ru/journal/wordpress-claude-code-1c)
 - [Мультирегиональность для интернет-магазина на Битриксе: 27 городов на поддоменах (27 городов, 0 дублей)](https://butakov.dev/ru/journal/bitrix-multiregion-subdomains)
 - [Архитектура прогрева кеша для каталога на 200 тыс. SKU (Ответ сервера 190 мс)](https://butakov.dev/ru/journal/bitrix-cache-warmup)

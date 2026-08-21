@@ -25,6 +25,12 @@
     "cta": "Discuss the project",
     "viewAll": "All cases"
   },
+  "thoughtsSection": {
+    "heading": "What do I think about IT and development?",
+    "subheading": "Personal opinions and reflections - no metrics or case studies, just a point of view.",
+    "readMore": "Read article",
+    "viewAll": "All articles"
+  },
   "githubSection": {
     "heading": "What am I building on GitHub?",
     "subheading": "Daily coding activity over the last year.",

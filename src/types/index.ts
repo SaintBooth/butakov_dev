@@ -1,17 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentType, CSSProperties } from 'react';
 
-export interface BlogPost {
-  id: number;
-  title: string;
-  category: string;
-  date: string;
-  readTime: string;
-  excerpt: string;
-  content: string;
-  gradient: string;
-}
-
 export interface ServiceMeta {
   id: string;
   Icon: LucideIcon;

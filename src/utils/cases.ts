@@ -5,6 +5,7 @@ import rehypeSlug from 'rehype-slug';
 import GithubSlugger from 'github-slugger';
 import { z } from 'zod';
 import { CodeBlock, Alert } from '@/components/mdx';
+import { OPINION_TAGS } from '../config/journalTags';
 
 export interface CaseHeading {
   depth: 2 | 3;
@@ -25,6 +26,10 @@ export const CaseFrontmatterSchema = z.object({
 });
 
 export type CaseFrontmatter = z.infer<typeof CaseFrontmatterSchema>;
+
+export function isOpinionPiece(frontmatter: CaseFrontmatter): boolean {
+  return frontmatter.tags.some((tag) => OPINION_TAGS.includes(tag));
+}
 
 export function getCaseSlugs(locale: string): string[] {
   const dir = path.join(process.cwd(), 'content', 'cases', locale);
@@ -117,13 +122,16 @@ export async function getAllCaseFrontmatters(locale: string) {
   const cases = await Promise.all(
     slugs.map(async (slug) => {
       const result = await getCaseBySlug(locale, slug);
-      return { slug, frontmatter: result?.frontmatter };
+      return result
+        ? { slug, frontmatter: result.frontmatter, readingTime: result.readingTime }
+        : { slug, frontmatter: undefined, readingTime: undefined };
     })
   );
   return (
     cases.filter((c) => c.frontmatter) as Array<{
       slug: string;
       frontmatter: CaseFrontmatter;
+      readingTime: number;
     }>
   ).sort((a, b) => b.frontmatter.date.localeCompare(a.frontmatter.date));
 }

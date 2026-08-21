@@ -1,7 +1,7 @@
 import { ArrowRight, LineChart } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '../../i18n/navigation';
-import { getAllCaseFrontmatters } from '../../utils/cases';
+import type { CaseFrontmatter } from '../../utils/cases';
 import { getSchemaItemList } from '../../config/schema';
 
 const MAX_CASES = 6;
@@ -9,12 +9,12 @@ const DETAILED_COUNT = 3;
 
 interface CasesProps {
   locale: string;
+  cases: Array<{ slug: string; frontmatter: CaseFrontmatter }>;
 }
 
-export default async function Cases({ locale }: CasesProps) {
+export default async function Cases({ locale, cases: allCases }: CasesProps) {
   const t = await getTranslations({ locale, namespace: 'casesSection' });
   const tJournal = await getTranslations({ locale, namespace: 'journal' });
-  const allCases = await getAllCaseFrontmatters(locale);
   const cases = allCases.slice(0, MAX_CASES);
   const detailed = cases.slice(0, DETAILED_COUNT);
   const brief = cases.slice(DETAILED_COUNT);
