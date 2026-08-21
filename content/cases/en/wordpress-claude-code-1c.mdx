@@ -9,7 +9,7 @@ excerpt: "A case study of building a designer clothing store on WordPress + WooC
 
 The client showed up with what sounded like a simple brief. A women's clothing brand out of Yekaterinburg, Russia, running inventory in 1C:Retail (think QuickBooks and Lightspeed welded into one very corporate product that only talks to the outside world through XML, if you have never met it). The design was already done: a React prototype in a quiet luxury aesthetic, and the mandate was to reproduce it exactly, not "roughly match it." The budget drew a hard line too. No four-figure annual platform licenses, no six-person team. One developer, an open source stack, and a deadline that was politely called tight but really just meant not much time.
 
-The stack falls out of those constraints almost on its own: WordPress with WooCommerce, a block theme built from scratch, ERP sync over CommerceML. The less obvious part of the project was not the stack, though, it was how the code got written: almost all of it in a pair with Claude Code. Vibe coding sounds simple on paper - you set the task, the agent writes the routine code, you review the result. In demos it genuinely looks like a magic trick. On a real project with an ERP, variable products, and privacy law in the mix, there is no magic in it at all, just ordinary engineering that happens to move faster.
+Here is what the rest of this piece covers: the real stack with exact versions and integration boundaries for anyone who wants to reproduce this, the 1C traps nobody documents, an honest list of what the AI agent does well and badly, and a scannable troubleshooting section near the end. If you are here for specifics rather than an inspirational story, that section is probably the most useful part of the page.
 
 ## The problem: a boutique store without a boutique budget
 
@@ -39,6 +39,19 @@ Here is the full stack up front, and I will unpack each piece below:
 - Hosting and deploys: NetAngels, deploy over SSH
 - AI tooling: Claude Code plus MCP servers (Playwright for in-browser checks, SSH for deploys)
 
+### Versions and integration boundaries
+
+For anyone who wants to reproduce this rather than just read about it, here are the exact versions as of publication:
+
+- WordPress 7.0.2, the theme requires 6.6 or newer
+- WooCommerce 10.7.0
+- PHP 8.2, the theme explicitly requires it and will not build on anything older
+- ACF (Advanced Custom Fields) 6.8.3, fields registered in code, not through the UI
+- 1C sync: the open source plugin "Data Exchange for WooCommerce and 1C:Enterprise" (by Danil Semelenov), version 0.9.20, riding on top of CommerceML 3.1
+- 1C:Retail itself: the release is the client's call, and I am deliberately not pinning a platform version here, because it is not something the site developer controls
+
+It is worth stating plainly what the exchange plugin actually does and does not solve, so you do not over-trust the box. It parses XML packets and updates the catalog, stock, and prices. It does not: automatically recalculate product counts on attribute terms after import (covered below, in troubleshooting), resolve conflicts if the same product gets edited on the site and in 1C at the same time, or validate the data coming out of 1C. Garbage in stays garbage out unless you add your own validation layer.
+
 ### Stack and architecture: a block theme as a design system
 
 The foundation is WordPress with a fully block-based theme, FSE, and not a single page builder plugin in sight. On a budget project that is not a preference, it is a necessity: any builder like Elementor costs you performance, chains you to someone else's release schedule, and drops an extra layer between the design and the code. Cutting that corner was never really an option.
@@ -55,6 +68,8 @@ So instead, the entire design system from the React prototype moved into `theme.
 ```
 
 Text hierarchy rests on transparent variants of the main color rather than a pile of ten grays. Radii sit at zero everywhere except the pill-shaped tags. Jumping ahead a bit: this rigid rule set earns its keep later, in the AI part of the project, and here is why.
+
+Even hard rules do not cover everything, though. At one point the background token changed on the client's call, from a warm tone to a neutral one. The "no raw hex" rule held perfectly for every new value. It did not hold for fallbacks. A few spots in the PHP that renders product swatches carried a hardcoded backup color for whenever a product had no color coming from 1C, and nobody touched it, because on paper it was not "a new decision," just an old default. Nobody caught it right away either: swatches on colorless products kept rendering in the old shade against the new background. The lesson is simple and a little uncomfortable: a rule against raw values has to cover defaults too, not only visible new decisions, or the gap sits exactly where nobody thinks to look.
 
 I kept the PHP layer deliberately plain. `functions.php` does nothing on its own, it just wires up modules from `inc/`, one responsibility per file:
 
@@ -74,13 +89,17 @@ The agent did not build this store on its own, that is not how it works. It wrot
 
 The workflow rests on three things.
 
-First: a contract in CLAUDE.md, the instruction file Claude Code rereads at the start of every single session. I put the whole design system in there as flat prohibitions: exactly four colors in the palette, raw hex codes banned outright, radius fixed at zero, headings in uppercase with letter spacing, spacing pulled only from the 8px scale. Give an LLM an inch and it will happily improvise. Hard rules kill that instinct dead: when the agent needs a new shade, it does not type a hex value, it derives one with `oklch()` from an existing token, purely because the rules leave it no other path.
+First: a contract in CLAUDE.md, the instruction file Claude Code rereads at the start of every single session. I put the whole design system in there as flat prohibitions: exactly four colors in the palette, raw hex codes banned outright, radius fixed at zero, headings in uppercase with letter spacing, spacing pulled only from the 8px scale. Give an LLM an inch and it will happily improvise. Hard rules kill that instinct dead: when the agent needs a new shade, it does not type a hex value, it derives one with `oklch()` from an existing token.
 
 Second: file-based memory across sessions. The agent's context window is finite, and this project ran for months. Every lesson that cost real time ("WooCommerce Blocks does not load jQuery," "1C delta exports wipe out variations") went straight into markdown memory files. A fresh session does not start from zero, it starts from a digest of every trap already stepped in. Call it an engineer's external long-term memory. The only difference is the one reading it is an agent, not a person.
 
 Third: verification in a live browser instead of by eyeballing the code. The agent gets Playwright through MCP, so it opens the page itself, clicks around, takes a screenshot, and checks it against the prototype. The rule is strict: the phrase "bug fixed" does not count without a live run to back it up. That rule earned its place on the product-card incident. Clicks on the links were dead, but only on desktop, and only in production, which by itself should tell you something is off. The agent reproduced the bug with a real Playwright click and dug out the cause: `setPointerCapture` in the carousel was hijacking pointer events and retargeting the click from the link to the carousel track itself. No amount of eyeballing was going to catch that. The carousel code read as completely correct.
 
-Now the part worth being honest about, not just the praise. Left alone, the agent will confidently "fix" the wrong cause unless you make it reproduce the bug first. It drags in solutions that ignore the design system the moment the rules go the least bit fuzzy. It loses the thread on long tasks with no external memory to fall back on. All three problems get solved by process, not by prompting, which is exactly why this piece leans so hard on process instead of just code.
+Now the part worth being honest about, not just the praise. Left alone, the agent will confidently "fix" the wrong cause unless you make it reproduce the bug first. It drags in solutions that ignore the design system the moment the rules go the least bit fuzzy. It loses the thread on long tasks with no external memory to fall back on.
+
+One concrete example of that last failure mode: the agent once tied a piece of menu logic to a literal numeric WordPress menu-post ID instead of resolving it through the registered theme location. It worked fine until content got re-exported and the ID shifted, and then the menu quietly stopped highlighting the right item, with nothing in the logs to flag it. Same class of problem as the fallback color from the earlier section: code that is technically working but brittle, and a blanket "do not hardcode" rule does not save you unless you spell it out for every specific spot, post IDs included, not just colors and spacing.
+
+All of this gets solved by process, not by prompting, which is exactly why this piece leans so hard on process instead of just code.
 
 ### The 1C integration: CommerceML and the traps the manuals keep quiet about
 
@@ -114,6 +133,8 @@ Trap three: delta exports at war with variations. The fast exchange ships delta 
 
 Trap four: GUIDs where slugs should be. Attribute terms were created with GUID slugs, which broke filter URLs and left the admin screen unreadable. Fixed with mapping constants plus a repair script that runs after every exchange.
 
+Worth telling separately is a case that was not a trap at all, it was a decision, not a bug. For some products, 1C sends the color as a single string covering two colors at once, something like "white / green," simply because that is how the characteristic is set up on the inventory side. You can technically split a string like that into two separate attributes. But that is a data decision, not a parsing one, and it is not mine to make quietly in code, so I brought it to the client. The answer surprised me: do not split it into two terms, render one swatch split diagonally between the two colors instead. Not the most obvious technical call, but a precise one, and it came from someone who actually understands the merchandise. The takeaway: not every oddity in 1C data is a bug to quietly patch. Sometimes it is a question to ask, not a decision to make on the client's behalf.
+
 The short version: an ERP-to-WordPress sync does run reliably in production, ours runs in real time, in fact. But drop the "install the plugin and walk away" fantasy right now. You will read the plugin's code, patch the parser, and write your own verification scripts. Budget the time for that up front, not after it blows the deadline.
 
 ### Payments, shipping, and the compliance layer
@@ -135,6 +156,42 @@ const match = variations.find((v) =>
 
 More of the same flavor: AJAX catalog filters render straight into the block product template, filter state lives in the URL via `history.pushState` (a link with the chosen filters survives being forwarded to someone else), the mini cart runs on the Store API. Scroll animations sit on `IntersectionObserver` and respect `prefers-reduced-motion`. None of it is exotic. It is just ordinary modern frontend that the WordPress ecosystem, for whatever reason, still makes you assemble by hand.
 
+There is a separate block-theme trap I ran into on the product page. The prototype called for a sticky info column on the right while the left photo column scrolled underneath it. `position: sticky` was right there in the CSS, and it flatly refused to work. The cause turned out to live in FSE itself: WordPress automatically wraps block content in containers carrying the `is-layout-constrained` class and its own styles, things like `margin: auto`, and those styles quietly break the context sticky positioning depends on. Everything looked fine in devtools too: the declaration was there, specificity checked out, and the element still scrolled along with the page instead of pinning. I dug it out with the same browser-first check from the workflow, looking at the computed styles on the parent wrappers instead of just my own component, and found an extra layout container FSE had inserted on its own. The lesson is narrow but concrete: in WordPress block themes, a sticky or absolute positioning bug is often not in your CSS at all, it is in an invisible wrapper WordPress put around the block.
+
+## Common failures: symptom, cause, fix
+
+A condensed reference for the project's most frequent issues, for anyone who wants to check something fast instead of reading the full story.
+
+**Stock counts do not match the storefront, even though the exchange reports no errors.**
+Cause: CommerceML 3.1 stock arrives in a nested structure (`<Остатки><Остаток><Склад>`), not a flat field, and the plugin was expecting the old flat format.
+Fix: a parser patch for the nested structure.
+Check your own setup: open one `rests_*.xml` from an export and check whether `<Количество>` sits inside `<Склад>` or one level up. If it is nested, you have the same issue.
+
+**A product's size grid quietly shrinks with no visible cause.**
+Cause: the fast exchange sends delta chunks, and the plugin rebuilt the whole variation set on every chunk, dropping anything not present in the current one.
+Fix: a mode that preserves variations on partial exports, plus a one-time cleanup of orphaned variations.
+Check your own setup: compare a product's variation count before and after a single delta export. Fewer variations afterward with no manual change is a match.
+
+**A size filter shows sizes that no in-stock product actually has.**
+Cause: WooCommerce does not automatically recalculate attribute term counts after an import through the 1C plugin.
+Fix: force a term-count recalculation after every exchange.
+Check your own setup: after a sync, compare a term's stored count against the real number of in-stock products carrying it. A higher stored count is the tell.
+
+**A color swatch on some products stays the old shade after a site-wide background change.**
+Cause: a design-token update never reached a hardcoded fallback value in PHP, used whenever a product has no color from 1C.
+Fix: pointed the fallback at the same token as the rest of the palette instead of a separate raw value.
+Check your own setup: find default or fallback color values living outside the main design system. Those are the ones that lag behind first when tokens change.
+
+**A menu quietly stops highlighting the right item after a content migration.**
+Cause: the logic was tied to a literal numeric menu-post ID instead of a registered theme location, and the ID shifted on export/import.
+Fix: resolve through `get_nav_menu_locations()` instead of comparing against a literal.
+Check your own setup: grep for comparisons against a bare number near menu or block logic. That is a candidate.
+
+**A sticky column on the product page does not stick, even though the CSS looks correct.**
+Cause: an automatic FSE wrapper (`is-layout-constrained`) with its own layout styles breaks the context `position: sticky` needs.
+Fix: removed an extra layout wrapper around the sticky block.
+Check your own setup: in devtools, inspect the computed styles on the parent wrappers, not just your own block. Look for a margin or display value you did not write.
+
 ## The result
 
 Here is what is actually running in production as of this writing.
@@ -151,9 +208,20 @@ And the budget: zero dollars in licenses. WordPress, WooCommerce, the entire sta
 
 ### When WordPress + AI fits, and when it doesn't
 
-This approach fits a small or mid-size store with a custom design, inventory sitting in an ERP without a deep enterprise contour, a budget that genuinely matters, and a developer willing to dig into exchange XML by hand instead of only clicking "install plugin."
+This approach fits if you have:
 
-And it does not fit, to be blunt about it, a high-load marketplace pushing thousands of orders a day, complex logistics with real-time per-warehouse reservations, or corporate requirements for vendor support contracts. In those cases a boxed platform or a custom build on a different stack earns every dollar it costs.
+- a small or mid-size store with a custom design;
+- inventory in an ERP without a deep enterprise contour;
+- a budget that genuinely matters;
+- a developer willing to dig into exchange XML by hand instead of only clicking "install plugin."
+
+And it does not fit, to be blunt about it, if you have:
+
+- a high-load marketplace pushing thousands of orders a day;
+- complex logistics with real-time per-warehouse reservations;
+- a corporate requirement for vendor support contracts.
+
+In those cases a boxed platform or a custom build on a different stack earns its price faster.
 
 On the AI side, my conclusion is fairly plain, even if it is less flashy than the headline suggests. Claude Code does not replace a developer, it replaces part of a team. I would not have shipped a project this size alone on this timeline without the agent, or I would have shipped it on a genuinely different budget. But strip out the process, the rules in CLAUDE.md, the external memory, the mandatory browser verification, and the agent hands you confident, wrong code with a straight face. And that, honestly, is the real lesson of the whole project: building the process mattered more than learning to write clever prompts.
 
