@@ -20,7 +20,9 @@ export const CaseFrontmatterSchema = z.object({
   seoTitle: z.string().min(1).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'),
   tags: z.array(z.string()),
-  metric: z.string().min(1),
+  // Hard result for case studies ("0 ₽ лицензий"); one-line takeaway for opinion pieces. Optional
+  // because a reflection piece doesn't always have a "result" to report.
+  metric: z.string().min(1).optional(),
   excerpt: z.string().min(1),
   image: z.string().startsWith('/').optional(),
 });
@@ -103,7 +105,10 @@ export async function getRelatedCases(
   limit = 3
 ): Promise<RelatedCase[]> {
   const all = await getAllCaseFrontmatters(locale);
-  const others = all.filter((c) => c.slug !== currentSlug);
+  const currentIsOpinion = currentTags.some((tag) => OPINION_TAGS.includes(tag));
+  const others = all.filter(
+    (c) => c.slug !== currentSlug && isOpinionPiece(c.frontmatter) === currentIsOpinion
+  );
 
   const scored = others
     .map((c) => ({

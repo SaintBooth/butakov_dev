@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { Quote, Send } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
-import { getCaseBySlug, getCaseSlugs, getRelatedCases } from '@/utils/cases';
+import { getCaseBySlug, getCaseSlugs, getRelatedCases, isOpinionPiece } from '@/utils/cases';
 import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
 import { Link } from '@/i18n/navigation';
 import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
@@ -62,6 +63,7 @@ export default async function CasePage({ params }: Props) {
 
   const { content, frontmatter: fm, headings, readingTime } = result;
   const isRu = locale === 'ru';
+  const isOpinion = isOpinionPiece(fm);
   const tSchema = await getTranslations({ locale, namespace: 'schema' });
   const base = 'https://butakov.dev';
   const ruPrefix = locale === 'en' ? '' : '/ru';
@@ -74,6 +76,7 @@ export default async function CasePage({ params }: Props) {
     image: fm.image ? `${base}${fm.image}` : undefined,
     keywords: fm.tags,
     metric: fm.metric,
+    metricLabel: isOpinion ? 'Takeaway' : 'Result',
   });
   const relatedCases = await getRelatedCases(locale, slug, fm.tags);
   const breadcrumbSchema = getSchemaBreadcrumb([
@@ -127,12 +130,20 @@ export default async function CasePage({ params }: Props) {
         </h1>
         <p className="text-lg text-slate-600 font-medium mb-5">{fm.excerpt}</p>
 
-        <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-xl bg-teal-50 border border-teal-100">
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-600">
-            {isRu ? 'Результат' : 'Result'}
-          </span>
-          <span className="text-sm font-extrabold text-teal-700">{fm.metric}</span>
-        </div>
+        {fm.metric &&
+          (isOpinion ? (
+            <p className="flex items-start gap-2 mb-6 text-sm italic text-slate-500 border-l-2 border-teal-100 pl-3">
+              <Quote className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
+              {fm.metric}
+            </p>
+          ) : (
+            <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-xl bg-teal-50 border border-teal-100">
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-600">
+                {isRu ? 'Результат' : 'Result'}
+              </span>
+              <span className="text-sm font-extrabold text-teal-700">{fm.metric}</span>
+            </div>
+          ))}
 
         <div className="flex items-center gap-3 py-4 border-y border-slate-100">
           <Image
@@ -155,22 +166,24 @@ export default async function CasePage({ params }: Props) {
         </div>
       </div>
 
-      <ArticleToc
-        title={isRu ? 'Содержание' : 'Contents'}
-        headings={headings}
-        className="mb-10 p-5 rounded-2xl bg-slate-50 border border-slate-100"
-      />
+      {headings.length >= 2 && (
+        <ArticleToc
+          title={isRu ? 'Содержание' : 'Contents'}
+          headings={headings}
+          className="mb-10 p-5 rounded-2xl bg-slate-50 border border-slate-100"
+        />
+      )}
 
       {/* MDX Content */}
       <article className="prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-pre:p-0 prose-pre:bg-transparent">
         {content}
       </article>
 
-      {/* Related cases */}
+      {/* Related articles */}
       {relatedCases.length > 0 && (
         <div className="mt-16 pt-8 border-t border-slate-100">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-5">
-            {isRu ? 'Похожие кейсы' : 'Related cases'}
+            {isRu ? 'Похожие статьи' : 'Related articles'}
           </h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {relatedCases.map((related) => (
@@ -182,7 +195,11 @@ export default async function CasePage({ params }: Props) {
                 <div className="font-semibold text-slate-800 text-sm mb-1 line-clamp-2">
                   {related.frontmatter.title}
                 </div>
-                <div className="text-xs font-bold text-teal-600">{related.frontmatter.metric}</div>
+                {related.frontmatter.metric && (
+                  <div className="text-xs font-bold text-teal-600">
+                    {related.frontmatter.metric}
+                  </div>
+                )}
               </Link>
             ))}
           </div>
@@ -195,14 +212,26 @@ export default async function CasePage({ params }: Props) {
           href="/journal"
           className="text-slate-500 hover:text-slate-700 text-sm font-semibold transition-colors"
         >
-          ← {isRu ? 'Все кейсы' : 'All cases'}
+          ← {isRu ? 'Все статьи' : 'All articles'}
         </Link>
-        <Link
-          href="/#contact"
-          className="inline-flex px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25"
-        >
-          {isRu ? 'Обсудить похожую задачу' : 'Discuss a similar project'}
-        </Link>
+        {isOpinion ? (
+          <a
+            href="https://t.me/SashaBooth"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25"
+          >
+            <Send className="w-4 h-4" />
+            {isRu ? 'Написать мне в Telegram' : 'Message me on Telegram'}
+          </a>
+        ) : (
+          <Link
+            href="/#contact"
+            className="inline-flex px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25"
+          >
+            {isRu ? 'Обсудить похожую задачу' : 'Discuss a similar project'}
+          </Link>
+        )}
       </div>
     </main>
   );

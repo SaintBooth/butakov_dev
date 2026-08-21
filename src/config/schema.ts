@@ -61,6 +61,7 @@ export function getSchemaArticle(opts: {
   image?: string;
   keywords?: string[];
   metric?: string;
+  metricLabel?: string;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -76,7 +77,7 @@ export function getSchemaArticle(opts: {
       ? {
           additionalProperty: {
             '@type': 'PropertyValue',
-            name: 'Result',
+            name: opts.metricLabel ?? 'Result',
             value: opts.metric,
           },
         }

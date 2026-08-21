@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { getAllCaseFrontmatters } from '@/utils/cases';
 import { getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
+import JournalList from '@/features/journal/JournalList';
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -13,10 +14,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const base = 'https://butakov.dev';
   const ruPrefix = locale === 'en' ? '' : '/ru';
   const url = `${base}${ruPrefix}/journal`;
-  const title = isRu ? 'Инженерный журнал | butakov.dev' : 'Engineering Journal | butakov.dev';
+  const title = isRu ? 'Журнал | butakov.dev' : 'Journal | butakov.dev';
   const description = isRu
-    ? 'Реальные инженерные кейсы: Bitrix, Redis, highload, миграции — с кодом и метриками результата.'
-    : 'Real engineering cases: Bitrix, Redis, highload, migrations — with code and result metrics.';
+    ? 'Записи о разработке: инженерные кейсы с кодом и метриками, личные мнения и размышления об IT.'
+    : 'Notes on development: engineering case studies with code and metrics, plus personal opinions on IT.';
 
   return {
     title,
@@ -54,7 +55,7 @@ export default async function JournalPage({ params }: Props) {
   const ruPrefix = locale === 'en' ? '' : '/ru';
   const breadcrumbSchema = getSchemaBreadcrumb([
     { name: isRu ? 'Главная' : 'Home', url: `${base}${ruPrefix}` },
-    { name: isRu ? 'Инженерный журнал' : 'Engineering Journal', url: `${base}${ruPrefix}/journal` },
+    { name: isRu ? 'Журнал' : 'Journal', url: `${base}${ruPrefix}/journal` },
   ]);
 
   return (
@@ -70,49 +71,19 @@ export default async function JournalPage({ params }: Props) {
           {isRu ? 'Главная' : 'Home'}
         </Link>
         <span>/</span>
-        <span className="text-slate-900 font-semibold">
-          {isRu ? 'Инженерный журнал' : 'Engineering Journal'}
-        </span>
+        <span className="text-slate-900 font-semibold">{isRu ? 'Журнал' : 'Journal'}</span>
       </nav>
 
       <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">
-        {isRu ? 'Инженерный журнал' : 'Engineering Journal'}
+        {isRu ? 'Журнал' : 'Journal'}
       </h1>
       <p className="text-slate-600 text-lg mb-12 font-medium max-w-2xl">
         {isRu
-          ? 'Реальные кейсы с кодом, метриками и решениями.'
-          : 'Real cases with code, metrics, and solutions.'}
+          ? 'Записи о разработке, кейсы и личные мнения.'
+          : 'Notes on development, case studies and personal opinions.'}
       </p>
 
-      <div className="space-y-6">
-        {cases.map(({ slug, frontmatter: fm }) => (
-          <Link
-            key={slug}
-            href={`/journal/${slug}`}
-            className="block p-6 sm:p-8 bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white hover:border-teal-200/80 hover:-translate-y-0.5 transition-all shadow-xl shadow-slate-200/40"
-          >
-            <div className="flex flex-wrap gap-2 mb-3">
-              {fm.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2.5 py-0.5 bg-teal-50 text-teal-700 text-xs font-bold rounded-full border border-teal-100"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-teal-600">
-              {fm.title}
-            </h2>
-            <p className="text-slate-600 text-sm mb-3 leading-relaxed">{fm.excerpt}</p>
-            <div className="flex items-center gap-3 text-xs font-semibold">
-              <span className="text-teal-600">{fm.metric}</span>
-              <span className="text-slate-300">·</span>
-              <span className="text-slate-400">{fm.date}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <JournalList cases={cases} locale={locale} />
     </main>
   );
 }
