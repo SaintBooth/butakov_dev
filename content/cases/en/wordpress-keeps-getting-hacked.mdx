@@ -1,0 +1,179 @@
+---
+title: "WordPress hacked again after cleanup: a real backdoor case study"
+seoTitle: "WordPress hacked again: why cleanup doesn't fix it"
+date: "2026-08-23"
+tags: ["WordPress", "Security", "MySQL"]
+metric: "7 backdoors across 4 layers, found and closed"
+excerpt: "A real case of a multi-layer WordPress compromise: hidden backdoors survived years of automated hosting cleanups. The verification method that finally caught them: core checksum diffs, direct SQL queries, a manual mu-plugins audit."
+---
+
+Type any URL with the word "admin" in it, and the site quietly logs you in as an administrator. No password, no login form, not a single database query asking for credentials. Just open `/wp-admin/` and you are already sitting in the dashboard under someone else's account. That backdoor is exactly what turned up on one of two sites covered below, and it explains something usually written off as bad luck: the site gets cleaned, and a few days later it is infected again.
+
+Below is what a case like this looks like from the inside, why standard WordPress cleanup ("roll back the files, change the password") almost always loses to this level of compromise, and the actual verification method that finally catches it.
+
+**Short version.** This WordPress site had been hacked for years (the database still had "service" admin accounts dating back to 2022-2023), and every hosting-side cleanup, rolling back core files, resetting the password, bought at most a few days. The reason: the infection lived in four layers at once. Plugin and theme files, `mu-plugins`, the database (`wp_options`), and a replaced WordPress core file. A file scan plus a core restore from backup closes only the first and fourth layer; the database and `mu-plugins` stay untouched, and full access comes back after one visit to the right URL. Below is the full list of backdoors found and the verification method that actually works: core checksum diffs, direct SQL queries against the users and options tables, a manual `mu-plugins` audit.
+
+## Background
+
+The client is a WordPress site for a basketball club with real traffic and a Yandex ИКС score of 400, Yandex's own site-authority metric, roughly the local equivalent of a strong domain-authority score. Not an abandoned project nobody would notice, but a live site with a real audience. Hacks had been recurring for years, on a suspiciously regular schedule. The host would periodically "cure" the site: roll back core files from a backup, sometimes reinstall WordPress entirely. Within days it would go back to serving spam to search bots and mobile visitors while showing a normal page to desktop users, a classic doorway scheme, different content depending on who's looking.
+
+This time it surfaced differently: the site editor once again couldn't log into the dashboard. The login and password just stopped working. Meanwhile the rest of the site ran normally: pages loaded, content rendered, an ordinary visitor wouldn't have noticed anything off. The reason for that mismatch is further down.
+
+The owner was convinced the hole was in SSH access: the hosting password sat in plain text in a note and "must have leaked." Log and filesystem checks didn't back that up. The real picture turned out to be far more interesting, and far worse.
+
+## Why standard cleanup doesn't work
+
+Hosting providers that "cure" an infected site automatically almost always operate on one layer, the filesystem. They restore WordPress core from a clean archive, sometimes sweep `wp-content/uploads` for suspicious `.php` files. That catches the most primitive infection type: a single web shell dropped through a vulnerable upload form.
+
+But in this case the backdoor lived in four different layers at once:
+
+1. **Plugin and theme files.** An ordinary web shell, the kind any antivirus scan catches.
+2. **mu-plugins** ("must-use" plugins). Code WordPress loads automatically, with no entry in the active-plugins list and no way to "deactivate" it through the dashboard.
+3. **The database.** A payload sitting not in a file but in the value of the `wp_options` option, loaded through `eval(get_option(...))`.
+4. **The WordPress core itself.** One of the system files under `wp-admin/` wasn't patched, it was completely replaced.
+
+A file scan finds the first layer. Restoring core from backup partially fixes the fourth, but reinstalling WordPress doesn't touch the database at all. And without the database, `mu-plugins` stay untouched too (they live physically in `wp-content/mu-plugins/`, which an automatic core reinstall doesn't reach), along with hidden admin accounts in the users table. A day or two after "cleanup," the attacker has full access again: they just walk back in through whatever's left and re-upload whatever got cleaned.
+
+## How the attacker likely got in the first time
+
+Logs only went back 14 days, so the original entry point, whatever happened before that window, can't be proven. But one concrete piece of evidence survived on the filesystem: a plugin with a full-featured file manager (elFinder-based) had its thumbnail cache directory set to world-writable, `777` instead of the usual `755`. That's exactly the kind of weakness these managers tend to get exploited through. If the component itself is reachable without strict permission checks, or carries its own unpatched vulnerability, an attacker gets to upload an arbitrary file straight into the web root.
+
+There's no direct log confirming this. It's a working hypothesis, not an established fact. But it fits the rest of the picture: the sheer nature of the backdoors found (file managers, droppers, copies spreading across other directories) suggests the attacker had direct filesystem write access from the start, not just access through one specific form on the site. The practical takeaway doesn't depend on the hypothesis ever being confirmed: a powerful, externally reachable file manager plugin is a risk on its own, whether or not it was the entry point this particular time.
+
+## What backdoors were found on the hacked WordPress site
+
+### Cloaking in the site's main file
+
+The site's `index.php` had been rewritten: a User-Agent check was inserted before the standard WordPress bootstrap. Mobile browsers and known search bots got content from an external server; desktop visitors got a normal page. The owner saw a perfectly ordinary site every time they checked; only search engines and part of the live-visitor traffic saw the spam, exactly the audience least likely to report the problem back to the owner.
+
+### A full web-shell kit disguised as a plugin
+
+A folder with a name like "Security Scan Lite" sat in the plugins directory, and this wasn't one disguised file. It was a full kit of five scripts: a file manager for uploading, downloading, and editing any file; a handler for arbitrary shell commands through `popen()`; and a separate dropper that scanned the filesystem for any writable directory and copied itself there. Every file was disguised under a plausible description ("WordPress Media Library Handler," "WordPress Site Health Data") and required a secret token in the request. A routine "suspicious files" scan misses this, because the malicious code is syntactically ordinary PHP with none of the obvious markers like `eval(base64_decode(...))`.
+
+### A backdoor disguised as a security patch
+
+A file in `mu-plugins` carried the comment "Security Patch, REST API hardening." What it actually did was block one WordPress REST route for every request, except ones carrying a specific secret header. The logic is simple and, from the attacker's point of view, rational: close the hole you got in through, keep competitors and automated scanners out, and keep a personal key for yourself.
+
+### Hidden WordPress administrators
+
+The users table had accounts the owner never created. On one of the sites, an additional mu-plugin actively hid one of those users from the "Users" list in the dashboard, from the REST API, and from the sitemap, filtering the ID out at the SQL query level. Opening the dashboard and "eyeballing the user list" is useless in that situation: the page physically doesn't show what's been hidden.
+
+### Why dashboard access disappears while the rest of the site works fine
+
+This explains the situation from the start of this piece, where the editor couldn't log in while the rest of the site loaded normally. No mystery: the `wp_users` table was missing exactly the two accounts the real administrators normally logged in with. They'd been deleted. The owner's login and password were still correct; the accounts themselves simply no longer existed, and WordPress correctly responded with "invalid login credentials."
+
+Meanwhile the news feed, pages, product cards, everything an ordinary visitor sees, renders from `wp_posts` and doesn't depend on any administrator existing at all. These are two nearly independent parts of WordPress: one handles what a visitor sees, the other handles who can change it. Breaking the second without touching the first is trivial for an attacker with database access.
+
+And that's not an accident, it's a calculation. Break the whole site, and the owner notices within the hour and starts digging. Break only the dashboard login while the frontend keeps running normally, and complaints only come from the few people who actually need to get inside, while the hack keeps paying off in the meantime: the cloaking described above exists specifically so ordinary visitors see nothing suspicious at all. The longer the owner stays confused, the longer the access holds.
+
+### Password interception at the moment of login
+
+A separate mu-plugin hooked the `authenticate` filter, the exact point where WordPress sees the login and password in plain text, before hashing, and wrote the pair to a hidden file. This is the key detail: changing the password through the dashboard doesn't help at all here, because the new password flies straight back to the same file on the owner's next login. The password has to be changed after removing the interceptor, not before.
+
+### A payload in the database, not on disk
+
+The least obvious layer: the `wp_options` option held a string of executable PHP code, and the active theme's file held a single line, `eval(get_option('...'));`, executing that string on every page load. The theme file itself was syntactically clean, all the malicious code lived in the database. A file-level antivirus or a manual source read won't catch this in principle, because the search needs to happen in the options table contents, not in files.
+
+### A replaced WordPress core file
+
+Here the backdoor wasn't planted next to a system file, it replaced one entirely: one of the files under `wp-admin/` had been completely rewritten. Inside was the exact mechanism from the start of this piece. If the URL contains the word "admin" and the visitor isn't logged in, the script bootstraps WordPress, grabs the first available administrator from the database, and logs the visitor in as them: `wp_set_auth_cookie()`, `wp_set_current_user()`, redirect to the dashboard. All of it wrapped in `str_rot13()` and `chr()` code arrays instead of plain function names, so an ordinary text search for `wp_redirect` or `is_user_logged_in` doesn't find it.
+
+## How to find a hidden WordPress backdoor: the verification method
+
+The standard checklist, search all files for `eval(base64_decode`, catches at best one of the seven backdoors found here, because the other six simply didn't carry that signature. Some code was read from the database instead of stored as file text, some had neither `eval` nor `base64_decode` but plain `file_put_contents` or `popen`, some files were disguised as legitimate code with no explicit marker at all. What actually worked:
+
+**Core checksum diffing.** WordPress.org runs a public API that returns the official MD5 checksums for every core file, for a given version:
+
+```
+https://api.wordpress.org/core/checksums/1.0/?version=X.Y.Z&locale=en_US
+```
+
+A short PHP script that diffs every core file (excluding `wp-content/`) against this list finds a replaced file in seconds, regardless of what's hidden inside it or how the code is disguised.
+
+**A direct database query for "extra" administrators**, bypassing the dashboard entirely:
+
+```sql
+SELECT u.ID, u.user_login, u.user_email, u.user_registered
+FROM wp_users u
+JOIN wp_usermeta m ON u.ID = m.user_id
+WHERE m.meta_key = 'wp_capabilities'
+  AND m.meta_value LIKE '%administrator%';
+```
+
+That result needs to be checked against who the site owner actually created, not against what `wp-admin/users.php` shows, because that screen is exactly what's easiest to fake.
+
+**Searching for executable code in the options table, not just in files:**
+
+```sql
+SELECT option_name, LEFT(option_value, 100)
+FROM wp_options
+WHERE option_value LIKE '%<?php%'
+   OR option_value LIKE '%eval(%'
+   OR option_value LIKE '%base64_decode%';
+```
+
+**A manual read of every file in `wp-content/mu-plugins/`**, one by one, actually reading the contents instead of trusting a plausible-sounding system name. This is exactly the category of file WordPress loads with no activation step and no entry in the plugin list.
+
+**An extended signature set** for obfuscated code. Beyond the obvious `eval(base64_decode` and `system($_POST`, it's worth searching for obfuscation patterns on their own: `str_rot13(`, `array_map('chr'`, using `$_COOKIE['PHPSESSID']` as an encryption key. None of these patterns alone proves malicious intent, but a cluster of several inside one small file pretending to be a system file is a reliable signal.
+
+## What cleanup actually looked like, and why the file kept coming back
+
+The first attempt was naive: find the malicious files and delete them. Within seconds, one of the web shells, the one sitting in the standard Hello Dolly plugin's directory, reappeared, with the same name and almost the same size.
+
+The obvious read ("there must be another source recreating it somewhere") turned out to be only part of the truth. Fully blocking the site at the web-server level (`deny all`) didn't stop it either: the file kept reappearing even though direct HTTP access to it was closed. At this point the theories got progressively less comforting: a hidden background process, a cron job, something surviving a block on that one site.
+
+The actual answer was simpler, and more telling. A second site lived on the same hosting account, a WordPress clone of the first, left over from an old migration, and it hadn't been blocked yet. Both sites shared one filesystem at the OS level: the same hosting user owned both sets of files. Live traffic to that still-open second site kept hitting the same vulnerable file manager, and it wrote the file exactly where it had been hard-coded to write it, which included the first site too, well outside the second site's own directory.
+
+Blocking the second site stopped the respawns. But reopening the first site to visitors again (the file manager had by then been fully deleted from disk, not just deactivated) brought the file back once more, within 30 seconds. It became clear the culprit wasn't just the migrated clone and wasn't a phantom process, but live external traffic that kept finding a working way in. What finally fixed it was deleting the entire `hello-dolly` plugin directory, not just the one file inside it. The script rewriting the file had no "create the directory if it's missing" logic, and without the directory, the write simply failed.
+
+Two takeaways from this aren't obvious in advance. If a backdoor keeps reappearing after cleanup, the cause doesn't have to be mysterious: check first whether the site shares a filesystem with something else on the same hosting account. And "deactivate the plugin" in WordPress does not mean "its files stop executing." Files on disk stay reachable by direct URL regardless of their status in the database, until they're physically removed.
+
+## What to do if this happens to you
+
+The order of these steps matters as much as the steps themselves; several of them lose their point if done out of sequence.
+
+1. **Isolate the site immediately.** While the investigation is underway, the site shouldn't be reachable by visitors or bots, otherwise you end up cleaning and finding new copies at the same time, chasing your own tail. The simplest option is a `Require all denied` rule in `.htaccess` (or the nginx equivalent), lifted only after a full check.
+2. **Don't treat automated hosting cleanup as the final step.** It returns files to a clean state but doesn't touch the database and almost never checks `mu-plugins`. It's a legitimate first step, not the last one.
+3. **Preserve the infected state before deleting anything.** Copy the suspicious files to a folder outside the web root, and dump the `wp_users`, `wp_usermeta`, and `wp_options` tables before cleanup. If something new surfaces later, you'll have something to compare against.
+4. **Check all four layers, not just the one where the first trace turned up.** Plugin/theme files, `mu-plugins`, the database (users and options), and core via checksums. The specific queries and commands are in the section above.
+5. **Change passwords after removing interceptors, not before.** If code listening on the `authenticate` filter is still in the system, it captures the new password on the very next login.
+6. **Change the database password too**, not just WordPress user passwords: with full site access, the attacker saw the entire `wp-config.php`.
+7. **Check the web server logs** for the suspected infection period. Specific IPs and requests to the files you found will confirm the scale (were there other entry paths besides the ones already found) and help judge whether the door is actually closed.
+8. **Bring the site back online gradually.** After the first cleanup, watch the filesystem and the user list for a few hours before trusting it. With live traffic hitting it, a reusable way back in tends to show itself fast if it's still there.
+9. **Close the actual entry point**, if you managed to identify it: an outdated or overpowered plugin, a write permission held by someone else's process, a weak password. Skip this step and everything above just postpones a repeat.
+
+## How to prevent it happening again
+
+None of this guarantees zero risk (nothing does), but it closes the specific paths that tend to get reused:
+
+- **Keep core, plugins, and themes updated**, but remember an update fixes the vulnerability, not an already-installed backdoor. This is prevention for new infections, not cleanup for old ones.
+- **Remove unused plugins and themes**, including the ones WordPress ships with by default. Inactive code is still code, and it stays on disk even when WordPress isn't running it.
+- **Don't run a full-featured file manager plugin in production** (elFinder-based or similar) unless you genuinely need it. If you do need one, restrict access to it by IP at the web-server level.
+- **Use SSH keys instead of a password** wherever your host allows it. If password access is your only option, don't store it in a plain text file, locally or in the cloud.
+- **Turn on two-factor authentication for wp-admin logins.**
+- **Avoid running multiple sites on one hosting account if you can.** A shared account means a shared filesystem: one site getting hacked opens write access into every other site's directories on that account.
+- **Check core checksums and the `mu-plugins` list regularly**, not only once you already suspect something. This is a one-off script you can put on a weekly cron.
+- **Keep backups outside the account you're backing up.** A backup sitting on the same compromised account gets infected along with the site.
+- **Restrict `wp-login.php` and disable `xmlrpc.php`** if you don't use it. These are standard targets for password brute-forcing and pingback-based DDoS.
+
+## The takeaway
+
+A compromise that lasts for years almost never rests on a single hole. It rests on layering: even after closing the original vulnerability and cleaning up the obvious part, enough parallel paths remain to restore full access with a single visit to the right URL. The practical conclusion is simple: after finding any web shell, default to assuming the infection is multi-layer until you've checked at least the core (via checksums), the database (users and options), and `mu-plugins`, not just the files where the first trace showed up.
+
+## FAQ
+
+**Why didn't changing the password stop the hack?**
+Because a password isn't the only way in. If a hidden administrator, code in `mu-plugins`, or an interceptor on the `authenticate` filter is still in the system, the attacker either doesn't need the new password at all, or steals it again on the owner's next login.
+
+**The host says they cleaned the site, is that enough?**
+Standard automated hosting cleanup usually only touches files and core. It doesn't check `wp_options` for executable code and doesn't look for extra administrators in the database. Both are worth checking separately, even after the host reports the site as clean.
+
+**Do I need to reinstall WordPress from scratch?**
+Reinstalling core is useful and solves part of the problem, but it doesn't replace checking the database and `mu-plugins`, a reinstall doesn't touch either. A full from-scratch reinstall with content restored from a known-clean source is the most reliable option, but not always practical.
+
+**How do I know the site is actually clean, not just quiet for now?**
+Run a core checksum check, cross-check the administrator list, check `wp_options` for executable code, and manually read `mu-plugins`. Then watch the filesystem with the site live for at least a few hours before treating the incident as closed.
+
+## If you're dealing with something similar
+
+If a WordPress site keeps getting hacked and standard cleanup never holds longer than a few days, that's almost always a sign of the multi-layer infection pattern described above. You can work through it yourself using the method in this piece; if you need help diagnosing or cleaning up a specific case, get in touch.
