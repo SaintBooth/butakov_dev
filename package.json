@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "images": "node scripts/convert-images.js",
     "prepare": "husky"
   },
@@ -55,6 +56,7 @@
     "sharp": "^0.34.5",
     "shiki": "^3.23.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.7"
   }
 }
