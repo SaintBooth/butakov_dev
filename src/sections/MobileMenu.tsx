@@ -79,7 +79,8 @@ export default function MobileMenu() {
         aria-hidden
         onClick={close}
         className={clsx(
-          'fixed inset-0 z-[95] bg-slate-900/40 transition-opacity duration-200',
+          'fixed inset-0 z-[95] bg-slate-900/40 backdrop-blur-sm transition-opacity duration-200',
+          '[@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none',
           open ? 'opacity-100' : 'pointer-events-none opacity-0'
         )}
       />
