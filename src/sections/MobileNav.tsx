@@ -3,7 +3,16 @@
 import { clsx } from 'clsx';
 import { BookOpen, Briefcase, Home, MessageSquare, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import { isNavActive, MOBILE_NAV_ITEMS } from '@/config/nav';
 import { Link, usePathname } from '@/i18n/navigation';
+
+const ICONS: Record<string, LucideIcon> = {
+  home: Home,
+  journal: BookOpen,
+  cases: Briefcase,
+  contactShort: MessageSquare,
+};
 
 interface NavItemProps {
   href: string;
@@ -60,9 +69,7 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
 export default function MobileNav() {
   const t = useTranslations('nav');
   const pathname = usePathname();
-
-  const isHome = pathname === '/';
-  const isJournal = pathname.startsWith('/journal');
+  const searchParams = useSearchParams();
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] px-4 pb-[max(0.9rem,env(safe-area-inset-bottom))] md:hidden">
@@ -87,16 +94,16 @@ export default function MobileNav() {
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(130%_90%_at_18%_-10%,rgba(255,255,255,0.7),rgba(226,245,244,0.28)_38%,transparent_66%)] [@media(prefers-reduced-transparency:reduce)]:hidden"
         />
 
-        <NavItem href="/" label={t('home')} icon={Home} active={isHome} />
-        <NavItem href="/journal" label={t('journal')} icon={BookOpen} active={isJournal} />
-        <NavItem href="/journal?filter=cases" label={t('cases')} icon={Briefcase} active={false} />
-        <NavItem
-          href="/#contact"
-          label={t('contactShort')}
-          icon={MessageSquare}
-          active={false}
-          accent
-        />
+        {MOBILE_NAV_ITEMS.map((item) => (
+          <NavItem
+            key={item.key}
+            href={item.href}
+            label={t(item.key)}
+            icon={ICONS[item.key]}
+            active={isNavActive(item.key, pathname, searchParams)}
+            accent={'accent' in item && item.accent}
+          />
+        ))}
       </nav>
     </div>
   );

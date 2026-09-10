@@ -1,5 +1,6 @@
 import { MessageSquare, Github, Mail, ShieldCheck } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
+import { FOOTER_NAV_KEYS, NAV_ITEMS } from '@/config/nav';
 import { Link } from '@/i18n/navigation';
 import { SOCIAL } from '../config/social';
 import { PrivacyModalTrigger } from '../features/privacy/PrivacyModalTrigger';
@@ -12,12 +13,12 @@ const REQUISITES = [
 
 export default async function Footer() {
   const t = await getTranslations('footer');
+  const tNav = await getTranslations('nav');
 
-  const navLinks = [
-    { href: '/#services', label: t('services') },
-    { href: '/#b2b', label: t('b2b') },
-    { href: '/journal?filter=cases', label: t('cases') },
-  ];
+  const navLinks = FOOTER_NAV_KEYS.map((key) => ({
+    href: NAV_ITEMS.find((item) => item.key === key)!.href,
+    label: tNav(key),
+  }));
 
   return (
     <footer className="bg-slate-950 pt-16 pb-32 md:pb-12 border-t border-slate-900 relative z-10">

@@ -1,0 +1,127 @@
+<h2>Страница под QR — один экран с развилкой</h2>
+<p class="subtitle">Стиль от сайта: светлая тема, Geist, teal-акцент, скруглённые кнопки. Вверху знак с карточки как мостик. Три состояния: развилка → выбран путь и форма → отправлено. Вопрос: шапка светлая или тёмная в тон карточке.</p>
+
+<style>
+  .stage { background:#eef1f4; border-radius:14px; padding:30px 22px; margin-top:10px; }
+  .phones { display:flex; gap:22px; flex-wrap:wrap; justify-content:center; }
+  .ph { width:300px; background:#ffffff; border-radius:26px; overflow:hidden; box-shadow:0 20px 44px -14px rgba(15,23,42,.28), 0 2px 8px rgba(15,23,42,.10);
+    font-family:'Geist',system-ui,-apple-system,sans-serif; color:#0f172a; }
+  .cap { text-align:center; font-size:11px; text-transform:uppercase; letter-spacing:.04em; opacity:.5; margin-top:8px; }
+
+  .hero { padding:22px 20px 18px; display:flex; align-items:center; gap:11px; }
+  .hero.dark { background:#141414; color:#f1f5f9; }
+  .hero svg { width:34px; height:34px; flex:none; }
+  .hn { font-size:15px; font-weight:700; letter-spacing:-.015em; line-height:1.1; }
+  .hr { font-size:10.5px; font-weight:500; color:#64748b; margin-top:2px; }
+  .hero.dark .hr { color:#94a3b8; }
+
+  .body { padding:16px 20px 22px; }
+  .save { display:flex; gap:8px; align-items:center; }
+  .btn-primary { flex:1; text-align:center; background:#14b8a6; color:#fff; font-weight:700; font-size:12.5px;
+    padding:11px 14px; border-radius:999px; box-shadow:0 8px 18px -6px rgba(20,184,166,.5); }
+  .icbtn { width:38px; height:38px; border-radius:999px; border:1.5px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:13px; color:#0f172a; }
+
+  .qh { font-size:19px; font-weight:800; letter-spacing:-.02em; margin:20px 0 12px; }
+  .fork { display:flex; flex-direction:column; gap:10px; }
+  .opt { border:1.5px solid #e2e8f0; border-radius:16px; padding:13px 14px; }
+  .opt.sel { border-color:#14b8a6; box-shadow:0 0 0 3px rgba(20,184,166,.16); }
+  .opt h4 { font-size:13px; font-weight:700; margin:0 0 3px; letter-spacing:-.01em; }
+  .opt p { font-size:10.5px; color:#64748b; line-height:1.45; margin:0; }
+
+  .form { margin-top:14px; display:flex; flex-direction:column; gap:9px; }
+  .inp { border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; font-size:11px; color:#94a3b8; }
+  .tg { text-align:center; font-size:10.5px; color:#14b8a6; font-weight:600; margin-top:2px; }
+
+  .ok { text-align:center; padding:26px 10px; }
+  .ok .ring { width:44px; height:44px; border-radius:999px; background:#ecfdf5; color:#14b8a6; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:20px; }
+  .ok h4 { font-size:15px; font-weight:800; letter-spacing:-.015em; margin:0 0 5px; }
+  .ok p { font-size:11px; color:#64748b; line-height:1.5; margin:0; }
+</style>
+
+<div class="stage">
+  <div class="phones">
+
+    <div>
+      <div class="ph">
+        <div class="hero">
+          <svg viewBox="0 0 852.05 852.05"><rect width="852.05" height="852.05" rx="426" fill="#101729"/><path fill="#61d1c8" d="M576.27,450.32h0c0,79.98-64.83,144.81-144.81,144.81h-5.36c-79.98,0-144.81-64.83-144.81-144.81v-193.61h-108.34s0,188.31,0,188.31c0,139.82,113.34,253.16,253.16,253.16h0c124.24,0,227.56-89.49,249.05-207.53l-98.88-40.33Z"/><path fill="#61d1c8" d="M469.54,153.87l-45.5,102.84h152.22v193.61h0c61.09-18.57,102.84-74.91,102.84-138.76v-12.67c0-80.1-64.93-145.03-145.03-145.03h-64.54Z"/></svg>
+          <div><div class="hn">Александр Бутаков</div><div class="hr">Технический партнёр для бизнеса</div></div>
+        </div>
+        <div class="body">
+          <div class="save">
+            <div class="btn-primary">Сохранить контакт</div>
+            <div class="icbtn">TG</div><div class="icbtn">@</div>
+          </div>
+          <div class="qh">С чем пришли?</div>
+          <div class="fork">
+            <div class="opt"><h4>Аудит сайта или магазина</h4><p>Разберу скорость, SEO и конверсию. Пришлю отчёт за 2-3 дня.</p></div>
+            <div class="opt"><h4>Задача с ИИ</h4><p>Боты, автоматизация, аналитика. Разберём ваш сценарий на созвоне.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">1 · развилка</div>
+    </div>
+
+    <div>
+      <div class="ph">
+        <div class="hero">
+          <svg viewBox="0 0 852.05 852.05"><rect width="852.05" height="852.05" rx="426" fill="#101729"/><path fill="#61d1c8" d="M576.27,450.32h0c0,79.98-64.83,144.81-144.81,144.81h-5.36c-79.98,0-144.81-64.83-144.81-144.81v-193.61h-108.34s0,188.31,0,188.31c0,139.82,113.34,253.16,253.16,253.16h0c124.24,0,227.56-89.49,249.05-207.53l-98.88-40.33Z"/><path fill="#61d1c8" d="M469.54,153.87l-45.5,102.84h152.22v193.61h0c61.09-18.57,102.84-74.91,102.84-138.76v-12.67c0-80.1-64.93-145.03-145.03-145.03h-64.54Z"/></svg>
+          <div><div class="hn">Александр Бутаков</div><div class="hr">Технический партнёр для бизнеса</div></div>
+        </div>
+        <div class="body">
+          <div class="qh">С чем пришли?</div>
+          <div class="fork">
+            <div class="opt sel"><h4>Аудит сайта или магазина</h4><p>Разберу скорость, SEO и конверсию. Пришлю отчёт за 2-3 дня.</p></div>
+            <div class="opt" style="opacity:.5"><h4>Задача с ИИ</h4><p>Боты, автоматизация, аналитика.</p></div>
+          </div>
+          <div class="form">
+            <div class="inp">Как вас зовут</div>
+            <div class="inp">Telegram или телефон</div>
+            <div class="btn-primary">Отправить заявку на аудит</div>
+            <div class="tg">или сразу написать в Telegram</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">2 · путь выбран, форма</div>
+    </div>
+
+    <div>
+      <div class="ph">
+        <div class="hero">
+          <svg viewBox="0 0 852.05 852.05"><rect width="852.05" height="852.05" rx="426" fill="#101729"/><path fill="#61d1c8" d="M576.27,450.32h0c0,79.98-64.83,144.81-144.81,144.81h-5.36c-79.98,0-144.81-64.83-144.81-144.81v-193.61h-108.34s0,188.31,0,188.31c0,139.82,113.34,253.16,253.16,253.16h0c124.24,0,227.56-89.49,249.05-207.53l-98.88-40.33Z"/><path fill="#61d1c8" d="M469.54,153.87l-45.5,102.84h152.22v193.61h0c61.09-18.57,102.84-74.91,102.84-138.76v-12.67c0-80.1-64.93-145.03-145.03-145.03h-64.54Z"/></svg>
+          <div><div class="hn">Александр Бутаков</div><div class="hr">Технический партнёр для бизнеса</div></div>
+        </div>
+        <div class="ok">
+          <div class="ring">✓</div>
+          <h4>Заявка на аудит принята</h4>
+          <p>Напишу в течение дня, отчёт пришлю за 2-3 дня. Контакт можно сохранить кнопкой выше.</p>
+        </div>
+      </div>
+      <div class="cap">3 · отправлено</div>
+    </div>
+
+  </div>
+</div>
+
+<h3 style="margin-top:22px">Шапка страницы</h3>
+<div class="cards">
+  <div class="card" data-choice="header-light" onclick="toggleSelect(this)">
+    <div class="card-body"><h3>A. Светлая, как сайт</h3><p>Вся страница в одной светлой теме. Знак цветной на белом. Меньше контраста между карточкой и страницей, зато цельно с butakov.dev.</p></div>
+  </div>
+  <div class="card" data-choice="header-dark" onclick="toggleSelect(this)">
+    <div class="card-body"><h3>B. Тёмная шапка-мостик</h3><p>Верхняя полоса #141414 в тон карточке, ниже светлый корпус. Скан с тёмной карточки «перетекает» в тот же тёмный блок, потом раскрывается в сайт. Сильнее связь со сканом.</p></div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:16px">
+  <span class="label">apple-design в этом экране</span>
+  <p class="subtitle" style="margin-top:8px">
+    Знак сверху = продолжение карточки, экран «появляется» из скана.<br>
+    Одна задача на экран: сохранить контакт и выбрать путь. Без меню и лишних ссылок.<br>
+    Выбор пути раскрывает форму из самой карточки пути (origin-anchored), пружина без отскока ~0.4 с.<br>
+    Один акцент — teal. Нажатие даёт отклик сразу (scale на press).<br>
+    reduced-motion: форма не раскрывается, а мягко проявляется.
+  </p>
+</div>
+
+<p class="subtitle" style="margin-top:14px">Кликни A или B по шапке. Дальше уточним тексты путей, поля формы и vCard.</p>

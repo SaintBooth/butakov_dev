@@ -2,6 +2,7 @@
 
 import { MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Suspense } from 'react';
 import { CTA_HREF, NAV_ITEMS } from '@/config/nav';
 import { Link } from '@/i18n/navigation';
 import { LogoImage } from '../components/ui/LogoImage/LogoImage';
@@ -18,7 +19,9 @@ export default function Header() {
             <LogoImage width={256} height={88} priority className="h-9 w-auto object-contain" />
           </Link>
 
-          <MobileMenu />
+          <Suspense fallback={<div className="size-11 md:hidden" aria-hidden />}>
+            <MobileMenu />
+          </Suspense>
 
           <div className="hidden items-center space-x-8 md:flex">
             {NAV_ITEMS.map(({ key, href }) => (

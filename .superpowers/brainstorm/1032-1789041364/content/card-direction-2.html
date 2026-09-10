@@ -1,0 +1,162 @@
+<h2>Ещё четыре варианта визитки</h2>
+<p class="subtitle">Все в духе apple-design: почти нет декора, работу делает бумага, печать и набор. Формат 90×50 мм, скругление 5 мм. У каждого показаны лицо и оборот. Посмотри и скажи, какой берём.</p>
+
+<style>
+  .biz-row { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; }
+  .biz { width:264px; height:147px; border-radius:14px; overflow:hidden;
+         box-shadow:0 14px 34px -10px rgba(15,23,42,.30), 0 2px 6px rgba(15,23,42,.10);
+         font-family:'Geist',system-ui,-apple-system,sans-serif; position:relative; }
+  .biz-cap { font-size:11px; letter-spacing:.03em; text-transform:uppercase; opacity:.5; margin:7px 2px 2px; }
+  .biz .contacts { font-size:9px; font-weight:600; letter-spacing:.01em; line-height:1.55; }
+
+  /* A — deboss monolith */
+  .d-front { background:#f2efe7; padding:20px 22px; display:flex; flex-direction:column; justify-content:space-between; }
+  .d-front .nm { font-size:20px; font-weight:700; letter-spacing:-.02em; line-height:1.06; color:#e7e3d8;
+     text-shadow:0 1px 1px rgba(0,0,0,.28), 0 -1px 0 rgba(255,255,255,.85); }
+  .d-front .rl { font-size:9.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin-top:6px; color:#b7b1a1;
+     text-shadow:0 1px 0 rgba(255,255,255,.7); }
+  .d-front .contacts { color:#8a8474; text-shadow:0 1px 0 rgba(255,255,255,.7); }
+  .d-back { background:#f2efe7; padding:22px; display:flex; align-items:center; gap:15px; }
+  .d-back .qr { width:80px; height:80px; border-radius:7px; flex:none; background:#e7e3d8;
+     box-shadow:inset 0 1px 2px rgba(0,0,0,.22), inset 0 -1px 0 rgba(255,255,255,.7);
+     background-image:repeating-linear-gradient(0deg,rgba(120,114,98,.5) 0 4px,transparent 4px 8px),repeating-linear-gradient(90deg,rgba(120,114,98,.5) 0 4px,transparent 4px 8px); }
+  .d-back .txt { font-size:10.5px; font-weight:600; color:#8a8474; line-height:1.5; text-shadow:0 1px 0 rgba(255,255,255,.7); }
+  .d-back .txt b { display:block; color:#5c5647; font-size:11px; margin-bottom:3px; }
+
+  /* B — edge paint */
+  .e-front { background:#fff; padding:20px 22px; border-bottom:7px solid #14b8a6; border-left:7px solid #14b8a6;
+     display:flex; flex-direction:column; justify-content:space-between; }
+  .e-front .nm { font-size:22px; font-weight:700; letter-spacing:-.025em; line-height:1.03; color:#0b1220; }
+  .e-front .rl { font-size:9.5px; font-weight:500; color:#64748b; margin-top:7px; }
+  .e-front .contacts { color:#0b1220; }
+  .e-front .contacts span { color:#64748b; font-weight:500; }
+  .e-back { background:#fff; padding:22px; border-bottom:7px solid #14b8a6; border-right:7px solid #14b8a6;
+     display:flex; align-items:center; gap:15px; }
+  .e-back .qr { width:84px; height:84px; flex:none; background:
+     repeating-linear-gradient(0deg,#0b1220 0 4px,#fff 4px 8px),repeating-linear-gradient(90deg,#0b1220 0 4px,transparent 4px 8px);
+     background-blend-mode:multiply; }
+  .e-back .txt { font-size:10.5px; font-weight:500; color:#64748b; line-height:1.45; }
+  .e-back .txt b { display:block; color:#0b1220; font-size:11.5px; font-weight:700; margin-bottom:3px; }
+
+  /* C — engineering grid */
+  .g-front { background:#fcfcfd; padding:18px 20px; position:relative; color:#0b1220;
+     background-image:linear-gradient(rgba(20,184,166,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,.10) 1px,transparent 1px);
+     background-size:13px 13px; display:flex; flex-direction:column; justify-content:space-between; }
+  .g-front .crop { position:absolute; width:9px; height:9px; border:1px solid #94a3b8; }
+  .g-front .crop.tl{ top:7px; left:7px; border-right:0; border-bottom:0 } .g-front .crop.tr{ top:7px; right:7px; border-left:0; border-bottom:0 }
+  .g-front .crop.bl{ bottom:7px; left:7px; border-right:0; border-top:0 } .g-front .crop.br{ bottom:7px; right:7px; border-left:0; border-top:0 }
+  .g-front .nm { font-size:18px; font-weight:700; letter-spacing:-.01em; }
+  .g-front .rl { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#5b6b7b; margin-top:5px; }
+  .g-front .contacts { font-variant-numeric:tabular-nums; color:#0b1220; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:8.5px; }
+  .g-front .reg { position:absolute; right:16px; top:14px; width:7px; height:7px; border-radius:50%; background:#14b8a6; }
+  .g-back { background:#fcfcfd; padding:20px; display:flex; align-items:center; gap:15px; color:#0b1220;
+     background-image:linear-gradient(rgba(20,184,166,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,.10) 1px,transparent 1px);
+     background-size:13px 13px; }
+  .g-back .qr { width:76px; height:76px; flex:none; background:
+     repeating-linear-gradient(0deg,#0b1220 0 4px,transparent 4px 8px),repeating-linear-gradient(90deg,#0b1220 0 4px,#fff 4px 8px);
+     background-blend-mode:multiply; outline:1px solid #94a3b8; outline-offset:2px; }
+  .g-back .txt { font-size:10px; font-weight:600; letter-spacing:.02em; color:#5b6b7b; line-height:1.5; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .g-back .txt b { display:block; color:#0b1220; margin-bottom:3px; }
+
+  /* D — dark duplex + graphite foil */
+  .f-front { background:#141414; padding:20px 22px; border-bottom:3px solid #3a3a3a;
+     display:flex; flex-direction:column; justify-content:space-between; }
+  .f-front .nm { font-size:20px; font-weight:700; letter-spacing:-.02em; line-height:1.06;
+     background:linear-gradient(118deg,#8b9095 0%,#eef0f2 42%,#82878d 60%,#c9cccf 100%);
+     -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .f-front .rl { font-size:9.5px; font-weight:500; color:#8a8f95; margin-top:6px; }
+  .f-front .contacts { color:#b6babe; }
+  .f-front .contacts span { color:#8a8f95; }
+  .f-back { background:#141414; padding:22px; border-bottom:3px solid #3a3a3a; display:flex; align-items:center; gap:15px; }
+  .f-back .qr { width:80px; height:80px; flex:none; padding:5px; box-sizing:border-box; border-radius:6px;
+     background:linear-gradient(135deg,#5f6469,#c9cccf,#5f6469); }
+  .f-back .qr i { display:block; width:100%; height:100%; background:
+     repeating-linear-gradient(0deg,#141414 0 4px,transparent 4px 8px),repeating-linear-gradient(90deg,#141414 0 4px,#c9cccf 4px 8px);
+     background-blend-mode:screen; }
+  .f-back .txt { font-size:10.5px; font-weight:500; color:#8a8f95; line-height:1.5; }
+  .f-back .txt b { display:block; color:#eef0f2; font-size:11.5px; font-weight:700; margin-bottom:3px; }
+  .f-back .txt .d { display:inline-block; width:7px; height:7px; border-radius:50%; background:#2dd4bf; margin-right:5px; vertical-align:middle; }
+</style>
+
+<div class="cards">
+
+  <div class="card" data-choice="deboss" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:15px;">
+      <div class="biz-row">
+        <div><div class="biz d-front">
+          <div><div class="nm">Александр<br>Бутаков</div><div class="rl">Технический партнёр для бизнеса</div></div>
+          <div class="contacts">butakov.dev<br>+7 912 63 15 779<br>hello@butakov.dev</div>
+        </div><div class="biz-cap">лицо</div></div>
+        <div><div class="biz d-back">
+          <div class="qr"></div>
+          <div class="txt"><b>Наведите камеру</b>Разбор сайта или задачи под ИИ. Отвечаю за 2–3 дня.</div>
+        </div><div class="biz-cap">оборот</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Монолит без краски</h3>
+      <p>Плотный некрашеный картон, одна краска или вообще без неё. Имя выдавлено в бумагу блинтом, без заливки, и ловит свет под углом. На лице почти пусто, контакты набраны мелко внизу. Такую карточку запоминают на ощупь, когда берут со стола.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="edge" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:15px;">
+      <div class="biz-row">
+        <div><div class="biz e-front">
+          <div><div class="nm">Александр Бутаков</div><div class="rl">Технический партнёр для бизнеса</div></div>
+          <div class="contacts">butakov.dev<br><span>тел</span> +7 912 63 15 779<br><span>почта</span> hello@butakov.dev</div>
+        </div><div class="biz-cap">лицо</div></div>
+        <div><div class="biz e-back">
+          <div class="qr"></div>
+          <div class="txt"><b>Наведите камеру</b>Аудит сайта или разбор задачи под ИИ. Бесплатно.</div>
+        </div><div class="biz-cap">оборот</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Крашеный торец</h3>
+      <p>Толстый белый картон от 600 г, все четыре торца прокрашены в teal. Лицо чёрно-белое, имя крупно, много воздуха. Цвет виден только с ребра, когда карточку поднимаешь. Простой приём, который читается как «печатал не в переходе».</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="grid" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:15px;">
+      <div class="biz-row">
+        <div><div class="biz g-front">
+          <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span><span class="reg"></span>
+          <div><div class="nm">Александр Бутаков</div><div class="rl">Технический партнёр</div></div>
+          <div class="contacts">butakov.dev&nbsp;&nbsp;/&nbsp;&nbsp;+7 912 63 15 779<br>hello@butakov.dev</div>
+        </div><div class="biz-cap">лицо</div></div>
+        <div><div class="biz g-back">
+          <div class="qr"></div>
+          <div class="txt"><b>scan →</b>audit / ai-review<br>free · 2–3 дня</div>
+        </div><div class="biz-cap">оборот</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Инженерная сетка</h3>
+      <p>Бледная миллиметровка на фоне, метки реза по углам, весь текст посажен по клеткам. Контакты моноширинным с табличными цифрами. Ни одного лишнего цвета, кроме маленькой точки-регистра. Говорит про точность до того, как ты открыл рот.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="foil" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:15px;">
+      <div class="biz-row">
+        <div><div class="biz f-front">
+          <div><div class="nm">Александр<br>Бутаков</div><div class="rl">Технический партнёр для бизнеса</div></div>
+          <div class="contacts">butakov.dev<br><span>+7 912 63 15 779</span><br><span>hello@butakov.dev</span></div>
+        </div><div class="biz-cap">лицо</div></div>
+        <div><div class="biz f-back">
+          <div class="qr"><i></i></div>
+          <div class="txt"><b>Наведите камеру</b><span class="d"></span>Разбор сайта или задачи под ИИ</div>
+        </div><div class="biz-cap">оборот</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D. Тёмный дуплекс с графитовой фольгой</h3>
+      <p>Склейка из двух слоёв, на резаном ребре видна тёмная полоса. Фон почти чёрный, имя тиснуто матовой графитовой фольгой, без золотого блеска. Один teal-акцент только у QR. Дорого, но тихо.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">QR схематичный. Можно смешивать: например, торец из B плюс набор из A. Скажи словами, если хочется своего.</p>

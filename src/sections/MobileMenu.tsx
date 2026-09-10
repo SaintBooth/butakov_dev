@@ -3,9 +3,10 @@
 import { clsx } from 'clsx';
 import { ArrowRight, Menu, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { CTA_HREF, NAV_ITEMS } from '@/config/nav';
+import { CTA_HREF, isNavActive, NAV_ITEMS } from '@/config/nav';
 import { Link, usePathname } from '@/i18n/navigation';
 
 const noop = () => () => {};
@@ -13,6 +14,7 @@ const noop = () => () => {};
 export default function MobileMenu() {
   const t = useTranslations('nav');
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   // The overlay is portalled into <body>, which only exists on the client.
   // `false` on the server, `true` after hydration — so the first client render
@@ -124,8 +126,7 @@ export default function MobileMenu() {
         <nav aria-label={t('ariaLabel')}>
           <ul className="flex flex-col">
             {NAV_ITEMS.map(({ key, href }) => {
-              // journal is the only real route here; anchor items share pathname "/"
-              const active = key === 'journal' && pathname.startsWith('/journal');
+              const active = isNavActive(key, pathname, searchParams);
               return (
                 <li key={key}>
                   <Link

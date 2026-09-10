@@ -1,0 +1,100 @@
+<h2>Сверка с шаблоном kTmpt_11_000.pdf</h2>
+<p class="subtitle">Обе стороны на монтажном поле: вылет 2 мм, рез 90×50, безопасная зона 2 мм, скругление 5 мм. Красное — рез, синее — безопасная зона. Масштаб 4:1.</p>
+
+<style>
+  .stage { background:#eef1f4; border-radius:12px; padding:32px 24px; margin-top:10px; }
+  .grid { display:flex; gap:26px; flex-wrap:wrap; justify-content:center; }
+  .cap { font-size:11px; letter-spacing:.03em; text-transform:uppercase; opacity:.55; margin:9px 2px 0; text-align:center; }
+
+  .bleed { position:relative; width:376px; height:216px; background:#141414; border-radius:2px; overflow:hidden;
+    box-shadow:0 20px 46px -16px rgba(0,0,0,.55); font-family:'Geist',system-ui,-apple-system,sans-serif; }
+  .trim { position:absolute; inset:8px; border:1px solid rgba(255,90,90,.9); border-radius:20px; pointer-events:none; z-index:9; }
+  .safe { position:absolute; inset:24px; border:1px dashed rgba(90,160,255,.85); border-radius:14px; pointer-events:none; z-index:9; }
+
+  .logo { position:absolute; top:32px; right:32px; width:48px; height:48px; }
+  .nm { position:absolute; left:32px; top:46px; font-size:19px; font-weight:650; letter-spacing:-.015em; line-height:1.12; color:#d0d4d8; }
+  .rl { position:absolute; left:32px; top:102px; font-size:9.5px; font-weight:500; letter-spacing:.02em; color:#8f949b; }
+  .cc { position:absolute; left:32px; bottom:36px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:8.5px; letter-spacing:.01em; color:#8b9096; font-weight:500; }
+
+  .bgmark { position:absolute; right:-100px; bottom:-114px; width:250px; height:250px; opacity:.12; }
+  .tile { position:absolute; left:32px; top:56px; width:104px; height:104px; background:#fff; border-radius:8px;
+    box-shadow:0 3px 12px rgba(0,0,0,.4), inset 0 0 0 1px rgba(0,0,0,.05); display:flex; align-items:center; justify-content:center; z-index:2; }
+  .tile i { width:80px; height:80px; display:block; background:
+    repeating-linear-gradient(0deg,#141414 0 4px,#fff 4px 8px),
+    repeating-linear-gradient(90deg,#141414 0 4px,transparent 4px 8px); background-blend-mode:multiply; }
+  .rt { position:absolute; left:164px; top:62px; width:180px; z-index:2; }
+  .kick { font-size:8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#7c8188; }
+  .head { font-size:15px; font-weight:600; letter-spacing:-.012em; color:#e9ebed; margin-top:11px; line-height:1.15; }
+  .body { font-size:10px; font-weight:450; color:#90969c; line-height:1.5; margin-top:8px; }
+  .url { position:absolute; left:32px; bottom:36px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:9px; letter-spacing:.02em; color:#8b9096; font-weight:500; z-index:2; }
+
+  .tbl { width:100%; border-collapse:collapse; margin-top:22px; font-size:12.5px; color:#3b4652; }
+  .tbl td { padding:7px 10px; border-bottom:1px solid #dfe4e9; vertical-align:top; }
+  .tbl td:first-child { white-space:nowrap; color:#0b1220; font-weight:600; }
+  .ok { color:#0f7a5f; font-weight:700; }
+  .fix { color:#b45309; font-weight:700; }
+</style>
+
+<div class="stage">
+  <div class="grid">
+
+    <div>
+      <div class="bleed">
+        <svg class="logo" viewBox="0 0 852.05 852.05">
+          <rect x="0" y="0" width="852.05" height="852.05" rx="426.02" fill="#101729"/>
+          <path fill="#61d1c8" d="M576.27,450.32h0c0,79.98-64.83,144.81-144.81,144.81h-5.36c-79.98,0-144.81-64.83-144.81-144.81v-193.61h-108.34s0,188.31,0,188.31c0,139.82,113.34,253.16,253.16,253.16h0c124.24,0,227.56-89.49,249.05-207.53l-98.88-40.33Z"/>
+          <path fill="#61d1c8" d="M469.54,153.87l-45.5,102.84h152.22v193.61h0c61.09-18.57,102.84-74.91,102.84-138.76v-12.67c0-80.1-64.93-145.03-145.03-145.03h-64.54Z"/>
+        </svg>
+        <div class="nm">Александр<br>Бутаков</div>
+        <div class="rl">Технический партнёр для бизнеса</div>
+        <div class="cc">butakov.dev &nbsp;·&nbsp; +7 912 63 15 779 &nbsp;·&nbsp; hello@butakov.dev</div>
+        <div class="trim"></div><div class="safe"></div>
+      </div>
+      <div class="cap">лицо</div>
+    </div>
+
+    <div>
+      <div class="bleed">
+        <svg class="bgmark" viewBox="0 0 852.05 852.05">
+          <path fill="#61d1c8" d="M576.27,450.32h0c0,79.98-64.83,144.81-144.81,144.81h-5.36c-79.98,0-144.81-64.83-144.81-144.81v-193.61h-108.34s0,188.31,0,188.31c0,139.82,113.34,253.16,253.16,253.16h0c124.24,0,227.56-89.49,249.05-207.53l-98.88-40.33Z"/>
+          <path fill="#61d1c8" d="M469.54,153.87l-45.5,102.84h152.22v193.61h0c61.09-18.57,102.84-74.91,102.84-138.76v-12.67c0-80.1-64.93-145.03-145.03-145.03h-64.54Z"/>
+        </svg>
+        <div class="tile"><i></i></div>
+        <div class="rt">
+          <div class="kick">куда ведёт</div>
+          <div class="head">Бесплатный разбор</div>
+          <div class="body">Аудит сайта или задача с ИИ. Отвечаю за 2-3 дня.</div>
+        </div>
+        <div class="url">butakov.dev</div>
+        <div class="trim"></div><div class="safe"></div>
+      </div>
+      <div class="cap">оборот</div>
+    </div>
+
+  </div>
+
+  <table class="tbl">
+    <tr><td>Готовый размер</td><td>90 × 50 мм <span class="ok">СООТВЕТСТВУЕТ</span></td></tr>
+    <tr><td>Скругление</td><td>5 мм (шаблон допускает 5 или 7) <span class="ok">СООТВЕТСТВУЕТ</span></td></tr>
+    <tr><td>Вылет 2 мм</td><td>Тёмный фон и фоновый глиф уходят за рез на 2 мм со всех сторон <span class="ok">СООТВЕТСТВУЕТ</span></td></tr>
+    <tr><td>Безопасная зона</td><td>Весь текст, лого и QR внутри поля 6 мм от реза, то есть 4 мм запаса до границы зоны <span class="ok">СООТВЕТСТВУЕТ</span></td></tr>
+    <tr><td>Нижняя строка</td><td>Подвинул до 7 мм от реза, чтобы не попадала в радиус угла <span class="fix">ПОПРАВЛЕНО</span></td></tr>
+    <tr><td>Кегли под печать</td><td>Имя 22 pt, роль 7 pt, контакты и URL 6.5 pt, кикер 6 pt, заголовок оборота 12 pt, текст 7.5 pt <span class="fix">ЗАФИКСИРОВАНО</span></td></tr>
+    <tr><td>Серый текст на чёрном</td><td>Поднял до #8b9096 вес 500, чтобы мелкое читалось в печати <span class="fix">ПОПРАВЛЕНО</span></td></tr>
+    <tr><td>Чёрный фон</td><td>Печатать составным чёрным (C40 M30 Y30 K100), не плоским K100 <span class="fix">В ТЕХ-ЛИСТ</span></td></tr>
+    <tr><td>Teal-глиф</td><td>Pantone под #61d1c8 или спот-лак поверх чёрного, вектор в кривых <span class="fix">В ТЕХ-ЛИСТ</span></td></tr>
+  </table>
+</div>
+
+<div class="cards">
+  <div class="card" data-choice="save-go" onclick="toggleSelect(this)">
+    <div class="card-body"><h3>Всё ок, сохраняем</h3><p>Геометрия по шаблону сходится. Записываю спеку карточки плюс тех-лист для типографии и перехожу к брейншторму страницы.</p></div>
+  </div>
+  <div class="card" data-choice="hold" onclick="toggleSelect(this)">
+    <div class="card-body"><h3>Стоп, есть правка</h3><p>Что-то в геометрии или кеглях поменять перед сохранением.</p></div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:14px">Кликни вариант.</p>
