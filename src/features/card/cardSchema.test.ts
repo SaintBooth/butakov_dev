@@ -36,4 +36,25 @@ describe('createCardSchema', () => {
     const r = schema.safeParse({ ...base, problem: 'a'.repeat(501) });
     expect(r.success).toBe(false);
   });
+
+  it('rejects free-text contact with no phone/handle/link marker', () => {
+    const r = schema.safeParse({ ...base, contact: 'связаться со мной' });
+    expect(r.success).toBe(false);
+  });
+
+  it('accepts phone, @handle and t.me contact forms', () => {
+    for (const contact of ['+7 912 000 00 00', '89120000000', '@ivan', 't.me/ivan']) {
+      expect(schema.safeParse({ ...base, contact }).success).toBe(true);
+    }
+  });
+
+  it('rejects website without a dot-TLD but accepts a domain', () => {
+    expect(schema.safeParse({ ...base, website: 'мой сайт' }).success).toBe(false);
+    expect(schema.safeParse({ ...base, website: 'https://shop.ru/x' }).success).toBe(true);
+  });
+
+  it('rejects name and contact over their max length', () => {
+    expect(schema.safeParse({ ...base, name: 'и'.repeat(81) }).success).toBe(false);
+    expect(schema.safeParse({ ...base, contact: '9'.repeat(121) }).success).toBe(false);
+  });
 });

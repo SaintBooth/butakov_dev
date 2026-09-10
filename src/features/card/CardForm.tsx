@@ -64,6 +64,14 @@ export default function CardForm({ direction }: { direction: Direction }) {
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-2.5 pt-4">
+      <input
+        type="checkbox"
+        name="botcheck"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+      />
       <div>
         <label htmlFor="card-name" className={labelClass}>
           {t('name')}

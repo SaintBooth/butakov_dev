@@ -26,6 +26,9 @@ export function useCardForm(t: (key: string) => string, direction: Direction) {
     const form = e.currentTarget;
     const fd = new FormData(form);
 
+    // honeypot: a real user never fills this hidden field; bots do — drop silently
+    if (fd.get('botcheck')) return { success: true };
+
     const raw = {
       name: fd.get('name') ?? '',
       contact: fd.get('contact') ?? '',

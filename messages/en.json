@@ -229,6 +229,7 @@
     "errors": {
       "name": "Enter your name (at least 2 characters)",
       "contact": "Enter your Telegram or phone",
+      "website": "That doesn't look like a valid link",
       "server": "Something went wrong. Please message me on Telegram.",
       "network": "Send failed. Check your connection."
     }
