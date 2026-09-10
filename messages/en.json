@@ -192,6 +192,47 @@
       "contact": "Enter your Telegram or phone number"
     }
   },
+  "card": {
+    "identity": {
+      "role": "Technical partner for your business"
+    },
+    "save": {
+      "contact": "Save contact",
+      "call": "Call",
+      "email": "Send email",
+      "telegram": "Telegram"
+    },
+    "fork": {
+      "heading": "What brings you here?",
+      "auditTitle": "Website or store audit",
+      "auditDesc": "I'll review speed, SEO and conversion, and send a report in 2-3 days.",
+      "aiTitle": "An AI task",
+      "aiDesc": "Bots, automation, analytics. Let's talk through your case on a call."
+    },
+    "form": {
+      "name": "Your name",
+      "contact": "Telegram or phone",
+      "problem": "A few words about the task",
+      "website": "Website URL",
+      "submitAudit": "Request an audit",
+      "submitAi": "Send request",
+      "submitting": "Sending…",
+      "telegramFallback": "or message me on Telegram",
+      "telegramPrefillAudit": "Hi! Reaching out from your card, I'd like a website audit.",
+      "telegramPrefillAi": "Hi! Reaching out from your card, I have an AI task."
+    },
+    "success": {
+      "titleAudit": "Audit request received",
+      "titleAi": "Request received",
+      "body": "I'll get back to you within a day. You can save the contact with the button above."
+    },
+    "errors": {
+      "name": "Enter your name (at least 2 characters)",
+      "contact": "Enter your Telegram or phone",
+      "server": "Something went wrong. Please message me on Telegram.",
+      "network": "Send failed. Check your connection."
+    }
+  },
   "footer": {
     "tagline": "I build and grow digital products: 1C-Bitrix, WordPress, React/Next.js, Django, and AI automation.",
     "navHeading": "Navigation",
