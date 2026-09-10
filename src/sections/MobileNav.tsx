@@ -1,7 +1,7 @@
 'use client';
 
 import { clsx } from 'clsx';
-import { BookOpen, Home, LayoutGrid, MessageSquare, type LucideIcon } from 'lucide-react';
+import { BookOpen, Briefcase, Home, MessageSquare, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 
@@ -22,17 +22,21 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
     ? 'text-teal-700 [@media(hover:hover)]:hover:text-teal-800'
     : active
       ? 'text-slate-900'
-      : 'text-slate-600 [@media(hover:hover)]:hover:text-slate-900';
+      : 'text-slate-500 [@media(hover:hover)]:hover:text-slate-900';
 
   return (
     <Link
       href={href}
+      aria-label={label}
       aria-current={active ? 'page' : undefined}
       className={clsx(
-        'relative z-10 flex min-h-12 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5',
-        'transition-transform duration-100 will-change-transform active:scale-95',
-        'motion-reduce:transition-none motion-reduce:active:scale-100',
-        // selected tab = its own small frosted chip, not a flat fill
+        'group relative z-10 flex h-14 flex-1 items-center justify-center rounded-2xl',
+        // tactile press: quick squash + state layer, no layout shift for siblings
+        'transition-[transform,background-color] duration-100 ease-out will-change-transform',
+        'active:scale-90 active:bg-slate-900/[0.05]',
+        '[@media(hover:hover)]:hover:bg-slate-900/[0.04]',
+        'motion-reduce:transition-colors motion-reduce:active:scale-100',
+        // selected = its own small frosted chip
         active && [
           'bg-white/55 backdrop-blur-sm',
           'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.85),0_1px_3px_-1px_rgba(15,23,42,0.12)]',
@@ -42,18 +46,17 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
       )}
     >
       <Icon
-        className={clsx('size-[22px] transition-colors', tone)}
-        strokeWidth={active ? 2.4 : 2}
+        className={clsx('size-6 transition-[color,transform] duration-100', tone)}
+        strokeWidth={active ? 2.5 : 2}
       />
+      {/* wayfinding dot — replaces the removed text label */}
       <span
+        aria-hidden
         className={clsx(
-          'text-[11px] tracking-[0.02em] transition-colors',
-          active ? 'font-semibold' : 'font-medium',
-          tone
+          'absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full transition-opacity duration-150',
+          active && !accent ? 'bg-slate-900 opacity-100' : 'opacity-0'
         )}
-      >
-        {label}
-      </span>
+      />
     </Link>
   );
 }
@@ -70,10 +73,9 @@ export default function MobileNav() {
       <nav
         aria-label={t('ariaLabel')}
         className={clsx(
-          'pointer-events-auto relative isolate flex items-center gap-1 overflow-hidden rounded-2xl p-1.5',
-          // frosted base — opacity floor kept high so the panel stays a legible
-          // light surface over ANY backdrop (incl. dark sections); no per-section
-          // JS detection needed, matching how the iOS tab-bar material behaves
+          'pointer-events-auto relative isolate flex items-center gap-1.5 overflow-hidden rounded-[1.75rem] p-1.5',
+          // frosted base — opacity floor kept high so icons stay legible over ANY
+          // backdrop (incl. dark sections), like the iOS tab-bar material
           'bg-white/75 supports-[backdrop-filter]:bg-white/62',
           'backdrop-blur-2xl backdrop-saturate-[1.8] backdrop-brightness-[1.06]',
           // glass rim: bright inset top edge, faint inset bottom, hairline outer ring
@@ -97,7 +99,7 @@ export default function MobileNav() {
 
         <NavItem href="/" label={t('home')} icon={Home} active={isHome} />
         <NavItem href="/journal" label={t('journal')} icon={BookOpen} active={isJournal} />
-        <NavItem href="/#cases" label={t('cases')} icon={LayoutGrid} active={false} />
+        <NavItem href="/#cases" label={t('cases')} icon={Briefcase} active={false} />
         <NavItem
           href="/#contact"
           label={t('contactShort')}
