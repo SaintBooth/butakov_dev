@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
+import { CONTACT } from '@/config/contact';
 import Card from '@/features/card/Card';
 
 export const metadata: Metadata = {
-  title: 'Александр Бутаков',
+  title: CONTACT.name,
   robots: { index: false, follow: false },
 };
 

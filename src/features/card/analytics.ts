@@ -1,4 +1,4 @@
-const YM_ID = 107722106;
+import { YM_ID } from '@/config/analytics';
 
 export type CardGoal =
   | 'card_visit'

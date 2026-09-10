@@ -20,12 +20,13 @@ function PathButton({ active, dimmed, title, desc, onSelect }: PathButtonProps) 
     <button
       type="button"
       onClick={onSelect}
+      aria-pressed={active}
       className={clsx(
         'rounded-2xl border p-4 text-left transition-[transform,border-color,box-shadow,opacity] duration-150 active:scale-[0.99]',
         active
           ? 'border-teal-500 shadow-[0_0_0_3px_rgba(20,184,166,0.16)]'
           : 'border-slate-200 [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-teal-300',
-        dimmed && 'pointer-events-none opacity-50'
+        dimmed && 'opacity-50'
       )}
     >
       <h3 className="text-sm font-bold tracking-tight text-slate-900">{title}</h3>

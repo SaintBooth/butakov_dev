@@ -36,7 +36,6 @@ export default function CardSaveContact() {
         target="_blank"
         rel="noreferrer"
         aria-label={t('telegram')}
-        onClick={() => reachGoal('card_telegram')}
         className={iconBtn}
       >
         <MessageSquare className="h-4 w-4" />

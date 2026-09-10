@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-
-const YM_ID = 107722106;
+import { YM_ID } from '@/config/analytics';
 
 declare global {
   interface Window {
