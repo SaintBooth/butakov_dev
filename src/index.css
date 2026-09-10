@@ -10,3 +10,65 @@
     scroll-behavior: smooth;
   }
 }
+
+@theme {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Появление блоков экрана при загрузке */
+.card-enter {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 240ms var(--ease-out),
+    transform 240ms var(--ease-out);
+  transition-delay: var(--card-enter-delay, 0ms);
+}
+@starting-style {
+  .card-enter {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Раскрытие формы из выбранного пути (grid-rows аккордеон) */
+.card-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms var(--ease-out);
+}
+.card-reveal[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+.card-reveal-inner {
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+.card-reveal[data-open='true'] .card-reveal-inner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-enter {
+    transition: opacity 160ms ease;
+    transform: none;
+  }
+  @starting-style {
+    .card-enter {
+      transform: none;
+    }
+  }
+  .card-reveal {
+    transition: none;
+  }
+  .card-reveal-inner {
+    transition: opacity 160ms ease;
+    transform: none;
+  }
+}

@@ -6,7 +6,12 @@ const YM_ID = 107722106;
 
 declare global {
   interface Window {
-    ym: (id: number, action: string, params?: Record<string, unknown>) => void;
+    ym: (
+      id: number,
+      action: string,
+      target?: string | Record<string, unknown>,
+      params?: Record<string, unknown>
+    ) => void;
   }
 }
 
