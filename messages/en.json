@@ -1,6 +1,8 @@
 {
   "nav": {
     "ariaLabel": "Main navigation",
+    "menu": "Menu",
+    "close": "Close menu",
     "services": "Stack & Services",
     "b2b": "B2B Partnership",
     "cases": "Cases",
