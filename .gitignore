@@ -29,3 +29,8 @@ pnpm-lock.yaml
 
 # Internal specs and planning docs (not for public repo)
 docs/
+
+# Agent scratch / test output
+.playwright-out/
+.playwright-mcp/
+.superpowers/
