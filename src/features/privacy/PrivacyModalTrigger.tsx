@@ -13,6 +13,7 @@ export function PrivacyModalTrigger({ children, className }: PrivacyModalTrigger
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
         className={
           className ??
