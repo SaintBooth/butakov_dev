@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import type { Direction } from './cardSchema';
 import { reachGoal } from './analytics';
+import CardForm from './CardForm';
 
 interface PathButtonProps {
   active: boolean;
@@ -66,7 +67,9 @@ export default function CardFork() {
 
       {/* Форма подключается в Task 11 */}
       <div className="card-reveal" data-open={selected !== null}>
-        <div className="card-reveal-inner" />
+        <div className="card-reveal-inner">
+          {selected !== null && <CardForm direction={selected} />}
+        </div>
       </div>
     </div>
   );

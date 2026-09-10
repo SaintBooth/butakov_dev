@@ -72,3 +72,20 @@
     transform: none;
   }
 }
+
+@keyframes card-pop {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.card-pop {
+  animation: card-pop 240ms var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-pop {
+    animation: none;
+  }
+}
