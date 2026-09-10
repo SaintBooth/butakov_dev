@@ -16,7 +16,7 @@ export default async function Footer() {
   const navLinks = [
     { href: '/#services', label: t('services') },
     { href: '/#b2b', label: t('b2b') },
-    { href: '/#cases', label: t('cases') },
+    { href: '/journal?filter=cases', label: t('cases') },
   ];
 
   return (

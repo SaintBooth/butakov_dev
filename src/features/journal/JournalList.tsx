@@ -11,6 +11,8 @@ type Filter = 'all' | 'cases' | 'opinions';
 interface JournalListProps {
   cases: Array<{ slug: string; frontmatter: CaseFrontmatter }>;
   locale: string;
+  /** initial tab, e.g. from /journal?filter=cases (nav "Кейсы") */
+  initialFilter?: Filter;
 }
 
 const pillBase = 'px-4 py-2 rounded-full text-sm font-bold border transition-colors flex-shrink-0';
@@ -21,8 +23,8 @@ function isOpinion(tags: string[]): boolean {
   return tags.some((tag) => OPINION_TAGS.includes(tag));
 }
 
-export default function JournalList({ cases, locale }: JournalListProps) {
-  const [filter, setFilter] = useState<Filter>('all');
+export default function JournalList({ cases, locale, initialFilter = 'all' }: JournalListProps) {
+  const [filter, setFilter] = useState<Filter>(initialFilter);
   const isRu = locale === 'ru';
 
   const filtered = cases.filter(({ frontmatter: fm }) => {

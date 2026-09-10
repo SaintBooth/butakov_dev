@@ -99,7 +99,7 @@ export default function MobileNav() {
 
         <NavItem href="/" label={t('home')} icon={Home} active={isHome} />
         <NavItem href="/journal" label={t('journal')} icon={BookOpen} active={isJournal} />
-        <NavItem href="/#cases" label={t('cases')} icon={Briefcase} active={false} />
+        <NavItem href="/journal?filter=cases" label={t('cases')} icon={Briefcase} active={false} />
         <NavItem
           href="/#contact"
           label={t('contactShort')}

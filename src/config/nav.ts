@@ -2,7 +2,7 @@
 export const NAV_ITEMS = [
   { key: 'services', href: '/#services' },
   { key: 'b2b', href: '/#b2b' },
-  { key: 'cases', href: '/#cases' },
+  { key: 'cases', href: '/journal?filter=cases' },
   { key: 'experience', href: '/#experience' },
   { key: 'journal', href: '/journal' },
 ] as const;

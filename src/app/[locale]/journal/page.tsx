@@ -6,7 +6,10 @@ import JournalList from '@/features/journal/JournalList';
 
 interface Props {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ filter?: string }>;
 }
+
+type JournalFilter = 'all' | 'cases' | 'opinions';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -46,8 +49,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function JournalPage({ params }: Props) {
+export default async function JournalPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const { filter } = await searchParams;
+  const initialFilter: JournalFilter = filter === 'cases' || filter === 'opinions' ? filter : 'all';
   const cases = await getAllCaseFrontmatters(locale);
 
   const isRu = locale === 'ru';
@@ -83,7 +88,7 @@ export default async function JournalPage({ params }: Props) {
           : 'Notes on development, case studies and personal opinions.'}
       </p>
 
-      <JournalList cases={cases} locale={locale} />
+      <JournalList cases={cases} locale={locale} initialFilter={initialFilter} />
     </main>
   );
 }

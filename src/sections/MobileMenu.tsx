@@ -5,10 +5,11 @@ import { ArrowRight, Menu, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CTA_HREF, NAV_ITEMS } from '@/config/nav';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 
 export default function MobileMenu() {
   const t = useTranslations('nav');
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -86,22 +87,31 @@ export default function MobileMenu() {
         )}
       >
         <ul className="flex flex-col">
-          {NAV_ITEMS.map(({ key, href }) => (
-            <li key={key}>
-              <Link
-                href={href}
-                role="menuitem"
-                onClick={close}
-                className={clsx(
-                  'flex min-h-12 items-center rounded-2xl px-4 text-[15px] font-semibold text-slate-700',
-                  'transition-colors duration-100 active:bg-slate-900/[0.06]',
-                  '[@media(hover:hover)]:hover:bg-slate-900/[0.04] [@media(hover:hover)]:hover:text-slate-900'
-                )}
-              >
-                {t(key)}
-              </Link>
-            </li>
-          ))}
+          {NAV_ITEMS.map(({ key, href }) => {
+            // journal is the only real route here; anchor items share pathname "/"
+            const active = key === 'journal' && pathname.startsWith('/journal');
+            return (
+              <li key={key}>
+                <Link
+                  href={href}
+                  role="menuitem"
+                  aria-current={active ? 'page' : undefined}
+                  onClick={close}
+                  className={clsx(
+                    // radius 16px = panel 24px - padding 8px → corners stay concentric,
+                    // fill inset from the panel edge equals the panel padding
+                    'flex min-h-12 items-center rounded-2xl px-4 text-[15px] font-semibold',
+                    'transition-colors duration-100 active:bg-slate-900/[0.06]',
+                    active
+                      ? 'bg-slate-900/[0.06] text-slate-900 ring-1 ring-black/[0.04]'
+                      : 'text-slate-700 [@media(hover:hover)]:hover:bg-slate-900/[0.04] [@media(hover:hover)]:hover:text-slate-900'
+                  )}
+                >
+                  {t(key)}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="mt-1.5 px-2 pb-1 pt-2">
