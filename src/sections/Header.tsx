@@ -15,12 +15,7 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <nav className="flex h-14 items-center justify-between md:h-16" aria-label={t('ariaLabel')}>
           <Link href="/" className="-m-2 flex-shrink-0 p-2" aria-label={t('home')}>
-            <LogoImage
-              width={180}
-              height={48}
-              priority
-              className="h-7 w-auto object-contain md:h-9"
-            />
+            <LogoImage width={256} height={88} priority className="h-9 w-auto object-contain" />
           </Link>
 
           <MobileMenu />

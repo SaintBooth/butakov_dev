@@ -5,10 +5,6 @@ import { BookOpen, Briefcase, Home, MessageSquare, type LucideIcon } from 'lucid
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 
-// Fractal-noise micro-texture — sells "frosted" without a heavy gradient.
-const GRAIN =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
-
 interface NavItemProps {
   href: string;
   label: string;
@@ -32,8 +28,8 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
       className={clsx(
         'group relative z-10 flex h-14 flex-1 items-center justify-center rounded-2xl',
         // tactile press: quick squash + state layer, no layout shift for siblings
-        'transition-[transform,background-color] duration-100 ease-out will-change-transform',
-        'active:scale-90 active:bg-slate-900/[0.05]',
+        'transition-[transform,background-color] duration-100 ease-out',
+        'active:scale-95 active:bg-slate-900/[0.05]',
         '[@media(hover:hover)]:hover:bg-slate-900/[0.04]',
         'motion-reduce:transition-colors motion-reduce:active:scale-100',
         // selected = its own small frosted chip
@@ -77,7 +73,7 @@ export default function MobileNav() {
           // frosted base — opacity floor kept high so icons stay legible over ANY
           // backdrop (incl. dark sections), like the iOS tab-bar material
           'bg-white/75 supports-[backdrop-filter]:bg-white/62',
-          'backdrop-blur-2xl backdrop-saturate-[1.8] backdrop-brightness-[1.06]',
+          'backdrop-blur-2xl backdrop-saturate-[1.8]',
           // glass rim: bright inset top edge, faint inset bottom, hairline outer ring
           'ring-1 ring-white/50',
           'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.75),inset_0_-1px_0_0_rgba(15,23,42,0.04),0_14px_46px_-12px_rgba(45,130,140,0.18),0_6px_16px_-8px_rgba(15,23,42,0.10)]',
@@ -89,12 +85,6 @@ export default function MobileNav() {
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(130%_90%_at_18%_-10%,rgba(255,255,255,0.7),rgba(226,245,244,0.28)_38%,transparent_66%)] [@media(prefers-reduced-transparency:reduce)]:hidden"
-        />
-        {/* frosted micro-texture */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.04] mix-blend-overlay [@media(prefers-reduced-transparency:reduce)]:hidden"
-          style={{ backgroundImage: GRAIN, backgroundSize: '120px 120px' }}
         />
 
         <NavItem href="/" label={t('home')} icon={Home} active={isHome} />
