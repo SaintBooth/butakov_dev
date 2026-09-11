@@ -34,3 +34,11 @@ docs/
 .playwright-out/
 .playwright-mcp/
 .superpowers/
+
+# Cross-post drafts (outreach material, not site code)
+content/devto/
+content/hackernoon/
+content/vcru/
+
+# Unused local asset
+public/hero-portrait.jpg
