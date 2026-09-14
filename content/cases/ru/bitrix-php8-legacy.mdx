@@ -8,11 +8,11 @@ excerpt: "Точечный рефакторинг компонентов, нес
 
 ## Проблема
 
-Админка возвращала ошибку 500 — из-за строгой типизации PHP 8 в `array_key_exists` прилетал `null` вместо массива. Проверка системы показывала неверные типы полей в таблицах БД. Drag-and-drop блоков на главной странице зависал из-за 404 модуля Push and Pull и падения Sortable.js. Фоновый импорт валился с `TypeError` — в `gmdate` передавалось строковое значение. Всё это блокировало управление сайтом и обновление каталога.
+Админка возвращала ошибку 500. Из-за строгой типизации PHP 8 в `array_key_exists` прилетал `null` вместо массива. Проверка системы показывала неверные типы полей в таблицах БД. Drag-and-drop блоков на главной странице зависал из-за 404 модуля Push and Pull и падения Sortable.js. Фоновый импорт валился с `TypeError`: в `gmdate` передавалось строковое значение. Всё это блокировало управление сайтом и обновление каталога.
 
 ## Решение
 
-Доработал `lib/traits/admin.php` — добавил проверку `is_array` перед вызовом функции:
+Доработал `lib/traits/admin.php`: добавил проверку `is_array` перед вызовом функции.
 
 ```php
 if (is_array($arOption) && array_key_exists($key, $arOption)) {
@@ -27,7 +27,7 @@ ALTER TABLE b_intranet_invitation_link CHANGE CREATED_BY CREATED_BY int NULL DEF
 ALTER TABLE b_booking_wait_list_item CHANGE CREATED_BY CREATED_BY bigint NOT NULL;
 ```
 
-Исправил падение `options.php` — скрипт пытался вызвать `replace` на undefined. Добавил проверку на null перед вызовом метода:
+`options.php` падал: скрипт пытался вызвать `replace` на undefined. Добавил проверку на null перед вызовом метода:
 
 ```javascript
 var inputName = $(this).find('input[type="checkbox"]').attr('name');
@@ -36,7 +36,7 @@ if (inputName) {
 }
 ```
 
-Починил обработчик `CMyLastModified::apply` в `init.php` — теперь он корректно преобразует текстовые даты в числовой формат перед передачей в `gmdate`.
+Починил обработчик `CMyLastModified::apply` в `init.php`: теперь он корректно преобразует текстовые даты в числовой формат перед передачей в `gmdate`.
 
 ## Результат
 

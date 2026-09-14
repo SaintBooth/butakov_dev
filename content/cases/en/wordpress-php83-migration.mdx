@@ -8,7 +8,7 @@ excerpt: "Emergency debug, plugin compatibility fixes and DB structure restorati
 
 ## Problem
 
-Frontend and admin panel were completely down. Server logs showed a fatal error in Really Simple SSL Pro plugin during license check. System generated hundreds of Deprecated warnings from other modules. After partial access restoration, Yoast SEO Premium tables were found missing — sitemap generation fully stopped.
+Frontend and admin panel were completely down. Server logs showed a fatal error in Really Simple SSL Pro plugin during license check. System generated hundreds of Deprecated warnings from other modules. After partial access restoration, Yoast SEO Premium tables were found missing, and sitemap generation fully stopped.
 
 ## Solution
 
@@ -19,13 +19,13 @@ define( 'WP_DEBUG', false );
 ini_set( 'display_errors', 0 );
 ```
 
-Updated CMS core and all extensions to PHP 8.3-compatible versions. For the Yoast SEO database error — the system couldn't find the indexable table:
+Updated CMS core and all extensions to PHP 8.3-compatible versions. The Yoast SEO database error turned out to be the system failing to find the indexable table:
 
 ```sql
 SELECT * FROM yoast_wp_seo_models_indexable WHERE object_id = '1' AND object_type = 'user' LIMIT 1
 ```
 
-Deactivation and reactivation triggered automatic migration — service tables were recreated and populated by the built-in optimization tool.
+Deactivation and reactivation triggered automatic migration: service tables were recreated and populated by the built-in optimization tool.
 
 ## Result
 

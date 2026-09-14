@@ -8,11 +8,11 @@ excerpt: "Targeted refactoring of PHP 8 incompatible components, DB structure re
 
 ## Problem
 
-Admin panel returned 500 error — PHP 8 strict typing caused `array_key_exists` to receive `null` instead of array. System health check showed wrong field types in DB tables. Main page block drag-and-drop froze due to Push and Pull module 404 error and Sortable.js crash. Background import failed with `TypeError` from passing string value to `gmdate`. Everything blocked site management and catalog updates.
+Admin panel returned a 500 error. PHP 8 strict typing meant `array_key_exists` was receiving `null` instead of an array. System health check showed wrong field types in DB tables. Main page block drag-and-drop froze because the Push and Pull module threw a 404 and Sortable.js crashed. Background import failed with a `TypeError` from passing a string value to `gmdate`. Everything blocked site management and catalog updates.
 
 ## Solution
 
-Modified `lib/traits/admin.php` — added `is_array` check before function call:
+Modified `lib/traits/admin.php`: added an `is_array` check before the function call.
 
 ```php
 if (is_array($arOption) && array_key_exists($key, $arOption)) {
@@ -27,7 +27,7 @@ ALTER TABLE b_intranet_invitation_link CHANGE CREATED_BY CREATED_BY int NULL DEF
 ALTER TABLE b_booking_wait_list_item CHANGE CREATED_BY CREATED_BY bigint NOT NULL;
 ```
 
-Fixed `options.php` crash — script failed trying to call `replace` on undefined. Added null guard before method call:
+`options.php` was crashing because the script tried to call `replace` on `undefined`. Added a null guard before the method call:
 
 ```javascript
 var inputName = $(this).find('input[type="checkbox"]').attr('name');
@@ -36,7 +36,7 @@ if (inputName) {
 }
 ```
 
-Fixed `CMyLastModified::apply` handler in `init.php` — correctly converts text dates to numeric format before passing to `gmdate`.
+Fixed the `CMyLastModified::apply` handler in `init.php` so it correctly converts text dates to a numeric format before passing them to `gmdate`.
 
 ## Result
 
