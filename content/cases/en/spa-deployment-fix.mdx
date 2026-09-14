@@ -8,7 +8,7 @@ excerpt: "Resolved ERESOLVE build conflicts, infinite SSL redirect loop and anal
 
 ## Problem
 
-Build failed with ERESOLVE due to bundler/style library version conflict. On deployment, server entered an infinite redirect loop — cloud provider router received HTTPS request, passed it via internal network to config file which redirected back to HTTPS. Analytics system warned about overriding input functions due to controlled UI components.
+Build failed with ERESOLVE due to bundler/style library version conflict. On deployment, server entered an infinite redirect loop: the cloud provider router received an HTTPS request, passed it via internal network to a config file which redirected back to HTTPS. Analytics system warned about overriding input functions due to controlled UI components.
 
 ## Solution
 
