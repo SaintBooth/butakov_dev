@@ -23,13 +23,13 @@
   },
   "casesSection": {
     "heading": "How have my solutions helped real businesses?",
-    "subheading": "Not just code, but concrete metrics: conversion, response speed, uptime.",
+    "subheading": "Concrete metrics: conversion, response speed, uptime.",
     "cta": "Discuss the project",
     "viewAll": "All cases"
   },
   "thoughtsSection": {
     "heading": "What do I think about IT and development?",
-    "subheading": "Personal opinions and reflections - no metrics or case studies, just a point of view.",
+    "subheading": "Personal opinions and reflections — no metrics or case studies, just a point of view.",
     "readMore": "Read article",
     "viewAll": "All articles"
   },
@@ -115,7 +115,7 @@
   },
   "experience": {
     "heading": "How does my experience help your business?",
-    "subheading": "10+ years in development, e-commerce, and digital marketing. I understand unit economics, not just technology.",
+    "subheading": "10+ years in development, e-commerce, and digital marketing — I read unit economics as closely as code.",
     "stackLabel": "Tech stack",
     "softLabel": "Business skills",
     "items": {
