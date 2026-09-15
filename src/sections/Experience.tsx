@@ -61,8 +61,8 @@ export default async function Experience() {
             </div>
             <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-8 border border-white shadow-xl shadow-slate-200/40">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
-                  <UserCog className="w-5 h-5 text-indigo-600" />
+                <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center">
+                  <UserCog className="w-5 h-5 text-teal-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900">{t('softLabel')}</h3>
               </div>
