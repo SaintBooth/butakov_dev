@@ -27,6 +27,7 @@ export interface ProjectMeta {
   url: string;
   MarkIcon: ComponentType<{ className?: string; style?: CSSProperties }>;
   accentTextClass: string;
+  accentTextOnLightClass: string;
   accentBorderClass: string;
   accentShadowClass: string;
   ctaButtonClass: string;

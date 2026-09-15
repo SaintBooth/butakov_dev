@@ -46,13 +46,13 @@ export default async function Projects() {
                 <span
                   className={clsx(
                     'inline-block w-fit px-3 py-1 mb-4 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase tracking-wider',
-                    project.accentTextClass
+                    project.accentTextOnLightClass
                   )}
                 >
                   {t(`items.${project.id}.badge`)}
                 </span>
 
-                <p className={clsx('text-lg font-bold mb-3', project.accentTextClass)}>
+                <p className={clsx('text-lg font-bold mb-3', project.accentTextOnLightClass)}>
                   {t(`items.${project.id}.tagline`)}
                 </p>
                 <p className="text-slate-600 leading-relaxed font-medium mb-6">
