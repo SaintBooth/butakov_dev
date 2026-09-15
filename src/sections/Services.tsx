@@ -1,6 +1,16 @@
 import { ChevronRight } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
+import { clsx } from 'clsx';
 import { services } from '../data/services';
+
+const SPAN_CLASSES: Record<string, string> = {
+  'custom-web': 'lg:col-span-4',
+  ecommerce: 'lg:col-span-2',
+  marketing: 'lg:col-span-2',
+  corporate: 'lg:col-span-2',
+  legacy: 'lg:col-span-1',
+  'ai-consulting': 'lg:col-span-1',
+};
 
 export default async function Services() {
   const t = await getTranslations('services');
@@ -14,31 +24,49 @@ export default async function Services() {
             <p className="text-slate-600 text-lg font-medium">{t('subheading')}</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
-            <div
-              key={service.id}
-              className="group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full pointer-events-none group-hover:from-teal-500/20 transition-colors duration-300" />
-              <div className="bg-white/80 backdrop-blur-sm w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0">
-                <service.Icon className="w-8 h-8 text-teal-500" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">
-                {t(`items.${service.id}.title`)}
-              </h3>
-              <p className="text-slate-600 mb-8 leading-relaxed font-medium flex-grow">
-                {t(`items.${service.id}.description`)}
-              </p>
-              <a
-                href="#contact"
-                className="flex items-center gap-2 text-teal-600 font-bold hover:text-teal-700 transition-colors group/btn mt-auto"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+          {services.map((service) => {
+            const isFeatured = service.id === 'custom-web';
+            return (
+              <div
+                key={service.id}
+                className={clsx(
+                  'group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col',
+                  SPAN_CLASSES[service.id]
+                )}
               >
-                {t('cta')}
-                <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-              </a>
-            </div>
-          ))}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full pointer-events-none group-hover:from-teal-500/20 transition-colors duration-300" />
+                <div
+                  className={clsx(
+                    'bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6 border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0',
+                    isFeatured ? 'w-20 h-20' : 'w-16 h-16'
+                  )}
+                >
+                  <service.Icon
+                    className={isFeatured ? 'w-10 h-10 text-teal-500' : 'w-8 h-8 text-teal-500'}
+                  />
+                </div>
+                <h3
+                  className={clsx(
+                    'font-bold text-slate-900 mb-4',
+                    isFeatured ? 'text-3xl' : 'text-2xl'
+                  )}
+                >
+                  {t(`items.${service.id}.title`)}
+                </h3>
+                <p className="text-slate-600 mb-8 leading-relaxed font-medium flex-grow">
+                  {t(`items.${service.id}.description`)}
+                </p>
+                <a
+                  href="#contact"
+                  className="flex items-center gap-2 text-teal-600 font-bold hover:text-teal-700 transition-colors group/btn mt-auto"
+                >
+                  {t('cta')}
+                  <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                </a>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
