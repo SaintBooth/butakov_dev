@@ -8,7 +8,7 @@
     "cases": "Cases",
     "experience": "Experience",
     "journal": "Journal",
-    "cta": "Discuss a project",
+    "cta": "Discuss the project",
     "home": "Home",
     "contactShort": "Contact"
   },
@@ -17,8 +17,8 @@
     "titlePrefix": "Technical",
     "titleAccent": "partner",
     "titleSuffix": "for your business",
-    "subtitle": "Web apps, e-commerce, and AI, from business problem to shipped result. Every project comes with a signed contract and a 6-month guarantee.",
-    "cta": "Contact me",
+    "subtitle": "Web apps, e-commerce, and AI, from business problem to shipped result, under a signed contract with a 6-month guarantee.",
+    "cta": "Discuss the project",
     "guarantees": "Learn about guarantees"
   },
   "casesSection": {
@@ -29,7 +29,7 @@
   },
   "thoughtsSection": {
     "heading": "What do I think about IT and development?",
-    "subheading": "Personal opinions and reflections — no metrics or case studies, just a point of view.",
+    "subheading": "Personal opinions and reflections, no metrics or case studies, just a point of view.",
     "readMore": "Read article",
     "viewAll": "All articles"
   },
@@ -45,7 +45,7 @@
   "services": {
     "heading": "Which stack fits your project?",
     "subheading": "I match the technology to the task, so you don't overpay for complexity or support you don't need.",
-    "cta": "Discuss the task",
+    "cta": "Discuss the project",
     "items": {
       "custom-web": {
         "title": "Complex web platforms & startups",
@@ -115,7 +115,7 @@
   },
   "experience": {
     "heading": "How does my experience help your business?",
-    "subheading": "10+ years in development, e-commerce, and digital marketing — I read unit economics as closely as code.",
+    "subheading": "10+ years in development, e-commerce, and digital marketing. I read unit economics as closely as code.",
     "stackLabel": "Tech stack",
     "softLabel": "Business skills",
     "items": {
@@ -181,7 +181,7 @@
     "serviceOther": "Complex project / Other",
     "message": "About the project",
     "messagePlaceholder": "Describe your business task, the results you're aiming for, or attach a link to the brief...",
-    "submit": "Discuss project",
+    "submit": "Discuss the project",
     "submitting": "Sending...",
     "success": "Request sent successfully!",
     "successSub": "I will contact you shortly to discuss the details.",
