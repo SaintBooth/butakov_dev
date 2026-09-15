@@ -4,12 +4,12 @@ import { clsx } from 'clsx';
 import { services } from '../data/services';
 
 const SPAN_CLASSES: Record<string, string> = {
-  'custom-web': 'lg:col-span-4',
+  'custom-web': 'lg:col-span-4 lg:row-span-2',
   ecommerce: 'lg:col-span-2',
   marketing: 'lg:col-span-2',
   corporate: 'lg:col-span-2',
-  legacy: 'lg:col-span-1',
-  'ai-consulting': 'lg:col-span-1',
+  legacy: 'lg:col-span-2',
+  'ai-consulting': 'lg:col-span-2',
 };
 
 export default async function Services() {
