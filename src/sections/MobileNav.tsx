@@ -41,21 +41,13 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
         'motion-reduce:transition-none motion-reduce:active:scale-100'
       )}
     >
-      {/* selected = its own small frosted chip, sized to the icon — not the full cell */}
+      {/* tap feedback only — active state is carried by icon tone/weight + the dot below,
+          a chip surface here would be a third redundant signal for the same state */}
       <span
         className={clsx(
-          'flex size-10 items-center justify-center rounded-2xl transition-[background-color,box-shadow] duration-150',
-          active
-            ? [
-                'bg-white/55 backdrop-blur-sm',
-                'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.85),0_1px_3px_-1px_rgba(15,23,42,0.12)]',
-                accent ? 'ring-1 ring-teal-500/25' : 'ring-1 ring-white/60',
-                '[@media(prefers-reduced-transparency:reduce)]:bg-slate-900/[0.06] [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none',
-              ]
-            : [
-                'group-active:bg-slate-900/[0.05]',
-                '[@media(hover:hover)]:group-hover:bg-slate-900/[0.04]',
-              ]
+          'flex size-10 items-center justify-center rounded-2xl transition-colors duration-150',
+          'group-active:bg-slate-900/[0.05]',
+          '[@media(hover:hover)]:group-hover:bg-slate-900/[0.04]'
         )}
       >
         <Icon
