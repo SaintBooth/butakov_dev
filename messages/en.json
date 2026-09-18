@@ -317,5 +317,11 @@
         "description": "An AI assistant for field-team knowledge bases. A technician scans a QR code, describes the issue by text or photo, and gets a verified fix in seconds instead of waiting hours for an engineer. In pilots, it resolves 94% of requests without escalation."
       }
     }
+  },
+  "notFound": {
+    "heading": "Page not found",
+    "description": "This page doesn't exist or has moved. Head back home or check out the journal.",
+    "cta": "Back home",
+    "ctaJournal": "Open the journal"
   }
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Hero from '@/sections/Hero';
 import Services from '@/sections/Services';
@@ -9,9 +10,45 @@ import Contact from '@/features/contact/Contact';
 import Cases from '@/features/cases/Cases';
 import Thoughts from '@/features/thoughts/Thoughts';
 import { getAllCaseFrontmatters, isOpinionPiece } from '@/utils/cases';
+import { DEFAULT_OG_IMAGE } from '@/config/schema';
 
 interface Props {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'metadata' });
+  const base = 'https://butakov.dev';
+  const url = locale === 'ru' ? `${base}/ru` : base;
+  const title = t('title');
+  const description = t('description');
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: base,
+        ru: `${base}/ru`,
+        'x-default': base,
+      },
+    },
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      url,
+      images: [{ url: DEFAULT_OG_IMAGE }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [DEFAULT_OG_IMAGE],
+    },
+  };
 }
 
 export default async function HomePage({ params }: Props) {
