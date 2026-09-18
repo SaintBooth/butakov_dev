@@ -1,8 +1,9 @@
 'use client';
 
+import { clsx } from 'clsx';
 import { MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { CTA_HREF, NAV_ITEMS } from '@/config/nav';
 import { Link } from '@/i18n/navigation';
 import { LogoImage } from '../components/ui/LogoImage/LogoImage';
@@ -10,11 +11,31 @@ import MobileMenu from './MobileMenu';
 
 export default function Header() {
   const t = useTranslations('nav');
+  // Bar height (mt-3 + h-14 = 68px) never changes — only the glass surface
+  // fades in on scroll — so nothing below ever jumps when this flips.
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-slate-200/70 bg-white/80 backdrop-blur-2xl">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <nav className="flex h-14 items-center justify-between md:h-16" aria-label={t('ariaLabel')}>
+    <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-4 lg:px-8">
+      <div
+        className={clsx(
+          'w-full max-w-7xl rounded-2xl border transition-all duration-300',
+          scrolled
+            ? 'border-slate-200/70 bg-white/80 shadow-lg shadow-slate-900/5 backdrop-blur-2xl'
+            : 'border-transparent bg-transparent'
+        )}
+      >
+        <nav
+          className="flex h-14 items-center justify-between px-4 sm:px-6 md:h-16 lg:px-8"
+          aria-label={t('ariaLabel')}
+        >
           <Link href="/" className="-m-2 flex-shrink-0 p-2" aria-label={t('home')}>
             <LogoImage width={256} height={88} priority className="h-9 w-auto object-contain" />
           </Link>

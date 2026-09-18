@@ -74,7 +74,7 @@ export default function MobileMenu() {
 
   // The header carries a backdrop-filter, which makes it the containing block for
   // any `position: fixed` descendant — so the overlay is portalled to <body> to
-  // stay anchored to the viewport, not the 56px header box.
+  // stay anchored to the viewport, not the 68px header box (mt-3 inset + 56px bar).
   const overlay = (
     <>
       <div
@@ -96,7 +96,7 @@ export default function MobileMenu() {
         tabIndex={-1}
         inert={open ? undefined : true}
         className={clsx(
-          'fixed right-4 top-[4.25rem] z-[100] w-[min(20rem,calc(100vw-2rem))] origin-top-right outline-none',
+          'fixed right-4 top-[5rem] z-[100] w-[min(20rem,calc(100vw-2rem))] origin-top-right outline-none',
           'rounded-3xl p-2',
           'bg-white/90 supports-[backdrop-filter]:bg-white/80 backdrop-blur-2xl backdrop-saturate-[1.8]',
           'ring-1 ring-black/[0.06]',
