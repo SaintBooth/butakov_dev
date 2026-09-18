@@ -12,7 +12,7 @@ export default async function Projects() {
       className="py-24 relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 border-y border-white/40"
     >
       <div className="absolute left-0 top-0 w-[500px] h-[500px] bg-teal-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute right-[-100px] bottom-[-100px] w-[400px] h-[400px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute right-[-100px] bottom-[-100px] w-[400px] h-[400px] bg-teal-400/10 blur-[100px] rounded-full pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t('heading')}</h2>

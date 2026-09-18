@@ -9,7 +9,7 @@ export default async function Hero() {
     <section className="relative overflow-hidden min-h-dvh flex items-center pt-10 pb-10 md:pt-24 md:pb-20">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute -top-32 -left-24 w-[32rem] h-[32rem] rounded-full bg-teal-300/40 blur-3xl" />
-        <div className="absolute top-1/3 -right-24 w-[28rem] h-[28rem] rounded-full bg-cyan-300/30 blur-3xl" />
+        <div className="absolute top-1/3 -right-24 w-[28rem] h-[28rem] rounded-full bg-teal-400/30 blur-3xl" />
         <div className="absolute bottom-0 left-1/3 w-[24rem] h-[24rem] rounded-full bg-slate-200/50 blur-3xl" />
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-[1.35fr_0.65fr] gap-6 lg:gap-16 items-center">
@@ -33,7 +33,7 @@ export default async function Hero() {
         <div className="order-last lg:order-1 text-center lg:text-left">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 text-slate-900 leading-tight">
             {t('titlePrefix')}{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-700">
               {t('titleAccent')}
             </span>{' '}
             {t('titleSuffix')}

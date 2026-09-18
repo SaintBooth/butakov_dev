@@ -45,7 +45,7 @@ export default async function Cases({ locale, cases: allCases }: CasesProps) {
       />
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute -top-20 -left-32 w-[28rem] h-[28rem] rounded-full bg-teal-200/30 blur-3xl" />
-        <div className="absolute bottom-0 -right-24 w-[26rem] h-[26rem] rounded-full bg-cyan-200/30 blur-3xl" />
+        <div className="absolute bottom-0 -right-24 w-[26rem] h-[26rem] rounded-full bg-teal-400/30 blur-3xl" />
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12 md:mb-16 md:flex md:justify-between md:items-end">

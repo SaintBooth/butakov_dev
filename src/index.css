@@ -14,6 +14,23 @@
 @theme {
   --card-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --card-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* Brand accent: teal-* remapped to a scale anchored on the real brand hex
+     (#00d2c9 at 500), not Tailwind's default teal. Every teal-* utility in
+     the codebase picks this up automatically, no component changes needed. */
+  --color-teal-50: #f1fefd;
+  --color-teal-100: #ddfdfc;
+  --color-teal-200: #b9fdfa;
+  --color-teal-300: #7afff8;
+  --color-teal-400: #33fff5;
+  --color-teal-500: #00d2c9;
+  --color-teal-600: #00a8a0;
+  --color-teal-700: #008a83;
+  --color-teal-900: #034e4b;
+
+  /* Brand ink: slate-900 is the site's dark text/button color, remapped to
+     the brand's dark navy. Other slate steps stay Tailwind default. */
+  --color-slate-900: #041025;
 }
 
 /* Появление блоков экрана при загрузке */
