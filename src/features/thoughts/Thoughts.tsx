@@ -28,7 +28,7 @@ export default function Thoughts({ cases, copy, dateLocale, readMinutesLabel }: 
   if (cases.length === 0) return null;
 
   return (
-    <section id="thoughts" className="py-24 relative z-10 border-t border-white/40">
+    <section id="thoughts" className="py-24 relative z-10 border-t border-white/40 scroll-reveal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 md:mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-2xl">

@@ -10,7 +10,7 @@ export default async function Experience() {
   const softSkills = tSkills.raw('soft') as string[];
 
   return (
-    <section id="experience" className="py-24 relative z-10 border-t border-white/40">
+    <section id="experience" className="py-24 relative z-10 border-t border-white/40 scroll-reveal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16 md:flex md:justify-between md:items-end">
           <div className="max-w-3xl">

@@ -37,7 +37,7 @@ export default async function Cases({ locale, cases: allCases }: CasesProps) {
   return (
     <section
       id="cases"
-      className="py-24 relative z-10 border-t border-white/40 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50"
+      className="py-24 relative z-10 border-t border-white/40 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 scroll-reveal"
     >
       <script
         type="application/ld+json"

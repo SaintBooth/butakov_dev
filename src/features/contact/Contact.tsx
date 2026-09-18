@@ -46,7 +46,10 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-24 relative overflow-hidden z-10 border-t border-white/40">
+    <section
+      id="contact"
+      className="py-24 relative overflow-hidden z-10 border-t border-white/40 scroll-reveal"
+    >
       <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-teal-300/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute left-[-200px] bottom-[-200px] w-[500px] h-[500px] bg-teal-500/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

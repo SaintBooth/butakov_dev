@@ -9,7 +9,7 @@ export default async function Projects() {
   return (
     <section
       id="projects"
-      className="py-24 relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 border-y border-white/40"
+      className="py-24 relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 border-y border-white/40 scroll-reveal"
     >
       <div className="absolute left-0 top-0 w-[500px] h-[500px] bg-teal-500/10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute right-[-100px] bottom-[-100px] w-[400px] h-[400px] bg-teal-400/10 blur-[100px] rounded-full pointer-events-none" />

@@ -106,3 +106,27 @@
     animation: none;
   }
 }
+
+/* Homepage section scroll-reveal: pure CSS, no JS/IntersectionObserver, no
+   'use client' needed on the sections that use it. Unsupported browsers
+   (no animation-timeline support) just see the section fully visible —
+   progressive enhancement, never a hidden/broken state. */
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-reveal {
+      animation: section-reveal 1s linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+}
