@@ -82,5 +82,6 @@ export const projects: ProjectMeta[] = [
     accentShadowClass: 'hover:shadow-[#c4663d]/20',
     ctaButtonClass: 'bg-[#c4663d] hover:bg-[#d17646] shadow-[#c4663d]/25',
     techStack: ['Next.js 15 PWA', 'Django Ninja REST', 'pgvector + LLM', 'HashiCorp Vault'],
+    status: 'maintenance',
   },
 ];

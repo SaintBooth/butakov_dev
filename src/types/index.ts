@@ -32,4 +32,7 @@ export interface ProjectMeta {
   accentShadowClass: string;
   ctaButtonClass: string;
   techStack: string[];
+  /** Absent = live. 'maintenance' swaps the outbound CTA for a disabled,
+   *  non-linking notice instead of sending visitors to a dead site. */
+  status?: 'maintenance';
 }

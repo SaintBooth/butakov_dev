@@ -1,4 +1,4 @@
-import { Cpu, ExternalLink } from 'lucide-react';
+import { Cpu, ExternalLink, Wrench } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { clsx } from 'clsx';
 import { projects } from '../data/projects';
@@ -75,18 +75,28 @@ export default async function Projects() {
                   </div>
                 </div>
 
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={clsx(
-                    'inline-flex w-fit px-6 py-3 rounded-xl text-white font-bold transition-all shadow-xl items-center gap-2 group/cta',
-                    project.ctaButtonClass
-                  )}
-                >
-                  {t('cta')}
-                  <ExternalLink className="w-4 h-4 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
-                </a>
+                {project.status === 'maintenance' ? (
+                  <span
+                    className="inline-flex w-fit px-6 py-3 rounded-xl bg-slate-100 text-slate-500 font-bold items-center gap-2 cursor-not-allowed"
+                    aria-disabled="true"
+                  >
+                    <Wrench className="w-4 h-4" />
+                    {t('maintenanceCta')}
+                  </span>
+                ) : (
+                  <a
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={clsx(
+                      'inline-flex w-fit px-6 py-3 rounded-xl text-white font-bold transition-all shadow-xl items-center gap-2 group/cta',
+                      project.ctaButtonClass
+                    )}
+                  >
+                    {t('cta')}
+                    <ExternalLink className="w-4 h-4 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
+                  </a>
+                )}
               </div>
             </div>
           ))}
