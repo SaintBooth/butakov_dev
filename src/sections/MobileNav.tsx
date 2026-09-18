@@ -35,7 +35,7 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
       aria-label={label}
       aria-current={active ? 'page' : undefined}
       className={clsx(
-        'group relative z-10 flex h-14 flex-1 items-center justify-center',
+        'group relative z-10 flex h-12 flex-1 items-center justify-center',
         // tactile press: quick squash, no layout shift for siblings
         'transition-transform duration-100 ease-out active:scale-95',
         'motion-reduce:transition-none motion-reduce:active:scale-100'
@@ -44,7 +44,7 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
       {/* selected = its own small frosted chip, sized to the icon — not the full cell */}
       <span
         className={clsx(
-          'flex size-11 items-center justify-center rounded-2xl transition-[background-color,box-shadow] duration-150',
+          'flex size-10 items-center justify-center rounded-2xl transition-[background-color,box-shadow] duration-150',
           active
             ? [
                 'bg-white/55 backdrop-blur-sm',
@@ -81,11 +81,11 @@ export default function MobileNav() {
   const searchParams = useSearchParams();
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] px-4 pb-[max(0.9rem,env(safe-area-inset-bottom))] md:hidden">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] px-3 pb-[max(0.9rem,env(safe-area-inset-bottom))] md:hidden">
       <nav
         aria-label={t('ariaLabel')}
         className={clsx(
-          'pointer-events-auto relative isolate flex items-center gap-1.5 overflow-hidden rounded-2xl p-1.5',
+          'pointer-events-auto relative isolate flex items-center gap-1.5 overflow-hidden rounded-2xl p-1',
           // frosted base — opacity floor kept high so icons stay legible over ANY
           // backdrop (incl. dark sections), like the iOS tab-bar material
           'bg-white/75 supports-[backdrop-filter]:bg-white/62',
