@@ -12,18 +12,17 @@ export default async function Hero() {
         <div className="absolute top-1/3 -right-24 w-[28rem] h-[28rem] rounded-full bg-cyan-300/30 blur-3xl" />
         <div className="absolute bottom-0 left-1/3 w-[24rem] h-[24rem] rounded-full bg-slate-200/50 blur-3xl" />
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-[1.35fr_0.65fr] gap-12 lg:gap-16 items-center">
         <div className="text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm text-sm font-semibold text-slate-700 mb-8">
             <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
             {t('badge')}
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 text-slate-900 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 leading-tight">
             {t('titlePrefix')}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
               {t('titleAccent')}
             </span>{' '}
-            <br className="hidden md:block" />
             {t('titleSuffix')}
           </h1>
           <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 max-w-xl mb-10 leading-relaxed font-medium">
