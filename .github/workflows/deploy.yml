@@ -77,7 +77,13 @@ jobs:
           } > bundle/app.js
           cp bundle/app.js bundle/hello.js
 
-      - name: Deploy over SSH
+      # Netangels host sits behind a hostile SSH-scan flood (mass brute-force,
+      # not targeted) that periodically overflows the sshd listen queue and
+      # resets legitimate handshakes mid-connect. Not fixable from our side
+      # (shared hosting, no root/iptables/sysctl access) — retry instead.
+      - name: Deploy over SSH (attempt 1)
+        id: mkdir_1
+        continue-on-error: true
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -85,7 +91,37 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: mkdir -p ${{ secrets.SSH_PATH }}/app
 
-      - name: Upload bundle
+      - name: Wait before retry (mkdir)
+        if: steps.mkdir_1.outcome == 'failure'
+        run: sleep 10
+
+      - name: Deploy over SSH (attempt 2)
+        id: mkdir_2
+        if: steps.mkdir_1.outcome == 'failure'
+        continue-on-error: true
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: mkdir -p ${{ secrets.SSH_PATH }}/app
+
+      - name: Wait before retry (mkdir)
+        if: steps.mkdir_1.outcome == 'failure' && steps.mkdir_2.outcome == 'failure'
+        run: sleep 20
+
+      - name: Deploy over SSH (attempt 3)
+        if: steps.mkdir_1.outcome == 'failure' && steps.mkdir_2.outcome == 'failure'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: mkdir -p ${{ secrets.SSH_PATH }}/app
+
+      - name: Upload bundle (attempt 1)
+        id: upload_1
+        continue-on-error: true
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -96,7 +132,85 @@ jobs:
           strip_components: 1
           rm: true
 
-      - name: Activate release
+      - name: Wait before retry (upload)
+        if: steps.upload_1.outcome == 'failure'
+        run: sleep 10
+
+      - name: Upload bundle (attempt 2)
+        id: upload_2
+        if: steps.upload_1.outcome == 'failure'
+        continue-on-error: true
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'bundle/*'
+          target: ${{ secrets.SSH_PATH }}/app.new
+          strip_components: 1
+          rm: true
+
+      - name: Wait before retry (upload)
+        if: steps.upload_1.outcome == 'failure' && steps.upload_2.outcome == 'failure'
+        run: sleep 20
+
+      - name: Upload bundle (attempt 3)
+        if: steps.upload_1.outcome == 'failure' && steps.upload_2.outcome == 'failure'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'bundle/*'
+          target: ${{ secrets.SSH_PATH }}/app.new
+          strip_components: 1
+          rm: true
+
+      - name: Activate release (attempt 1)
+        id: activate_1
+        continue-on-error: true
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.SSH_PATH }}
+            rm -rf app.old
+            mv app app.old
+            mv app.new app
+            touch reload
+            rm -rf app.old
+
+      - name: Wait before retry (activate)
+        if: steps.activate_1.outcome == 'failure'
+        run: sleep 10
+
+      - name: Activate release (attempt 2)
+        id: activate_2
+        if: steps.activate_1.outcome == 'failure'
+        continue-on-error: true
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.SSH_PATH }}
+            rm -rf app.old
+            mv app app.old
+            mv app.new app
+            touch reload
+            rm -rf app.old
+
+      - name: Wait before retry (activate)
+        if: steps.activate_1.outcome == 'failure' && steps.activate_2.outcome == 'failure'
+        run: sleep 20
+
+      - name: Activate release (attempt 3)
+        if: steps.activate_1.outcome == 'failure' && steps.activate_2.outcome == 'failure'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
