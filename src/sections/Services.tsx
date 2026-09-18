@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
+import { clsx } from 'clsx';
 import { services } from '../data/services';
 
 export default async function Services() {
@@ -42,11 +43,18 @@ export default async function Services() {
           </a>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {rest.map((service) => (
+        {/* 5 cards don't divide evenly into a 3-col grid (3-over-2 orphans
+            the last row). A 6-col grid fixes it: row of 3 at col-span-2
+            (2*3=6, full width), row of 2 at col-span-3 (3*2=6, also full
+            width, just wider cards) — every row fills the container. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
+          {rest.map((service, i) => (
             <div
               key={service.id}
-              className="group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col"
+              className={clsx(
+                'group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col',
+                i < 3 ? 'lg:col-span-2' : 'lg:col-span-3'
+              )}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full pointer-events-none group-hover:from-teal-500/20 transition-colors duration-300" />
               <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6 border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0">
