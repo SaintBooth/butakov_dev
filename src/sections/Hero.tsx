@@ -44,14 +44,14 @@ export default async function Hero() {
           <div className="flex flex-col items-center lg:items-start gap-3">
             <a
               href="#contact"
-              className="px-8 py-3.5 md:py-4 rounded-full bg-teal-500 text-white font-bold hover:bg-teal-600 transition-all inline-flex items-center justify-center gap-2 group shadow-xl shadow-teal-500/20 active:scale-95"
+              className="px-8 py-3.5 md:py-4 rounded-full bg-teal-500 text-white font-bold hover:bg-teal-600 transition inline-flex items-center justify-center gap-2 group shadow-xl shadow-teal-500/20 active:scale-95"
             >
               {t('cta')}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
             <a
               href="#b2b"
-              className="text-sm font-semibold text-slate-500 hover:text-teal-600 underline decoration-slate-300 hover:decoration-teal-400 underline-offset-4 transition-colors"
+              className="py-2 -my-2 text-sm font-semibold text-slate-500 hover:text-teal-600 underline decoration-slate-300 hover:decoration-teal-400 underline-offset-4 transition-colors"
             >
               {t('guarantees')}
             </a>
