@@ -35,25 +35,34 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
       aria-label={label}
       aria-current={active ? 'page' : undefined}
       className={clsx(
-        'group relative z-10 flex h-14 flex-1 items-center justify-center rounded-2xl',
-        // tactile press: quick squash + state layer, no layout shift for siblings
-        'transition-[transform,background-color] duration-100 ease-out',
-        'active:scale-95 active:bg-slate-900/[0.05]',
-        '[@media(hover:hover)]:hover:bg-slate-900/[0.04]',
-        'motion-reduce:transition-colors motion-reduce:active:scale-100',
-        // selected = its own small frosted chip
-        active && [
-          'bg-white/55 backdrop-blur-sm',
-          'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.85),0_1px_3px_-1px_rgba(15,23,42,0.12)]',
-          accent ? 'ring-1 ring-teal-500/25' : 'ring-1 ring-white/60',
-          '[@media(prefers-reduced-transparency:reduce)]:bg-slate-900/[0.06] [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none',
-        ]
+        'group relative z-10 flex h-14 flex-1 items-center justify-center',
+        // tactile press: quick squash, no layout shift for siblings
+        'transition-transform duration-100 ease-out active:scale-95',
+        'motion-reduce:transition-none motion-reduce:active:scale-100'
       )}
     >
-      <Icon
-        className={clsx('size-6 transition-[color,transform] duration-100', tone)}
-        strokeWidth={active ? 2.5 : 2}
-      />
+      {/* selected = its own small frosted chip, sized to the icon — not the full cell */}
+      <span
+        className={clsx(
+          'flex size-11 items-center justify-center rounded-2xl transition-[background-color,box-shadow] duration-150',
+          active
+            ? [
+                'bg-white/55 backdrop-blur-sm',
+                'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.85),0_1px_3px_-1px_rgba(15,23,42,0.12)]',
+                accent ? 'ring-1 ring-teal-500/25' : 'ring-1 ring-white/60',
+                '[@media(prefers-reduced-transparency:reduce)]:bg-slate-900/[0.06] [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none',
+              ]
+            : [
+                'group-active:bg-slate-900/[0.05]',
+                '[@media(hover:hover)]:group-hover:bg-slate-900/[0.04]',
+              ]
+        )}
+      >
+        <Icon
+          className={clsx('size-6 transition-[color,transform] duration-100', tone)}
+          strokeWidth={active ? 2.5 : 2}
+        />
+      </span>
       {/* wayfinding dot — replaces the removed text label */}
       <span
         aria-hidden
@@ -76,7 +85,7 @@ export default function MobileNav() {
       <nav
         aria-label={t('ariaLabel')}
         className={clsx(
-          'pointer-events-auto relative isolate flex items-center gap-1.5 overflow-hidden rounded-[1.75rem] p-1.5',
+          'pointer-events-auto relative isolate flex items-center gap-1.5 overflow-hidden rounded-2xl p-1.5',
           // frosted base — opacity floor kept high so icons stay legible over ANY
           // backdrop (incl. dark sections), like the iOS tab-bar material
           'bg-white/75 supports-[backdrop-filter]:bg-white/62',
