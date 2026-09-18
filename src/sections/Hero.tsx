@@ -19,22 +19,18 @@ export default async function Hero() {
             below the fold. Small + first on mobile keeps it visible without
             scroll; desktop keeps the original asymmetric split. */}
         <div className="order-first lg:order-2 flex justify-center lg:justify-end">
-          <div className="relative w-28 sm:w-56 lg:w-full lg:max-w-md aspect-[3/4] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-white shadow-xl shadow-slate-200/50">
+          <div className="relative w-40 sm:w-56 lg:w-full lg:max-w-md aspect-[3/4] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-white shadow-xl shadow-slate-200/50">
             <Image
               src="/hero-portrait.jpg"
               alt="Александр Бутаков"
               fill
               priority
-              sizes="(max-width: 640px) 112px, (max-width: 1024px) 224px, 420px"
+              sizes="(max-width: 640px) 160px, (max-width: 1024px) 224px, 420px"
               className="object-cover"
             />
           </div>
         </div>
         <div className="order-last lg:order-1 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-sm text-sm font-semibold text-slate-700 mb-4 md:mb-8">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
-            {t('badge')}
-          </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 text-slate-900 leading-tight">
             {t('titlePrefix')}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
@@ -45,17 +41,17 @@ export default async function Hero() {
           <p className="mt-4 md:mt-6 text-base sm:text-lg md:text-xl text-slate-600 max-w-xl mb-6 md:mb-10 leading-relaxed font-medium">
             {t('subtitle')}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start items-center">
+          <div className="flex flex-col items-center lg:items-start gap-3">
             <a
               href="#contact"
-              className="w-full sm:w-auto px-8 py-3.5 md:py-4 rounded-full bg-teal-500 text-white font-bold hover:bg-teal-600 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-teal-500/20 active:scale-95"
+              className="px-8 py-3.5 md:py-4 rounded-full bg-teal-500 text-white font-bold hover:bg-teal-600 transition-all inline-flex items-center justify-center gap-2 group shadow-xl shadow-teal-500/20 active:scale-95"
             >
               {t('cta')}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
             <a
               href="#b2b"
-              className="w-full sm:w-auto px-8 py-3.5 md:py-4 rounded-full bg-white text-slate-900 font-bold hover:bg-slate-50 border-2 border-slate-200 hover:border-teal-300 transition-all text-center shadow-md active:scale-95"
+              className="text-sm font-semibold text-slate-500 hover:text-teal-600 underline decoration-slate-300 hover:decoration-teal-400 underline-offset-4 transition-colors"
             >
               {t('guarantees')}
             </a>
