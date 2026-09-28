@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { YM_ID } from '@/config/analytics';
+import { readConsent } from '@/config/consent';
 
 declare global {
   interface Window {
@@ -40,6 +41,7 @@ function injectTag() {
 
 export function YandexMetrika() {
   useEffect(() => {
+    if (readConsent() === 'declined') return;
     ensureQueue();
     window.ym(YM_ID, 'init', {
       webvisor: true,

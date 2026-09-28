@@ -275,6 +275,9 @@
     "section2Body": "Informing the user; concluding and performing civil-law contracts; providing access to the site's services and materials.",
     "section3Title": "3. Rights and obligations",
     "section3Body": "The Operator is entitled to receive accurate data from the User. The User is entitled to receive information about how their personal data is processed.",
+    "section4Title": "4. Cookies and web analytics",
+    "section4Body": "The site uses Yandex Metrica (Yandex LLC, Russia). It stores cookies in your browser and collects anonymized data: IP address, browser and device details, referrer, pages viewed, clicks and cursor movement (Webvisor). The data is used to analyze traffic and improve the site and is processed by Yandex under its own privacy policy.",
+    "section4OptOut": "You can opt out with the \"Decline\" button in the cookie notice; after that Metrica no longer loads on this site. You can also block cookies in your browser settings.",
     "disclaimer": "* Base template. We recommend replacing it with a fully legally verified document.",
     "close": "Got it, close"
   },
@@ -760,5 +763,12 @@
         }
       }
     }
+  },
+  "cookieNotice": {
+    "label": "Cookie notice",
+    "text": "This site uses cookies and Yandex Metrica to understand which pages are useful. By continuing to use the site, you agree to this. Details in the",
+    "policy": "privacy policy",
+    "accept": "Got it",
+    "decline": "Decline"
   }
 }

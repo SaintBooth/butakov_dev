@@ -31,6 +31,9 @@ export default function PrivacyModal({ onClose }: PrivacyModalProps) {
         <p>{t('section2Body')}</p>
         <h3 className="font-bold text-slate-800 mt-6 mb-2">{t('section3Title')}</h3>
         <p>{t('section3Body')}</p>
+        <h3 className="font-bold text-slate-800 mt-6 mb-2">{t('section4Title')}</h3>
+        <p>{t('section4Body')}</p>
+        <p>{t('section4OptOut')}</p>
         <p className="text-slate-400 italic mt-8 text-xs">{t('disclaimer')}</p>
       </div>
       <div className="mt-8 pt-6 border-t border-slate-100 text-center">
