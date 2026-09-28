@@ -28,29 +28,43 @@ function TabContent({
   icon: Icon,
   label,
   active,
+  accent = false,
 }: {
   icon: LucideIcon;
   label: string;
   active: boolean;
+  /** Primary action: same anatomy as a tab, emphasis comes from a filled capsule. */
+  accent?: boolean;
 }) {
   return (
     <>
       <span
         className={clsx(
           'flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-150',
-          active ? 'bg-teal-500/15' : 'group-active:bg-slate-900/[0.06]'
+          accent
+            ? 'bg-teal-500 shadow-sm shadow-teal-600/30 group-active:bg-teal-600'
+            : active
+              ? 'bg-teal-500/15'
+              : 'group-active:bg-slate-900/[0.06]'
         )}
       >
         <Icon
           aria-hidden="true"
-          className={clsx('size-[22px]', active ? 'text-teal-700' : 'text-slate-600')}
-          strokeWidth={active ? 2.4 : 1.9}
+          className={clsx(
+            'size-[22px]',
+            accent ? 'text-white' : active ? 'text-teal-700' : 'text-slate-600'
+          )}
+          strokeWidth={accent || active ? 2.4 : 1.9}
         />
       </span>
       <span
         className={clsx(
           'text-[11px] leading-none tracking-[0.01em]',
-          active ? 'font-bold text-slate-900' : 'font-semibold text-slate-600'
+          accent
+            ? 'font-bold text-teal-700'
+            : active
+              ? 'font-bold text-slate-900'
+              : 'font-semibold text-slate-600'
         )}
       >
         {label}
@@ -89,15 +103,10 @@ export default function MobileNav() {
       );
     }
     if (item.kind === 'contact') {
-      // The primary action reads as a filled button, not as one more tab.
-      const Icon = icon;
       return (
-        <div key={item.key} className="flex flex-1 items-center justify-center px-0.5">
-          <ContactTrigger className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-teal-500 text-[13px] font-bold text-white shadow-md shadow-teal-600/25 transition-transform duration-100 active:scale-95 motion-reduce:active:scale-100">
-            <Icon className="size-4" aria-hidden="true" />
-            {label}
-          </ContactTrigger>
-        </div>
+        <ContactTrigger key={item.key} className={TAB_CLASS}>
+          <TabContent icon={icon} label={label} active={false} accent />
+        </ContactTrigger>
       );
     }
     return (

@@ -20,13 +20,13 @@ export default async function Hero() {
             below the fold. Small + first on mobile keeps it visible without
             scroll; desktop keeps the original asymmetric split. */}
         <div className="order-first lg:order-2 flex justify-center lg:justify-end">
-          <div className="relative w-40 sm:w-56 lg:w-full lg:max-w-md aspect-[3/4] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-white shadow-xl shadow-slate-200/50">
+          <div className="relative w-32 sm:w-56 lg:w-full lg:max-w-md aspect-[3/4] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-white shadow-xl shadow-slate-200/50">
             <Image
               src="/hero-portrait.jpg"
               alt={t('portraitAlt')}
               fill
               priority
-              sizes="(max-width: 640px) 160px, (max-width: 1024px) 224px, 420px"
+              sizes="(max-width: 640px) 128px, (max-width: 1024px) 224px, 420px"
               className="object-cover"
             />
           </div>
