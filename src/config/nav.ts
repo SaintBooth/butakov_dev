@@ -31,12 +31,12 @@ export type NavItem = (typeof NAV_ITEMS)[number];
 /** Footer nav column — same items, hrefs and `nav.*` labels as the header. */
 export const FOOTER_NAV_KEYS = ['services', 'cases', 'journal', 'about'] as const;
 
-/** Bottom island on mobile — icon-only quick access. `key` maps to `nav.<key>`. */
+/** Bottom tab bar on mobile: icon + label. `sheet` opens the services sheet, `contact` the form modal. */
 export const MOBILE_NAV_ITEMS = [
-  { key: 'home', href: '/' },
-  { key: 'journal', href: '/journal' },
-  { key: 'cases', href: CASES_HREF },
-  { key: 'contactShort', href: CTA_HREF, accent: true },
+  { key: 'services', kind: 'sheet' },
+  { key: 'cases', kind: 'link', href: CASES_HREF },
+  { key: 'journal', kind: 'link', href: '/journal' },
+  { key: 'request', kind: 'contact' },
 ] as const;
 
 export type MobileNavItem = (typeof MOBILE_NAV_ITEMS)[number];

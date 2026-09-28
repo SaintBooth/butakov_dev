@@ -1,4 +1,4 @@
-import { BrainCircuit, Code, LayoutGrid, Wrench } from 'lucide-react';
+import { BrainCircuit, Code, MonitorSmartphone, Wrench } from 'lucide-react';
 import type { LandingId } from '../config/landings';
 import type { LandingMeta } from '../types';
 
@@ -9,7 +9,8 @@ import type { LandingMeta } from '../types';
  */
 export const landings: Record<LandingId, LandingMeta> = {
   'web-dev': {
-    Icon: LayoutGrid,
+    // Not LayoutGrid: that glyph is the mobile "Services" tab.
+    Icon: MonitorSmartphone,
     serviceId: 'corporate',
     tiers: [
       { id: 'landing', hours: 30 },

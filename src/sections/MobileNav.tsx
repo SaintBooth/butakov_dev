@@ -1,87 +1,61 @@
 'use client';
 
 import { clsx } from 'clsx';
-import { BookOpen, Briefcase, Home, MessageSquare, type LucideIcon } from 'lucide-react';
+import { BookOpen, Briefcase, LayoutGrid, MessageSquare, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
+import { useCallback, useState, type ReactNode } from 'react';
 import { isNavActive, MOBILE_NAV_ITEMS } from '@/config/nav';
 import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { Link, usePathname } from '@/i18n/navigation';
+import ServicesSheet from './ServicesSheet';
 
 const ICONS: Record<string, LucideIcon> = {
-  home: Home,
-  journal: BookOpen,
+  services: LayoutGrid,
   cases: Briefcase,
-  contactShort: MessageSquare,
+  journal: BookOpen,
+  request: MessageSquare,
 };
 
-interface NavItemProps {
-  href: string;
-  label: string;
+// Shared tab geometry: press feedback on pointer-down (:active), no layout shift.
+const TAB_CLASS = clsx(
+  'group relative z-10 flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl',
+  'transition-transform duration-100 ease-out active:scale-95',
+  'motion-reduce:transition-none motion-reduce:active:scale-100'
+);
+
+function TabContent({
+  icon: Icon,
+  label,
+  active,
+}: {
   icon: LucideIcon;
+  label: string;
   active: boolean;
-  accent?: boolean;
-}
-
-function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemProps) {
-  const tone = accent
-    ? 'text-teal-700 [@media(hover:hover)]:hover:text-teal-800'
-    : active
-      ? 'text-slate-900'
-      : 'text-slate-500 [@media(hover:hover)]:hover:text-slate-900';
-
-  const className = clsx(
-    'group relative z-10 flex h-12 flex-1 items-center justify-center',
-    // tactile press: quick squash, no layout shift for siblings
-    'transition-transform duration-100 ease-out active:scale-95',
-    'motion-reduce:transition-none motion-reduce:active:scale-100'
-  );
-
-  const content = (
+}) {
+  return (
     <>
-      {/* tap feedback only — active state is carried by icon tone/weight + the dot below,
-          a chip surface here would be a third redundant signal for the same state */}
       <span
         className={clsx(
-          'flex size-10 items-center justify-center rounded-2xl transition-colors duration-150',
-          'group-active:bg-slate-900/[0.05]',
-          '[@media(hover:hover)]:group-hover:bg-slate-900/[0.04]'
+          'flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-150',
+          active ? 'bg-teal-500/15' : 'group-active:bg-slate-900/[0.06]'
         )}
       >
         <Icon
-          className={clsx('size-6 transition-[color,transform] duration-100', tone)}
-          strokeWidth={active ? 2.5 : 2}
+          aria-hidden="true"
+          className={clsx('size-[22px]', active ? 'text-teal-700' : 'text-slate-600')}
+          strokeWidth={active ? 2.4 : 1.9}
         />
       </span>
-      {/* wayfinding dot — replaces the removed text label */}
       <span
-        aria-hidden
         className={clsx(
-          'absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full transition-opacity duration-150',
-          active && !accent ? 'bg-slate-900 opacity-100' : 'opacity-0'
+          'text-[11px] leading-none tracking-[0.01em]',
+          active ? 'font-bold text-slate-900' : 'font-semibold text-slate-600'
         )}
-      />
+      >
+        {label}
+      </span>
     </>
-  );
-
-  // The accent item is the contact CTA: it opens the form modal instead of navigating.
-  if (accent) {
-    return (
-      <ContactTrigger ariaLabel={label} className={className}>
-        {content}
-      </ContactTrigger>
-    );
-  }
-
-  return (
-    <Link
-      href={href}
-      aria-label={label}
-      aria-current={active ? 'page' : undefined}
-      className={className}
-    >
-      {content}
-    </Link>
   );
 }
 
@@ -89,14 +63,62 @@ export default function MobileNav() {
   const t = useTranslations('nav');
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const closeSheet = useCallback(() => setSheetOpen(false), []);
+
+  const renderItem = (item: (typeof MOBILE_NAV_ITEMS)[number]): ReactNode => {
+    const label = t(item.key);
+    const icon = ICONS[item.key];
+    const active =
+      item.kind === 'sheet'
+        ? sheetOpen || isNavActive(item.key, pathname, searchParams)
+        : isNavActive(item.key, pathname, searchParams);
+
+    if (item.kind === 'sheet') {
+      return (
+        <button
+          key={item.key}
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={sheetOpen}
+          onClick={() => setSheetOpen((v) => !v)}
+          className={TAB_CLASS}
+        >
+          <TabContent icon={icon} label={label} active={active} />
+        </button>
+      );
+    }
+    if (item.kind === 'contact') {
+      // The primary action reads as a filled button, not as one more tab.
+      const Icon = icon;
+      return (
+        <div key={item.key} className="flex flex-1 items-center justify-center px-0.5">
+          <ContactTrigger className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-teal-500 text-[13px] font-bold text-white shadow-md shadow-teal-600/25 transition-transform duration-100 active:scale-95 motion-reduce:active:scale-100">
+            <Icon className="size-4" aria-hidden="true" />
+            {label}
+          </ContactTrigger>
+        </div>
+      );
+    }
+    return (
+      <Link
+        key={item.key}
+        href={item.href}
+        aria-current={active ? 'page' : undefined}
+        className={TAB_CLASS}
+      >
+        <TabContent icon={icon} label={label} active={active} />
+      </Link>
+    );
+  };
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] px-3 pb-[max(0.9rem,env(safe-area-inset-bottom))] md:hidden">
       <nav
         aria-label={t('ariaLabel')}
         className={clsx(
-          'pointer-events-auto relative isolate flex items-center gap-1.5 overflow-hidden rounded-2xl p-1',
-          // frosted base — opacity floor kept high so icons stay legible over ANY
+          'pointer-events-auto relative isolate flex items-center gap-1 overflow-hidden rounded-2xl p-1',
+          // frosted base — opacity floor kept high so labels stay legible over ANY
           // backdrop (incl. dark sections), like the iOS tab-bar material
           'bg-white/75 supports-[backdrop-filter]:bg-white/62',
           'backdrop-blur-xl backdrop-saturate-[1.8]',
@@ -112,18 +134,9 @@ export default function MobileNav() {
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(130%_90%_at_18%_-10%,rgba(255,255,255,0.7),rgba(226,245,244,0.28)_38%,transparent_66%)] [@media(prefers-reduced-transparency:reduce)]:hidden"
         />
-
-        {MOBILE_NAV_ITEMS.map((item) => (
-          <NavItem
-            key={item.key}
-            href={item.href}
-            label={t(item.key)}
-            icon={ICONS[item.key]}
-            active={isNavActive(item.key, pathname, searchParams)}
-            accent={'accent' in item && item.accent}
-          />
-        ))}
+        {MOBILE_NAV_ITEMS.map(renderItem)}
       </nav>
+      <ServicesSheet open={sheetOpen} onClose={closeSheet} />
     </div>
   );
 }
