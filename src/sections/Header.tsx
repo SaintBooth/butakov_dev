@@ -40,9 +40,10 @@ export default function Header() {
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-4 lg:px-8">
       <div
         className={clsx(
-          'w-full max-w-7xl rounded-2xl border transition-all duration-300',
+          // Not transition-all: animating backdrop-filter re-blurs the page under the bar every frame.
+          'w-full max-w-7xl rounded-2xl border transition-[background-color,border-color,box-shadow] duration-300',
           scrolled
-            ? 'border-slate-200/70 bg-white/80 shadow-lg shadow-slate-900/5 backdrop-blur-2xl'
+            ? 'border-slate-200/70 bg-white/80 shadow-lg shadow-slate-900/5 backdrop-blur-xl'
             : 'border-transparent bg-transparent'
         )}
       >

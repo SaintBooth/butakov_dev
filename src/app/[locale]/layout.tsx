@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { Suspense } from 'react';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { ScrollReveal } from '@/components/ScrollReveal';
 import { YandexMetrika } from '@/components/YandexMetrika';
 import { getSchemaBusiness, getSchemaPerson } from '@/config/schema';
 import { ContactModalProvider } from '@/features/contact/ContactModalProvider';
@@ -80,6 +81,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </Suspense>
           </ContactModalProvider>
           <YandexMetrika />
+          <ScrollReveal />
         </NextIntlClientProvider>
       </body>
     </html>

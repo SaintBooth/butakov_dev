@@ -99,7 +99,7 @@ export default function MobileNav() {
           // frosted base — opacity floor kept high so icons stay legible over ANY
           // backdrop (incl. dark sections), like the iOS tab-bar material
           'bg-white/75 supports-[backdrop-filter]:bg-white/62',
-          'backdrop-blur-2xl backdrop-saturate-[1.8]',
+          'backdrop-blur-xl backdrop-saturate-[1.8]',
           // glass rim: bright inset top edge, faint inset bottom, hairline outer ring
           'ring-1 ring-white/50',
           'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.75),inset_0_-1px_0_0_rgba(15,23,42,0.04),0_14px_46px_-12px_rgba(45,130,140,0.18),0_6px_16px_-8px_rgba(15,23,42,0.10)]',

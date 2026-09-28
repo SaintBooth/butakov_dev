@@ -87,7 +87,7 @@ export default async function Cases({ locale, cases: allCases }: CasesProps) {
                 {fm.title}
               </h3>
               <p className="text-slate-600 font-medium text-sm mb-6 flex-grow">{fm.excerpt}</p>
-              <div className="bg-teal-50/60 backdrop-blur-md rounded-xl p-4 mb-4 flex items-start gap-3 border border-teal-100 shadow-sm">
+              <div className="bg-teal-50/80 rounded-xl p-4 mb-4 flex items-start gap-3 border border-teal-100 shadow-sm">
                 <LineChart className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                 <span className="text-sm font-bold text-teal-900">{fm.metric}</span>
               </div>
@@ -95,7 +95,7 @@ export default async function Cases({ locale, cases: allCases }: CasesProps) {
                 {fm.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-white/80 backdrop-blur-sm border border-slate-200/80 text-slate-600 text-xs font-bold rounded-md shadow-sm"
+                    className="px-3 py-1 bg-white/90 border border-slate-200/80 text-slate-600 text-xs font-bold rounded-md shadow-sm"
                   >
                     {tag}
                   </span>

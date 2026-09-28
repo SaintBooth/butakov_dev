@@ -59,9 +59,9 @@ export default async function Services() {
             only ~25% longer than the others, so a 4x-area card left most
             of it empty. Width scales with the section, height matches a
             regular card. */}
-        <div className="group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col md:flex-row md:items-center gap-6 mb-6">
+        <div className="group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-[transform,border-color] duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col md:flex-row md:items-center gap-6 mb-6">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full pointer-events-none group-hover:from-teal-500/20 transition-colors duration-300" />
-          <div className="w-20 h-20 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0">
+          <div className="w-20 h-20 bg-white/90 rounded-2xl flex items-center justify-center border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0">
             <featured.Icon className="w-10 h-10 text-teal-500" />
           </div>
           <div className="flex-1 min-w-0">
@@ -89,12 +89,12 @@ export default async function Services() {
             <div
               key={service.id}
               className={clsx(
-                'group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col',
+                'group p-8 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-xl border border-white hover:border-teal-200/80 hover:-translate-y-1 transition-[transform,border-color] duration-300 shadow-xl shadow-slate-200/40 relative overflow-hidden flex flex-col',
                 i < 3 ? 'lg:col-span-2' : 'lg:col-span-3'
               )}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full pointer-events-none group-hover:from-teal-500/20 transition-colors duration-300" />
-              <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6 border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0">
+              <div className="w-16 h-16 bg-white/90 rounded-2xl flex items-center justify-center mb-6 border border-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0">
                 <service.Icon className="w-8 h-8 text-teal-500" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-4">
