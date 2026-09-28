@@ -22,7 +22,7 @@ export default async function Hero() {
           <div className="relative w-40 sm:w-56 lg:w-full lg:max-w-md aspect-[3/4] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-white shadow-xl shadow-slate-200/50">
             <Image
               src="/hero-portrait.jpg"
-              alt="Александр Бутаков"
+              alt={t('portraitAlt')}
               fill
               priority
               sizes="(max-width: 640px) 160px, (max-width: 1024px) 224px, 420px"
@@ -31,7 +31,7 @@ export default async function Hero() {
           </div>
         </div>
         <div className="order-last lg:order-1 text-center lg:text-left">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 text-slate-900 leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 text-slate-900 leading-tight">
             {t('titlePrefix')}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-700">
               {t('titleAccent')}

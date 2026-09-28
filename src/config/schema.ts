@@ -5,7 +5,14 @@ type Translator = ReturnType<typeof useTranslations>;
 
 export const DEFAULT_OG_IMAGE = 'https://butakov.dev/butakov-01.png';
 
-const OFFER_IDS = ['custom-web', 'ecommerce', 'marketing', 'corporate', 'ai-consulting'] as const;
+const OFFER_IDS = [
+  'custom-web',
+  'ecommerce',
+  'marketing',
+  'corporate',
+  'legacy',
+  'ai-consulting',
+] as const;
 const FAQ_IDS = ['contract', 'guarantee', 'soloAi', 'process', 'remote'] as const;
 
 export function getSchemaBusiness(tSchema: Translator, tServices: Translator) {

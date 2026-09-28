@@ -14,12 +14,13 @@
   },
   "hero": {
     "badge": "Open to B2B partnerships",
-    "titlePrefix": "Technical",
-    "titleAccent": "partner",
-    "titleSuffix": "for your business",
-    "subtitle": "Web apps, e-commerce, and AI, from business problem to shipped result, under a signed contract with a 6-month guarantee.",
+    "titlePrefix": "Web development, website support &",
+    "titleAccent": "AI integration",
+    "titleSuffix": "for business",
+    "subtitle": "I build websites end to end and take over support of existing ones on 1C-Bitrix and WordPress. Where routine eats your team's time, I bring in AI agents.",
     "cta": "Discuss the project",
-    "guarantees": "Learn about guarantees"
+    "guarantees": "Learn about guarantees",
+    "portraitAlt": "Alexander Butakov, web developer and AI integration consultant"
   },
   "casesSection": {
     "heading": "How have my solutions helped real businesses?",
@@ -43,12 +44,12 @@
     "more": "More"
   },
   "services": {
-    "heading": "Which stack fits your project?",
+    "heading": "Web development, website support, or AI: what does your business need?",
     "subheading": "I match the technology to the task, so you don't overpay for complexity or support you don't need.",
     "cta": "Discuss the project",
     "items": {
       "custom-web": {
-        "title": "Complex web platforms & startups",
+        "title": "Web application development",
         "description": "Custom platforms, SaaS, marketplaces, and dashboards with non-trivial logic, built on Django 5 and Next.js 15."
       },
       "ecommerce": {
@@ -64,12 +65,12 @@
         "description": "Fast, SEO-ready business sites. Content you can manage yourself. Built to scale."
       },
       "legacy": {
-        "title": "Support & legacy",
-        "description": "I take over existing Bitrix and WordPress projects: fix bugs, update, speed them up."
+        "title": "Website support & maintenance",
+        "description": "I take over support of 1C-Bitrix and WordPress sites, including ones another contractor left behind. I fix bugs, add features, update the core, and speed things up."
       },
       "ai-consulting": {
-        "title": "AI consulting",
-        "description": "I integrate LLMs into your workflows: support bots, content generation, data analytics."
+        "title": "AI integration for business",
+        "description": "I build AI agents and chatbots for business. For example, a support bot that answers customers from your knowledge base, or an LLM wired into your CRM and website."
       }
     }
   },
@@ -266,11 +267,11 @@
   "schema": {
     "business": {
       "areaServedName": "Russia",
-      "offerCatalogName": "IT development and marketing services"
+      "offerCatalogName": "Web development, website support, and AI integration"
     },
     "person": {
       "name": "Alexander Butakov",
-      "jobTitle": "IT consultant and web application developer"
+      "jobTitle": "Web developer and AI integration consultant"
     },
     "faq": {
       "contract": {
@@ -296,8 +297,8 @@
     }
   },
   "metadata": {
-    "title": "Alexander Butakov | Technical Partner and Web Application Developer",
-    "description": "Custom web services, online stores, and AI integration. Yandex Direct setup and performance marketing. A reliable technical partner for your business."
+    "title": "Web Development, Website Support & AI Integration | Alexander Butakov",
+    "description": "I build websites and web apps end to end, support 1C-Bitrix and WordPress sites, and integrate AI agents into business workflows. Signed contract, 6-month guarantee."
   },
   "projects": {
     "heading": "What do I build when I'm not on the clock?",
