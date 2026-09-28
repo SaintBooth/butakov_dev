@@ -3,14 +3,24 @@
     "ariaLabel": "Главная навигация",
     "menu": "Меню",
     "close": "Закрыть меню",
-    "services": "Стек и Услуги",
+    "services": "Услуги",
     "b2b": "B2B Партнерство",
     "cases": "Кейсы",
     "experience": "Опыт",
     "journal": "Журнал",
     "cta": "Обсудить проект",
     "home": "Главная",
-    "contactShort": "Связь"
+    "contactShort": "Связь",
+    "about": "Обо мне",
+    "allServices": "Все услуги",
+    "priceFrom": "от {price}",
+    "pricePerMonth": "{price}/мес",
+    "landings": {
+      "web-dev": "Разработка сайтов",
+      "web-apps": "Веб-приложения",
+      "support": "Поддержка сайтов",
+      "ai": "Внедрение ИИ"
+    }
   },
   "hero": {
     "badge": "Открыт для B2B-партнёрства",

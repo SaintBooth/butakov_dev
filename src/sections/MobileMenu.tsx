@@ -2,11 +2,13 @@
 
 import { clsx } from 'clsx';
 import { ArrowRight, Menu, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
+import { isLandingLocale, LANDING_IDS, landingPath } from '@/config/landings';
 import { isNavActive, NAV_ITEMS } from '@/config/nav';
+import { getPriceHint } from '@/features/landing/priceHint';
 import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { Link, usePathname } from '@/i18n/navigation';
 
@@ -14,6 +16,7 @@ const noop = () => () => {};
 
 export default function MobileMenu() {
   const t = useTranslations('nav');
+  const locale = useLocale();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -98,7 +101,7 @@ export default function MobileMenu() {
         inert={open ? undefined : true}
         className={clsx(
           'fixed right-4 top-[5rem] z-[100] w-[min(20rem,calc(100vw-2rem))] origin-top-right outline-none',
-          'rounded-3xl p-2',
+          'rounded-3xl p-2 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain',
           'bg-white/90 supports-[backdrop-filter]:bg-white/80 backdrop-blur-2xl backdrop-saturate-[1.8]',
           'ring-1 ring-black/[0.06]',
           'shadow-[0_24px_64px_-16px_rgba(15,23,42,0.35),inset_0_1px_0_0_rgba(255,255,255,0.9)]',
@@ -145,6 +148,35 @@ export default function MobileMenu() {
                   >
                     {t(key)}
                   </Link>
+                  {key === 'services' && isLandingLocale(locale) && (
+                    <ul className="mb-1 ml-4 border-l border-slate-200 pl-2">
+                      {LANDING_IDS.map((id) => {
+                        const hint = getPriceHint(id, locale);
+                        const current = pathname === landingPath(id, locale);
+                        return (
+                          <li key={id}>
+                            <Link
+                              href={landingPath(id, locale)}
+                              aria-current={current ? 'page' : undefined}
+                              onClick={close}
+                              className={clsx(
+                                'flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-[14px] font-semibold',
+                                'transition-colors duration-100 active:bg-slate-900/[0.08]',
+                                current ? 'text-teal-700' : 'text-slate-600'
+                              )}
+                            >
+                              {t(`landings.${id}`)}
+                              <span className="text-xs font-semibold text-slate-400 tabular-nums">
+                                {hint.monthly
+                                  ? t('pricePerMonth', { price: hint.price })
+                                  : t('priceFrom', { price: hint.price })}
+                              </span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </li>
               );
             })}

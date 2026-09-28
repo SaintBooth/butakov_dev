@@ -3,14 +3,24 @@
     "ariaLabel": "Main navigation",
     "menu": "Menu",
     "close": "Close menu",
-    "services": "Stack & Services",
+    "services": "Services",
     "b2b": "B2B Partnership",
     "cases": "Cases",
     "experience": "Experience",
     "journal": "Journal",
     "cta": "Discuss the project",
     "home": "Home",
-    "contactShort": "Contact"
+    "contactShort": "Contact",
+    "about": "About",
+    "allServices": "All services",
+    "priceFrom": "from {price}",
+    "pricePerMonth": "{price}/mo",
+    "landings": {
+      "web-dev": "Website development",
+      "web-apps": "Web applications",
+      "support": "Website support",
+      "ai": "AI integration"
+    }
   },
   "hero": {
     "badge": "Open to B2B partnerships",
