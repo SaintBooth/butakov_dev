@@ -220,13 +220,13 @@ export default async function CasePage({ params }: Props) {
             href="https://t.me/SashaBooth"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-teal-800 text-white font-bold hover:bg-teal-900 transition-all shadow-xl shadow-teal-500/25"
           >
             <Send className="w-4 h-4" />
             {isRu ? 'Написать мне в Telegram' : 'Message me on Telegram'}
           </a>
         ) : (
-          <ContactTrigger className="inline-flex px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25">
+          <ContactTrigger className="inline-flex px-8 py-4 rounded-xl bg-teal-800 text-white font-bold hover:bg-teal-900 transition-all shadow-xl shadow-teal-500/25">
             {isRu ? 'Обсудить похожую задачу' : 'Discuss a similar project'}
           </ContactTrigger>
         )}

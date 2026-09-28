@@ -10,6 +10,7 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
 ];
 
@@ -19,6 +20,11 @@ const nextConfig = {
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
+  },
+  experimental: {
+    // ~16 KB of CSS as two <link>s cost ~700 ms of render-blocking in
+    // PageSpeed; inlining puts it in the HTML response itself.
+    inlineCss: true,
   },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];

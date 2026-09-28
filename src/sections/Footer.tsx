@@ -105,7 +105,7 @@ export default async function Footer() {
           </div>
         </div>
         <div className="pt-8 border-t border-slate-900/80 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-slate-600 text-sm font-medium">
+          <p className="text-slate-400 text-sm font-medium">
             © {new Date().getFullYear()} butakov.dev. {t('rights')}
           </p>
         </div>

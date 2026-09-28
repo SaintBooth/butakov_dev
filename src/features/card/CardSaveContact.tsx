@@ -20,7 +20,7 @@ export default function CardSaveContact() {
       <a
         href={`/${locale}/card/contact.vcf`}
         onClick={() => reachGoal('card_vcard')}
-        className="flex flex-1 items-center justify-center gap-2 rounded-full bg-teal-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/30 transition-transform duration-100 active:scale-95 [@media(hover:hover)]:hover:bg-teal-600"
+        className="flex flex-1 items-center justify-center gap-2 rounded-full bg-teal-800 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/30 transition-transform duration-100 active:scale-95 [@media(hover:hover)]:hover:bg-teal-900"
       >
         <Contact className="h-4 w-4" />
         {t('contact')}

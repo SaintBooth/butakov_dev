@@ -11,7 +11,7 @@ interface ServiceCardLinkProps {
   service: ServiceMeta;
   locale: string;
   className: string;
-  labels: { more: string; cta: string };
+  labels: { more: string; cta: string; title: string };
 }
 
 /** Cards with a service landing link to it; the rest open the contact form. */
@@ -28,6 +28,9 @@ function ServiceCardLink({ service, locale, className, labels }: ServiceCardLink
     return (
       <Link href={landingPath(service.landingId, locale)} className={classes}>
         {labels.more}
+        {/* Every card says the same "more" — the service name keeps each
+            link's accessible name unique for screen readers. */}
+        <span className="sr-only">: {labels.title}</span>
         {arrow}
       </Link>
     );
@@ -76,7 +79,7 @@ export default async function Services() {
             service={featured}
             locale={locale}
             className="flex-shrink-0 md:ml-4"
-            labels={{ more: t('more'), cta: t('cta') }}
+            labels={{ more: t('more'), cta: t('cta'), title: t(`items.${featured.id}.title`) }}
           />
         </div>
 
@@ -107,7 +110,7 @@ export default async function Services() {
                 service={service}
                 locale={locale}
                 className="mt-auto"
-                labels={{ more: t('more'), cta: t('cta') }}
+                labels={{ more: t('more'), cta: t('cta'), title: t(`items.${service.id}.title`) }}
               />
             </div>
           ))}

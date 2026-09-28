@@ -16,7 +16,7 @@ interface JournalListProps {
 }
 
 const pillBase = 'px-4 py-2 rounded-full text-sm font-bold border transition-colors flex-shrink-0';
-const pillActive = 'bg-teal-500 border-teal-500 text-white';
+const pillActive = 'bg-teal-800 border-teal-800 text-white';
 const pillInactive = 'bg-white/60 border-slate-200 text-slate-600 hover:border-teal-200';
 
 function isOpinion(tags: string[]): boolean {

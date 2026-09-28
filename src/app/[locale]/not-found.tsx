@@ -18,7 +18,7 @@ export default async function NotFound() {
       <div className="flex flex-col items-center gap-3 sm:flex-row">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-full bg-teal-500 px-6 py-3 font-bold text-white shadow-xl shadow-teal-500/20 transition-all hover:bg-teal-600"
+          className="inline-flex items-center gap-2 rounded-full bg-teal-800 px-6 py-3 font-bold text-white shadow-xl shadow-teal-500/20 transition-all hover:bg-teal-900"
         >
           {t('cta')}
           <ArrowRight className="h-4 w-4" />
