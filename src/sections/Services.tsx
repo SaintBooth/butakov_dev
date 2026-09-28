@@ -1,10 +1,48 @@
 import { ChevronRight } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { clsx } from 'clsx';
+import { isLandingLocale, landingPath } from '@/config/landings';
+import { ContactTrigger } from '@/features/contact/ContactTrigger';
+import { Link } from '@/i18n/navigation';
+import type { ServiceMeta } from '@/types';
 import { services } from '../data/services';
+
+interface ServiceCardLinkProps {
+  service: ServiceMeta;
+  locale: string;
+  className: string;
+  labels: { more: string; cta: string };
+}
+
+/** Cards with a service landing link to it; the rest open the contact form. */
+function ServiceCardLink({ service, locale, className, labels }: ServiceCardLinkProps) {
+  const classes = clsx(
+    'flex items-center gap-2 text-teal-700 font-bold hover:text-teal-800 transition-colors group/btn',
+    className
+  );
+  const arrow = (
+    <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+  );
+
+  if (service.landingId && isLandingLocale(locale)) {
+    return (
+      <Link href={landingPath(service.landingId, locale)} className={classes}>
+        {labels.more}
+        {arrow}
+      </Link>
+    );
+  }
+  return (
+    <ContactTrigger serviceId={service.id} className={classes}>
+      {labels.cta}
+      {arrow}
+    </ContactTrigger>
+  );
+}
 
 export default async function Services() {
   const t = await getTranslations('services');
+  const locale = await getLocale();
   const [featured, ...rest] = services;
 
   return (
@@ -34,13 +72,12 @@ export default async function Services() {
               {t(`items.${featured.id}.description`)}
             </p>
           </div>
-          <a
-            href="#contact"
-            className="flex items-center gap-2 text-teal-600 font-bold hover:text-teal-700 transition-colors group/btn flex-shrink-0 md:ml-4"
-          >
-            {t('cta')}
-            <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-          </a>
+          <ServiceCardLink
+            service={featured}
+            locale={locale}
+            className="flex-shrink-0 md:ml-4"
+            labels={{ more: t('more'), cta: t('cta') }}
+          />
         </div>
 
         {/* 5 cards don't divide evenly into a 3-col grid (3-over-2 orphans
@@ -66,13 +103,12 @@ export default async function Services() {
               <p className="text-slate-600 mb-8 leading-relaxed font-medium flex-grow">
                 {t(`items.${service.id}.description`)}
               </p>
-              <a
-                href="#contact"
-                className="flex items-center gap-2 text-teal-600 font-bold hover:text-teal-700 transition-colors group/btn mt-auto"
-              >
-                {t('cta')}
-                <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-              </a>
+              <ServiceCardLink
+                service={service}
+                locale={locale}
+                className="mt-auto"
+                labels={{ more: t('more'), cta: t('cta') }}
+              />
             </div>
           ))}
         </div>

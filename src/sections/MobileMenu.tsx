@@ -6,7 +6,8 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { CTA_HREF, isNavActive, NAV_ITEMS } from '@/config/nav';
+import { isNavActive, NAV_ITEMS } from '@/config/nav';
+import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { Link, usePathname } from '@/i18n/navigation';
 
 const noop = () => () => {};
@@ -151,9 +152,8 @@ export default function MobileMenu() {
         </nav>
 
         <div className="pt-2">
-          <Link
-            href={CTA_HREF}
-            onClick={close}
+          <ContactTrigger
+            onOpen={close}
             className={clsx(
               'group flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4',
               'text-[15px] font-bold text-white shadow-lg shadow-slate-900/15',
@@ -163,7 +163,7 @@ export default function MobileMenu() {
           >
             {t('cta')}
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          </ContactTrigger>
         </div>
       </div>
     </>

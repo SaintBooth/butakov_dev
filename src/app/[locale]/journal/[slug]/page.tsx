@@ -6,6 +6,7 @@ import { getTranslations } from 'next-intl/server';
 import { getCaseBySlug, getCaseSlugs, getRelatedCases, isOpinionPiece } from '@/utils/cases';
 import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
 import { Link } from '@/i18n/navigation';
+import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
 
 interface Props {
@@ -225,12 +226,9 @@ export default async function CasePage({ params }: Props) {
             {isRu ? 'Написать мне в Telegram' : 'Message me on Telegram'}
           </a>
         ) : (
-          <Link
-            href="/#contact"
-            className="inline-flex px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25"
-          >
+          <ContactTrigger className="inline-flex px-8 py-4 rounded-xl bg-teal-500 text-white font-bold hover:bg-teal-400 transition-all shadow-xl shadow-teal-500/25">
             {isRu ? 'Обсудить похожую задачу' : 'Discuss a similar project'}
-          </Link>
+          </ContactTrigger>
         )}
       </div>
     </main>

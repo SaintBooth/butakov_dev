@@ -4,7 +4,8 @@ import { clsx } from 'clsx';
 import { MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
-import { CTA_HREF, NAV_ITEMS } from '@/config/nav';
+import { NAV_ITEMS } from '@/config/nav';
+import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { Link } from '@/i18n/navigation';
 import { LogoImage } from '../components/ui/LogoImage/LogoImage';
 import MobileMenu from './MobileMenu';
@@ -54,13 +55,10 @@ export default function Header() {
                 {t(key)}
               </Link>
             ))}
-            <Link
-              href={CTA_HREF}
-              className="group flex items-center gap-2 rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-teal-500"
-            >
+            <ContactTrigger className="group flex items-center gap-2 rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-teal-500">
               <MessageSquare className="h-4 w-4 text-teal-400 transition-colors group-hover:text-white" />
               {t('cta')}
-            </Link>
+            </ContactTrigger>
           </div>
         </nav>
       </div>

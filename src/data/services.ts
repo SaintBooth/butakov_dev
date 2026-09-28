@@ -2,10 +2,10 @@ import { Code, TrendingUp, BarChart3, LayoutGrid, Wrench, BrainCircuit } from 'l
 import type { ServiceMeta } from '../types';
 
 export const services: ServiceMeta[] = [
-  { id: 'custom-web', Icon: Code },
-  { id: 'ecommerce', Icon: TrendingUp },
+  { id: 'custom-web', Icon: Code, landingId: 'web-apps' },
+  { id: 'ecommerce', Icon: TrendingUp, landingId: 'web-dev' },
   { id: 'marketing', Icon: BarChart3 },
-  { id: 'corporate', Icon: LayoutGrid },
-  { id: 'legacy', Icon: Wrench },
-  { id: 'ai-consulting', Icon: BrainCircuit },
+  { id: 'corporate', Icon: LayoutGrid, landingId: 'web-dev' },
+  { id: 'legacy', Icon: Wrench, landingId: 'support' },
+  { id: 'ai-consulting', Icon: BrainCircuit, landingId: 'ai' },
 ];

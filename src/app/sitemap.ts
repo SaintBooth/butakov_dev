@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { LANDING_IDS, landingUrl } from '@/config/landings';
 import { getAllCaseFrontmatters } from '@/utils/cases';
 
 const BASE = 'https://butakov.dev';
@@ -39,6 +40,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
+  const landingEntries: MetadataRoute.Sitemap = LANDING_IDS.flatMap((id) =>
+    (['en', 'ru'] as const).map((locale) => ({
+      url: landingUrl(id, locale),
+      priority: 0.9,
+      changeFrequency: 'monthly' as const,
+      alternates: {
+        languages: { en: landingUrl(id, 'en'), ru: landingUrl(id, 'ru') },
+      },
+    }))
+  );
+
   return [
     { url: BASE, priority: 1.0, changeFrequency: 'monthly', lastModified: latestDate },
     { url: `${BASE}/ru`, priority: 0.9, changeFrequency: 'monthly', lastModified: latestDate },
@@ -49,6 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       lastModified: latestDate,
     },
+    ...landingEntries,
     ...caseEntries,
   ];
 }

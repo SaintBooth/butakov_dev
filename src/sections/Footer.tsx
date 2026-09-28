@@ -1,5 +1,6 @@
 import { MessageSquare, Github, Mail, ShieldCheck } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { isLandingLocale, LANDING_IDS, landingPath } from '@/config/landings';
 import { FOOTER_NAV_KEYS, NAV_ITEMS } from '@/config/nav';
 import { Link } from '@/i18n/navigation';
 import { SOCIAL } from '../config/social';
@@ -14,16 +15,25 @@ const REQUISITES = [
 export default async function Footer() {
   const t = await getTranslations('footer');
   const tNav = await getTranslations('nav');
+  const tLandings = await getTranslations('landings');
+  const locale = await getLocale();
 
   const navLinks = FOOTER_NAV_KEYS.map((key) => ({
     href: NAV_ITEMS.find((item) => item.key === key)!.href,
     label: tNav(key),
   }));
 
+  const serviceLinks = isLandingLocale(locale)
+    ? LANDING_IDS.map((id) => ({
+        href: landingPath(id, locale),
+        label: tLandings(`${id}.breadcrumb`),
+      }))
+    : [];
+
   return (
     <footer className="bg-slate-950 pt-16 pb-32 md:pb-12 border-t border-slate-900 relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div className="flex flex-col gap-4 items-start">
             <img
               src="/favicon.svg"
@@ -69,6 +79,18 @@ export default async function Footer() {
               </Link>
             ))}
             <PrivacyModalTrigger>{t('privacyLink')}</PrivacyModalTrigger>
+          </div>
+          <div className="flex flex-col gap-3">
+            <h4 className="text-white font-bold mb-2">{t('servicesHeading')}</h4>
+            {serviceLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-slate-400 hover:text-teal-400 text-sm transition-colors w-fit"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
           <div className="flex flex-col gap-3">
             <h4 className="text-white font-bold mb-2">{t('requisitesHeading')}</h4>

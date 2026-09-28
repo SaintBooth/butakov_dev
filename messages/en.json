@@ -72,7 +72,8 @@
         "title": "AI integration for business",
         "description": "I build AI agents and chatbots for business. For example, a support bot that answers customers from your knowledge base, or an LLM wired into your CRM and website."
       }
-    }
+    },
+    "more": "Details and pricing"
   },
   "b2bGuarantees": {
     "heading": "Why work with me instead of an agency?",
@@ -193,7 +194,8 @@
     "errors": {
       "name": "Enter your name (at least 2 characters)",
       "contact": "Enter your Telegram or phone number"
-    }
+    },
+    "close": "Close"
   },
   "card": {
     "identity": {
@@ -243,7 +245,8 @@
     "privacyLink": "Privacy Policy",
     "requisitesHeading": "Legal details",
     "contractLabel": "Contract-based, paperless documents",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "servicesHeading": "Services"
   },
   "journal": {
     "title": "Engineering Journal",
@@ -324,5 +327,427 @@
     "description": "This page doesn't exist or has moved. Head back home or check out the journal.",
     "cta": "Back home",
     "ctaJournal": "Open the journal"
+  },
+  "landingsCommon": {
+    "from": "from {price}",
+    "perMonth": "{price} per month",
+    "hoursIncluded": "{hours} hours of work per month",
+    "cta": "Discuss a project",
+    "pricesLink": "See pricing",
+    "breadcrumbHome": "Home",
+    "estimate": "I send a detailed estimate with stages and timeline within one business day.",
+    "casesHeading": "What similar problems have I solved?",
+    "limitsLabel": "The honest limits",
+    "otherServices": "Other services",
+    "areaServed": "Remote, worldwide"
+  },
+  "landings": {
+    "web-dev": {
+      "meta": {
+        "title": "Website Development on WordPress and 1C-Bitrix",
+        "description": "Corporate websites and online stores on WordPress and 1C-Bitrix, built by a senior developer. Prices from {from}, estimate within one day."
+      },
+      "breadcrumb": "Website development",
+      "h1": "Website development for businesses",
+      "lead": "I build corporate websites and online stores on WordPress and 1C-Bitrix, from the first prototype to launch and ERP sync. I work alone, with no account managers in between, so it costs less than an agency.",
+      "scope": {
+        "heading": "What kind of websites do I build?",
+        "items": {
+          "corporate": {
+            "title": "Corporate websites",
+            "text": "A company site on WordPress or 1C-Bitrix: services, case studies, leads sent straight to your CRM. You edit texts and prices yourself."
+          },
+          "shop": {
+            "title": "Online stores",
+            "text": "Catalog, cart, payments and shipping, synced with your ERP so prices and stock on the site match the warehouse."
+          },
+          "integrations": {
+            "title": "Integrations",
+            "text": "I connect the site to your CRM, ERP, payment providers and delivery services through their APIs."
+          },
+          "seo": {
+            "title": "SEO foundation from day one",
+            "text": "Fast pages, clean markup, structured data and a sitemap, so SEO later doesn't start with a rebuild."
+          }
+        }
+      },
+      "pricing": {
+        "heading": "How much does a website cost?",
+        "lead": "The price depends on scope. Below are starting prices; I send an exact estimate broken down by stage after a short call.",
+        "tiers": {
+          "landing": {
+            "name": "Landing page",
+            "text": "One conversion page with a lead form and analytics.",
+            "duration": "1-2 weeks"
+          },
+          "wordpress": {
+            "name": "Corporate site on WordPress",
+            "text": "Up to 15 pages, blog, forms, basic SEO.",
+            "duration": "3-4 weeks"
+          },
+          "bitrix": {
+            "name": "Corporate site on 1C-Bitrix",
+            "text": "Service or product catalog, client area, CRM integration.",
+            "duration": "5-7 weeks"
+          },
+          "shop": {
+            "name": "Online store on 1C-Bitrix",
+            "text": "Catalog, cart, payments, shipping, ERP sync.",
+            "duration": "from 2 months"
+          }
+        },
+        "note": "CMS licenses, hosting and paid plugins are paid separately, directly to the vendors. I list their cost in the estimate upfront."
+      },
+      "steps": {
+        "heading": "How does the work go?",
+        "items": {
+          "brief": {
+            "title": "Call and brief",
+            "text": "We work out what the site has to do and who uses it. It takes 30-40 minutes."
+          },
+          "estimate": {
+            "title": "Estimate and contract",
+            "text": "Within a business day you get an estimate with stages and dates. Then we sign a contract."
+          },
+          "build": {
+            "title": "Staged development",
+            "text": "Every week I show progress on a staging server. We make changes along the way, not at the very end."
+          },
+          "launch": {
+            "title": "Launch and warranty",
+            "text": "I move the site to your hosting and set up analytics. For six months I fix any bugs found after delivery for free."
+          }
+        }
+      },
+      "why": {
+        "heading": "Why not an agency?",
+        "text": "At an agency your project passes through a manager, an analyst, a designer and developers, and you pay for each of them. With me you talk directly to the person writing the code, at {rate} per hour.",
+        "limits": "I take a limited number of projects at once, so I give you the start date together with the estimate. If you need a complex custom brand design, I'll say so at the brief: we'll need your mockups or a separate designer."
+      },
+      "faq": {
+        "heading": "Website development FAQ",
+        "items": {
+          "price": {
+            "q": "How much does a turnkey website cost?",
+            "a": "A landing page starts from {landing}, a corporate site on WordPress from {wordpress}, on 1C-Bitrix from {bitrix}, an online store from {shop}. The total depends on pages, integrations and design; I send an estimate within one business day."
+          },
+          "timeline": {
+            "q": "How long does it take to build a website?",
+            "a": "A landing page takes 1-2 weeks, a corporate site 3-7 weeks, an online store from two months. Stage deadlines go into the contract."
+          },
+          "cms": {
+            "q": "Should I choose WordPress or 1C-Bitrix?",
+            "a": "WordPress fits a corporate site or a blog: it is cheaper and easier to edit. 1C-Bitrix makes sense when you need a catalog, 1C sync or a client area. If you're unsure, I'll help you choose during the brief."
+          },
+          "content": {
+            "q": "Can I edit texts and prices myself?",
+            "a": "Yes. Everything that changes regularly is editable in the admin panel without a developer, and I show you how after launch."
+          },
+          "guarantee": {
+            "q": "What happens after the site goes live?",
+            "a": "For six months I fix bugs found after delivery for free. After that you can move the site to a monthly support plan."
+          }
+        }
+      }
+    },
+    "web-apps": {
+      "meta": {
+        "title": "Custom Web App Development: MVP, SaaS, Client Portals",
+        "description": "I build web services, client portals and SaaS on Django, FastAPI and Next.js. MVP from {mvp}; you own the code and all access."
+      },
+      "breadcrumb": "Web app development",
+      "h1": "Custom web application development",
+      "lead": "I build web services, client portals, MVPs and SaaS on Django, FastAPI and Next.js, and run the project myself from spec to production. An MVP costs noticeably less than at an agency, and the code and access stay with you.",
+      "scope": {
+        "heading": "What do I build?",
+        "items": {
+          "cabinet": {
+            "title": "Client portals",
+            "text": "A client or partner area with orders, documents, statuses and payments, on top of your site or as a separate service."
+          },
+          "mvp": {
+            "title": "MVPs to test an idea",
+            "text": "A first product version with one or two core scenarios that you can show to customers or investors."
+          },
+          "integrations": {
+            "title": "Integrations and internal tools",
+            "text": "ERP-to-site sync, scrapers, API bridges between systems, admin panels for your sales team."
+          },
+          "saas": {
+            "title": "SaaS platforms",
+            "text": "Roles and permissions, subscriptions and billing, a public API, several companies in one system."
+          }
+        }
+      },
+      "pricing": {
+        "heading": "How much does a web application cost?",
+        "lead": "My estimates contain only development hours, with no manager or analyst time on top. Below are starting prices; I calculate the exact estimate after the brief.",
+        "tiers": {
+          "integration": {
+            "name": "Integration or internal tool",
+            "text": "ERP sync, scraper, API bridge, simple admin panel.",
+            "duration": "2-3 weeks"
+          },
+          "mvp": {
+            "name": "Web service MVP",
+            "text": "Auth, client area, one or two core scenarios, admin panel, deployment.",
+            "duration": "4-8 weeks"
+          },
+          "saas": {
+            "name": "SaaS platform",
+            "text": "Roles, subscriptions and billing, API, multi-tenancy.",
+            "duration": "from 2.5 months"
+          }
+        },
+        "note": "Work on an existing Django, FastAPI, Next.js or Node.js project is billed hourly: {rate} per hour within a support plan, {overage} for one-off tasks."
+      },
+      "steps": {
+        "heading": "How does the work go?",
+        "items": {
+          "brief": {
+            "title": "Brief and scenarios",
+            "text": "We describe who uses the service and what they do in it. That becomes the list of screens."
+          },
+          "estimate": {
+            "title": "Estimate and architecture",
+            "text": "I propose the stack and architecture and estimate hours per module. Then we sign a contract."
+          },
+          "build": {
+            "title": "Development in sprints",
+            "text": "Once a week I show a working version on a staging server. Priorities can change between sprints."
+          },
+          "launch": {
+            "title": "Launch and handover",
+            "text": "I deploy the service to your server with backups and monitoring, then hand over the code, docs and access."
+          }
+        }
+      },
+      "why": {
+        "heading": "Why one developer instead of a team?",
+        "text": "I design the architecture, write the backend and frontend and set up the server myself, so decisions don't get lost between people. That's how I built my own SaaS, PromptSpace: a marketplace with a catalog, payments and author payouts.",
+        "limits": "I can't run several large modules in parallel. If your service needs a five-person team and a launch in a month, I'll tell you at the brief."
+      },
+      "faq": {
+        "heading": "Web app development FAQ",
+        "items": {
+          "price": {
+            "q": "How much does it cost to build a web application?",
+            "a": "An integration or internal tool starts from {integration}, an MVP from {mvp}, a SaaS platform from {saas}. The total depends on roles, screens and integrations; I send an estimate after the brief."
+          },
+          "stack": {
+            "q": "What stack do you use?",
+            "a": "Python on the backend (Django, FastAPI), Next.js and React on the frontend, PostgreSQL for data. If you already have a project on another stack, I review the code first and tell you whether it's worth building on."
+          },
+          "mvp": {
+            "q": "How long does an MVP take?",
+            "a": "Usually 4-8 weeks. The fewer features in the first version, the sooner you get feedback from real users."
+          },
+          "code": {
+            "q": "Who owns the code?",
+            "a": "You do. The code lives in your repository from day one and the rights transfer under the contract, so you can hand the project to another team at any time."
+          },
+          "solo": {
+            "q": "What happens to the project if you can't continue?",
+            "a": "The code, documentation and access are always with you, so the project doesn't stall. I write documentation and a README so another developer can pick it up."
+          }
+        }
+      }
+    },
+    "support": {
+      "meta": {
+        "title": "Website Support for WordPress and 1C-Bitrix: Plans",
+        "description": "Maintenance and development for WordPress and 1C-Bitrix sites: bug fixes, updates, speed, malware cleanup. Monthly plans from {start}."
+      },
+      "breadcrumb": "Website support",
+      "h1": "Website support and maintenance for WordPress and 1C-Bitrix",
+      "lead": "I take over support for WordPress and 1C-Bitrix sites, including ones left by another contractor. I fix bugs, update the core and PHP, speed up loading and close security holes, on a monthly plan with included hours.",
+      "scope": {
+        "heading": "What does website support include?",
+        "items": {
+          "fixes": {
+            "title": "Bug fixes and new features",
+            "text": "I fix what broke and add what's missing: forms, filters, sections, integrations."
+          },
+          "updates": {
+            "title": "Core and PHP updates",
+            "text": "I update WordPress, 1C-Bitrix, plugins and PHP without taking the site down, testing on a copy first."
+          },
+          "speed": {
+            "title": "Speed optimization",
+            "text": "I find what slows the site down, from database queries to cache and heavy images, and set up Redis and cache warmup."
+          },
+          "security": {
+            "title": "Hardening and hack recovery",
+            "text": "I remove malicious code, close the hole the attacker used and set up backups."
+          }
+        }
+      },
+      "pricing": {
+        "heading": "How much does website support cost?",
+        "lead": "A monthly plan costs less than one-off tasks: the hourly rate inside the plan is lower and response is faster.",
+        "tiers": {
+          "start": {
+            "name": "Start",
+            "text": "Response within one business day. Small fixes, updates, advice.",
+            "duration": "For corporate sites"
+          },
+          "business": {
+            "name": "Business",
+            "text": "Response within 4 business hours, uptime monitoring and daily backups.",
+            "duration": "For online stores"
+          }
+        },
+        "note": "Hours beyond the plan and one-off tasks without a plan cost {overage}."
+      },
+      "steps": {
+        "heading": "How does support start?",
+        "items": {
+          "audit": {
+            "title": "Site audit",
+            "text": "I review the code, core and PHP versions, speed and security, and write down what's critical and what can wait."
+          },
+          "access": {
+            "title": "Access and backup",
+            "text": "I get access, make a full backup and set up a staging copy of the site."
+          },
+          "plan": {
+            "title": "First-month plan",
+            "text": "We agree on the first month's work, urgent issues first."
+          },
+          "routine": {
+            "title": "Ongoing work",
+            "text": "You send tasks via Telegram or email. Once a month I send an hours report."
+          }
+        }
+      },
+      "why": {
+        "heading": "Why support with me instead of an agency?",
+        "text": "Your tasks are always handled by the same person, who already knows your site's code. You don't have to explain the context to a new developer every time. An hour inside the plan costs {rate}.",
+        "limits": "I don't offer 24/7 support with a 15-minute response. If your site makes money every minute and you need an on-call engineer at night, choose an agency with that SLA."
+      },
+      "faq": {
+        "heading": "Website support FAQ",
+        "items": {
+          "price": {
+            "q": "How much does website support cost?",
+            "a": "The Start plan is {start} per month for {startHours} hours of work, Business is {business} per month for {businessHours} hours. Extra hours and one-off tasks are billed at {overage}."
+          },
+          "oneoff": {
+            "q": "Can I order a one-off task without a plan?",
+            "a": "Yes, one-off tasks are billed at {overage} per hour. A plan works out cheaper if you have tasks every month."
+          },
+          "reaction": {
+            "q": "How fast do you respond?",
+            "a": "Within one business day on Start and within 4 business hours on Business. If the site is down, I take it out of turn."
+          },
+          "takeover": {
+            "q": "Will you take over a site from another contractor?",
+            "a": "Yes, that happens a lot. I start with an audit and tell you what state the code is in and what to fix first."
+          },
+          "cms": {
+            "q": "Which CMS do you work with?",
+            "a": "Mainly WordPress, including WooCommerce, and 1C-Bitrix. I also support sites built on Django and Next.js."
+          }
+        }
+      }
+    },
+    "ai": {
+      "meta": {
+        "title": "AI Integration for Business: AI Agents and Assistants",
+        "description": "I build AI agents and assistants for business: answers from your knowledge base, CRM and ERP integration. Pilot from {pilot} in 2-3 weeks."
+      },
+      "breadcrumb": "AI integration",
+      "h1": "AI integration for business: agents and assistants",
+      "lead": "I build AI assistants and AI agents: a bot answers customers from your knowledge base, an agent creates CRM deals and fills in documents on its own. We start with a 2-3 week pilot on one process to prove the value before a bigger investment.",
+      "scope": {
+        "heading": "What can AI do for your business?",
+        "items": {
+          "assistant": {
+            "title": "Customer-facing AI assistant",
+            "text": "Answers on your site and in messengers using your documents, price lists and policies, and hands hard questions to a manager."
+          },
+          "agent": {
+            "title": "AI agents for processes",
+            "text": "They take actions: triage leads, create CRM deals, draft replies and documents."
+          },
+          "rag": {
+            "title": "Knowledge base search (RAG)",
+            "text": "An employee asks a question in plain words and gets an answer with a link to the source document."
+          },
+          "integrations": {
+            "title": "Integration with your systems",
+            "text": "I connect AI to your CRM, ERP, website and email through their APIs."
+          }
+        }
+      },
+      "pricing": {
+        "heading": "How much does AI integration cost?",
+        "lead": "Start with a pilot on one process: you see results in a few weeks while the budget stays small.",
+        "tiers": {
+          "pilot": {
+            "name": "Pilot: AI assistant",
+            "text": "A bot on your site or in a messenger answers from your knowledge base and hands hard questions to a person.",
+            "duration": "2-3 weeks"
+          },
+          "agent": {
+            "name": "AI agent with integrations",
+            "text": "An agent that works with your CRM or ERP: creates deals, fills in fields, prepares documents.",
+            "duration": "4-6 weeks"
+          }
+        },
+        "note": "LLM API usage and hosting are paid separately, at cost. I include an estimate of the monthly running cost in the proposal."
+      },
+      "steps": {
+        "heading": "How does AI integration work?",
+        "items": {
+          "process": {
+            "title": "Pick a process",
+            "text": "We find a process where AI saves real time: repetitive questions, lead handling, document search."
+          },
+          "pilot": {
+            "title": "Pilot",
+            "text": "In 2-3 weeks we launch a working version on real data for a limited group of users."
+          },
+          "measure": {
+            "title": "Measure",
+            "text": "We check how many questions the bot closed on its own, where it got things wrong and how much time it saved."
+          },
+          "scale": {
+            "title": "Scale",
+            "text": "If the pilot pays off, we add channels and integrations. If not, you've spent the minimum."
+          }
+        }
+      },
+      "why": {
+        "heading": "Why integrate AI with me?",
+        "text": "I'm a developer, so I connect the model to your CRM, ERP and website myself and own how it behaves in production. My own product SolvOps, an AI assistant for field teams' knowledge bases, resolves 94% of requests without escalation in pilots.",
+        "limits": "I don't train neural networks from scratch. I work with existing models and build a reliable system around them: the knowledge base, answer checks and hand-off to a person."
+      },
+      "faq": {
+        "heading": "AI integration FAQ",
+        "items": {
+          "price": {
+            "q": "How much does AI integration for a business cost?",
+            "a": "A pilot AI assistant starts from {pilot}, an AI agent integrated with your CRM or ERP from {agent}. Model API usage is billed separately, at cost."
+          },
+          "data": {
+            "q": "Will our data leak into the AI model?",
+            "a": "You can use an open model hosted on your own server, so the data never leaves your infrastructure. For hosted models I pick providers that don't train on API data."
+          },
+          "models": {
+            "q": "Which AI models do you use?",
+            "a": "I choose per task: GPT and Claude for complex reasoning, open models when everything has to run on your own server."
+          },
+          "hallucinations": {
+            "q": "What if the AI gives a wrong answer?",
+            "a": "The assistant answers only from your documents and shows the source. If the answer isn't in the knowledge base, it says so and hands the question to a person. During the pilot we test it on real questions."
+          },
+          "monthly": {
+            "q": "What are the running costs after launch?",
+            "a": "Model API usage and hosting, which depend on traffic; I estimate them in the proposal. Updates and knowledge base changes can go into a support plan."
+          }
+        }
+      }
+    }
   }
 }

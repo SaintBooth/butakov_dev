@@ -5,6 +5,7 @@ import { BookOpen, Briefcase, Home, MessageSquare, type LucideIcon } from 'lucid
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { isNavActive, MOBILE_NAV_ITEMS } from '@/config/nav';
+import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { Link, usePathname } from '@/i18n/navigation';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -29,18 +30,15 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
       ? 'text-slate-900'
       : 'text-slate-500 [@media(hover:hover)]:hover:text-slate-900';
 
-  return (
-    <Link
-      href={href}
-      aria-label={label}
-      aria-current={active ? 'page' : undefined}
-      className={clsx(
-        'group relative z-10 flex h-12 flex-1 items-center justify-center',
-        // tactile press: quick squash, no layout shift for siblings
-        'transition-transform duration-100 ease-out active:scale-95',
-        'motion-reduce:transition-none motion-reduce:active:scale-100'
-      )}
-    >
+  const className = clsx(
+    'group relative z-10 flex h-12 flex-1 items-center justify-center',
+    // tactile press: quick squash, no layout shift for siblings
+    'transition-transform duration-100 ease-out active:scale-95',
+    'motion-reduce:transition-none motion-reduce:active:scale-100'
+  );
+
+  const content = (
+    <>
       {/* tap feedback only — active state is carried by icon tone/weight + the dot below,
           a chip surface here would be a third redundant signal for the same state */}
       <span
@@ -63,6 +61,26 @@ function NavItem({ href, label, icon: Icon, active, accent = false }: NavItemPro
           active && !accent ? 'bg-slate-900 opacity-100' : 'opacity-0'
         )}
       />
+    </>
+  );
+
+  // The accent item is the contact CTA: it opens the form modal instead of navigating.
+  if (accent) {
+    return (
+      <ContactTrigger ariaLabel={label} className={className}>
+        {content}
+      </ContactTrigger>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      aria-current={active ? 'page' : undefined}
+      className={className}
+    >
+      {content}
     </Link>
   );
 }

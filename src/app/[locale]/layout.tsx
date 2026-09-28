@@ -5,7 +5,8 @@ import { Suspense } from 'react';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { YandexMetrika } from '@/components/YandexMetrika';
-import { getSchemaBusiness, getSchemaPerson, getSchemaFaq } from '@/config/schema';
+import { getSchemaBusiness, getSchemaPerson } from '@/config/schema';
+import { ContactModalProvider } from '@/features/contact/ContactModalProvider';
 import Header from '@/sections/Header';
 import Footer from '@/sections/Footer';
 import MobileNav from '@/sections/MobileNav';
@@ -46,15 +47,16 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   if (!locales.includes(locale)) notFound();
 
-  const messages = await getMessages();
+  // Landing copy is rendered only by server components; keeping it out of the
+  // client provider saves ~40 KB of RSC payload on every page.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { landings, landingsCommon, ...messages } = await getMessages();
   const tSchema = await getTranslations('schema');
   const tServices = await getTranslations('services');
 
-  const schemas = [
-    getSchemaBusiness(tSchema, tServices),
-    getSchemaPerson(tSchema),
-    getSchemaFaq(tSchema),
-  ];
+  // FAQPage lives on the service landings next to a visible FAQ block; marking up
+  // questions that aren't on the page violates Google's structured-data policy.
+  const schemas = [getSchemaBusiness(tSchema, tServices), getSchemaPerson(tSchema)];
 
   return (
     <html lang={locale} className={`${geist.variable} ${geistMono.variable}`}>
@@ -69,12 +71,14 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <Header />
-          {children}
-          <Footer />
-          <Suspense fallback={null}>
-            <MobileNav />
-          </Suspense>
+          <ContactModalProvider>
+            <Header />
+            {children}
+            <Footer />
+            <Suspense fallback={null}>
+              <MobileNav />
+            </Suspense>
+          </ContactModalProvider>
           <YandexMetrika />
         </NextIntlClientProvider>
       </body>

@@ -13,7 +13,6 @@ const OFFER_IDS = [
   'legacy',
   'ai-consulting',
 ] as const;
-const FAQ_IDS = ['contract', 'guarantee', 'soloAi', 'process', 'remote'] as const;
 
 export function getSchemaBusiness(tSchema: Translator, tServices: Translator) {
   return {
@@ -129,17 +128,51 @@ export function getSchemaBreadcrumb(items: Array<{ name: string; url: string }>)
   };
 }
 
-export function getSchemaFaq(tSchema: Translator) {
+/** Only for questions that are also rendered visibly on the same page. */
+export function getSchemaFaq(items: Array<{ q: string; a: string }>) {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: FAQ_IDS.map((id) => ({
+    mainEntity: items.map(({ q, a }) => ({
       '@type': 'Question',
-      name: tSchema(`faq.${id}.q`),
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: tSchema(`faq.${id}.a`),
-      },
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
     })),
+  };
+}
+
+export function getSchemaService(opts: {
+  name: string;
+  description: string;
+  url: string;
+  areaServed: string;
+  currency: string;
+  offers: Array<{ name: string; price: number; monthly?: boolean }>;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    provider: { '@id': 'https://butakov.dev/#business' },
+    areaServed: opts.areaServed,
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: opts.name,
+      itemListElement: opts.offers.map((offer) => ({
+        '@type': 'Offer',
+        name: offer.name,
+        priceSpecification: {
+          '@type': offer.monthly ? 'UnitPriceSpecification' : 'PriceSpecification',
+          priceCurrency: opts.currency,
+          // "from X" prices: minPrice, not an exact price, so the markup doesn't overclaim.
+          minPrice: offer.price,
+          ...(offer.monthly
+            ? { referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' } }
+            : {}),
+        },
+      })),
+    },
   };
 }
