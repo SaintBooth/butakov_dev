@@ -68,7 +68,7 @@ export default async function Footer() {
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <h4 className="text-white font-bold mb-2">{t('navHeading')}</h4>
+            <h2 className="text-white font-bold mb-2">{t('navHeading')}</h2>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -81,7 +81,7 @@ export default async function Footer() {
             <PrivacyModalTrigger>{t('privacyLink')}</PrivacyModalTrigger>
           </div>
           <div className="flex flex-col gap-3">
-            <h4 className="text-white font-bold mb-2">{t('servicesHeading')}</h4>
+            <h2 className="text-white font-bold mb-2">{t('servicesHeading')}</h2>
             {serviceLinks.map((link) => (
               <Link
                 key={link.href}
@@ -93,7 +93,7 @@ export default async function Footer() {
             ))}
           </div>
           <div className="flex flex-col gap-3">
-            <h4 className="text-white font-bold mb-2">{t('requisitesHeading')}</h4>
+            <h2 className="text-white font-bold mb-2">{t('requisitesHeading')}</h2>
             {REQUISITES.map((r) => (
               <p key={r} className="text-slate-400 text-sm">
                 {r}
