@@ -56,25 +56,27 @@ export async function applyMigrations(sql, dir) {
  * @returns {Promise<number[]>}
  */
 export async function purgeParticipants(sql, { dryRun, now = new Date() }) {
-  const due = await sql`
-    WITH latest_portfolio AS (
-      SELECT DISTINCT ON (participant_id) participant_id, granted, created_at
-      FROM workshop_consents WHERE kind = 'portfolio'
-      ORDER BY participant_id, id DESC
-    ), last_session AS (
-      SELECT r.participant_id, max(s.ends_at) AS last_end
-      FROM workshop_registrations r JOIN workshop_sessions s ON s.id = r.session_id
-      GROUP BY r.participant_id
-    )
-    SELECT p.id FROM workshop_participants p
-    LEFT JOIN last_session ls ON ls.participant_id = p.id
-    LEFT JOIN latest_portfolio lp ON lp.participant_id = p.id
-    WHERE (ls.last_end IS NULL OR ls.last_end < ${now}::timestamptz - interval '12 months')
-      AND (lp.granted IS NOT TRUE OR lp.created_at < ${now}::timestamptz - interval '36 months')`;
-  const ids = due.map((r) => r.id);
-  if (dryRun || ids.length === 0) return ids;
+  // Selecting inside the transaction: a participant who registers between the SELECT and
+  // the DELETEs must not be purged on a stale verdict.
+  return sql.begin(async (tx) => {
+    const due = await tx`
+      WITH latest_portfolio AS (
+        SELECT DISTINCT ON (participant_id) participant_id, granted, created_at
+        FROM workshop_consents WHERE kind = 'portfolio'
+        ORDER BY participant_id, id DESC
+      ), last_session AS (
+        SELECT r.participant_id, max(s.ends_at) AS last_end
+        FROM workshop_registrations r JOIN workshop_sessions s ON s.id = r.session_id
+        GROUP BY r.participant_id
+      )
+      SELECT p.id FROM workshop_participants p
+      LEFT JOIN last_session ls ON ls.participant_id = p.id
+      LEFT JOIN latest_portfolio lp ON lp.participant_id = p.id
+      WHERE (ls.last_end IS NULL OR ls.last_end < ${now}::timestamptz - interval '12 months')
+        AND (lp.granted IS NOT TRUE OR lp.created_at < ${now}::timestamptz - interval '36 months')`;
+    const ids = due.map((r) => r.id);
+    if (dryRun || ids.length === 0) return ids;
 
-  await sql.begin(async (tx) => {
     const regs = (await tx`SELECT id FROM workshop_registrations WHERE participant_id = ANY(${ids})`).map((r) => r.id);
     if (regs.length > 0) {
       await tx`DELETE FROM workshop_email_jobs WHERE registration_id = ANY(${regs})`;
@@ -85,6 +87,6 @@ export async function purgeParticipants(sql, { dryRun, now = new Date() }) {
     await tx`DELETE FROM workshop_consents WHERE participant_id = ANY(${ids})`;
     await tx`DELETE FROM workshop_registrations WHERE participant_id = ANY(${ids})`;
     await tx`DELETE FROM workshop_participants WHERE id = ANY(${ids})`;
+    return ids;
   });
-  return ids;
 }
