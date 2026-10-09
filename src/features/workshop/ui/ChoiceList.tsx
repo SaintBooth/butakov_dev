@@ -10,10 +10,17 @@ interface ChoiceListProps {
 }
 
 export function ChoiceList({ name, label, options, optionLabel, hint, error }: ChoiceListProps) {
+  const id = `ws-${name}`;
+  const describedBy =
+    [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
   return (
-    <fieldset>
+    <fieldset id={id} aria-describedby={describedBy}>
       <legend className={labelClass}>{label}</legend>
-      {hint && <p className={hintClass}>{hint}</p>}
+      {hint && (
+        <p id={`${id}-hint`} className={hintClass}>
+          {hint}
+        </p>
+      )}
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {options.map((o) => (
           <label key={o} className="flex items-start gap-2 text-sm text-slate-700">
@@ -22,7 +29,11 @@ export function ChoiceList({ name, label, options, optionLabel, hint, error }: C
           </label>
         ))}
       </div>
-      {error && <p className={errorClass}>{error}</p>}
+      {error && (
+        <p id={`${id}-error`} className={errorClass}>
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }

@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import {
   COMPANY_SIZES,
-  FIELD_LIMITS,
   DECISION_ROLES,
+  FIELD_LIMITS,
   INDUSTRIES,
   POSITION_LEVELS,
 } from '@/config/workshop';
@@ -91,6 +91,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         options={INDUSTRIES}
         optionLabel={(id) => o(`industry.${id}`)}
         placeholder={placeholder}
+        error={errors.industry}
       />
       <SelectField
         name="companySize"
@@ -98,6 +99,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         options={COMPANY_SIZES}
         optionLabel={(id) => o(`companySize.${id}`)}
         placeholder={placeholder}
+        error={errors.companySize}
       />
       <SelectField
         name="decisionRole"
@@ -105,6 +107,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         options={DECISION_ROLES}
         optionLabel={(id) => o(`decisionRole.${id}`)}
         placeholder={placeholder}
+        error={errors.decisionRole}
       />
     </section>
   );

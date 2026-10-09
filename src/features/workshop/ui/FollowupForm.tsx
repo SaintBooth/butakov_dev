@@ -10,7 +10,7 @@ import {
   readFollowupForm,
   type FieldErrors,
 } from '../schema';
-import { Consent } from './Consent';
+import { Checkbox } from './Checkbox';
 import { Notice } from './Notice';
 import { SubmitButton } from './SubmitButton';
 import { TextField } from './TextField';
@@ -58,7 +58,7 @@ export function FollowupForm({
         label={t('followup.result')}
         error={errors.result}
       />
-      <Consent name="letterOk">{t('followup.letterOk')}</Consent>
+      <Checkbox name="letterOk">{t('followup.letterOk')}</Checkbox>
       {state.status === 'error' && state.formError && (
         <Notice tone="error">{state.formError}</Notice>
       )}

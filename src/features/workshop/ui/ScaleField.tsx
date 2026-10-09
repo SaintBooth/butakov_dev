@@ -12,8 +12,9 @@ interface ScaleFieldProps {
 
 export function ScaleField({ name, label, min, max, lowLabel, highLabel, error }: ScaleFieldProps) {
   const values = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  const id = `ws-${name}`;
   return (
-    <fieldset>
+    <fieldset id={id}>
       <legend className={labelClass}>{label} *</legend>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {values.map((v) => (
@@ -22,10 +23,11 @@ export function ScaleField({ name, label, min, max, lowLabel, highLabel, error }
               type="radio"
               name={name}
               value={v}
-              required
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? `${id}-error` : undefined}
               className={`peer sr-only ${PII_CLASS}`}
             />
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 peer-checked:border-teal-500 peer-checked:bg-teal-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/40">
+            <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 peer-checked:border-teal-500 peer-checked:bg-teal-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/40">
               {v}
             </span>
           </label>
@@ -35,7 +37,11 @@ export function ScaleField({ name, label, min, max, lowLabel, highLabel, error }
         <span>{lowLabel}</span>
         <span>{highLabel}</span>
       </div>
-      {error && <p className={errorClass}>{error}</p>}
+      {error && (
+        <p id={`${id}-error`} className={errorClass}>
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }

@@ -20,6 +20,7 @@ export function RegistrationNeeds({ errors }: { errors: FieldErrors }) {
         options={AI_LEVELS}
         optionLabel={(id) => o(`aiLevel.${id}`)}
         placeholder={t('fields.selectPlaceholder')}
+        error={errors.aiLevel}
       />
       <TextField
         name="taskText"
@@ -34,6 +35,7 @@ export function RegistrationNeeds({ errors }: { errors: FieldErrors }) {
         label={t('fields.challenges')}
         options={CHALLENGES}
         optionLabel={(id) => o(`challenges.${id}`)}
+        error={errors.challenges}
       />
       <ChoiceList
         name="topics"

@@ -10,6 +10,7 @@ import {
   readFeedbackForm,
   type FieldErrors,
 } from '../schema';
+import { Checkbox } from './Checkbox';
 import { Consent } from './Consent';
 import { Notice } from './Notice';
 import { ScaleField } from './ScaleField';
@@ -85,8 +86,8 @@ export function FeedbackForm({
         error={errors.testimonial}
       />
       <Consent name="consentQuote">{t('consents.quote')}</Consent>
-      <Consent name="wantsReview">{t('feedback.wantsReview')}</Consent>
-      <Consent name="followupOk">{t('feedback.followupOk')}</Consent>
+      <Checkbox name="wantsReview">{t('feedback.wantsReview')}</Checkbox>
+      <Checkbox name="followupOk">{t('feedback.followupOk')}</Checkbox>
       {state.status === 'error' && state.formError && (
         <Notice tone="error">{state.formError}</Notice>
       )}
