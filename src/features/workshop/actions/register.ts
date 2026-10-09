@@ -19,6 +19,7 @@ import {
   readRegistrationForm,
   type FieldErrors,
 } from '../schema';
+import { guardDb } from '../server/actionGuard';
 import { getClientIp } from '../server/clientIp';
 import { checkStamp } from '../server/formStamp';
 import { notifyOwner } from '../server/notify';
@@ -83,27 +84,37 @@ export async function registerAction(
     attemptsByIp.hit(ip);
   }
 
-  const outcome = await registerParticipant(
-    db,
-    slug,
-    parsed.data,
-    {
-      version: CONSENT_VERSION,
-      hashes: {
-        pd_processing: consentTextHash(t.raw('consents.pd') as string),
-        marketing: consentTextHash(t.raw('consents.marketing') as string),
-        portfolio: consentTextHash(t.raw('consents.portfolio') as string),
-      },
-      ip,
-      userAgent: h.get('user-agent'),
-    },
-    new Date()
+  const outcome = await guardDb(
+    'register',
+    () => null,
+    () =>
+      registerParticipant(
+        db,
+        slug,
+        parsed.data,
+        {
+          version: CONSENT_VERSION,
+          hashes: {
+            pd_processing: consentTextHash(t.raw('consents.pd') as string),
+            marketing: consentTextHash(t.raw('consents.marketing') as string),
+            portfolio: consentTextHash(t.raw('consents.portfolio') as string),
+          },
+          ip,
+          userAgent: h.get('user-agent'),
+        },
+        new Date()
+      )
   );
-
+  if (!outcome) return formError(t('errors.unavailable'));
   if (outcome.status === 'full') return formError(t('errors.full'));
   if (outcome.status !== 'ok') return formError(t('errors.closed'));
 
-  const count = await countActiveRegistrations(db, outcome.sessionId);
-  await notifyOwner(env, t('notify.registered', { slug, count }));
+  // The registration is already saved: a failing counter must not turn it into an error page.
+  const count = await guardDb(
+    'register count',
+    () => null,
+    () => countActiveRegistrations(db, outcome.sessionId)
+  );
+  if (count !== null) await notifyOwner(env, t('notify.registered', { slug, count }));
   return { status: 'success' };
 }

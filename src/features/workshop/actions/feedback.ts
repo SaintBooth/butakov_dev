@@ -16,6 +16,7 @@ import {
   readFeedbackForm,
   type FeedbackInput,
 } from '../schema';
+import { guardDb } from '../server/actionGuard';
 import { resolveToken } from '../server/tokenAccess';
 import type { FormState } from './register';
 
@@ -63,19 +64,25 @@ export async function feedbackAction(
     formError: message,
   });
   if (!db) return fail(t('errors.unavailable'));
-  const access = await resolveToken(db, token, 'feedback', new Date());
-  if (access.state !== 'valid') return fail(t(`token.${access.state}`));
+  return guardDb(
+    'feedback',
+    () => fail(t('errors.unavailable')),
+    async () => {
+      const access = await resolveToken(db, token, 'feedback', new Date());
+      if (access.state !== 'valid') return fail(t(`token.${access.state}`));
 
-  const parsed = createFeedbackSchema(t).safeParse(readFeedbackForm(fd));
-  if (!parsed.success) {
-    return {
-      status: 'error',
-      fieldErrors: issuesToFieldErrors(parsed.error.issues),
-      formError: null,
-    };
-  }
+      const parsed = createFeedbackSchema(t).safeParse(readFeedbackForm(fd));
+      if (!parsed.success) {
+        return {
+          status: 'error',
+          fieldErrors: issuesToFieldErrors(parsed.error.issues),
+          formError: null,
+        };
+      }
 
-  const quoteHash = consentTextHash(t.raw('consents.quote') as string);
-  const result = await saveFeedback(db, access.ctx, parsed.data, quoteHash, new Date());
-  return result === 'saved' ? { status: 'success' } : fail(t('token.used'));
+      const quoteHash = consentTextHash(t.raw('consents.quote') as string);
+      const result = await saveFeedback(db, access.ctx, parsed.data, quoteHash, new Date());
+      return result === 'saved' ? { status: 'success' } : fail(t('token.used'));
+    }
+  );
 }

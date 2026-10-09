@@ -17,6 +17,7 @@ import {
   readCheckinForm,
   type CheckinInput,
 } from '../schema';
+import { guardDb } from '../server/actionGuard';
 import { getClientIp } from '../server/clientIp';
 import { createRateLimiter } from '../server/rateLimit';
 import type { FormState } from './register';
@@ -89,16 +90,22 @@ export async function checkinAction(
     return fail(t('errors.rateLimited'));
   }
 
-  const result = await checkIn(db, slug, parsed.data, new Date());
-  if (result.status === 'closed') return fail(t('checkin.closed'));
-  if (result.status === 'already_answered') return { status: 'already_answered' };
-  if (result.status === 'not_found') {
-    if (ip) {
-      failuresByPerson.hit(personKey);
-      failuresByIp.hit(ip);
+  return guardDb(
+    'checkin',
+    () => fail(t('errors.unavailable')),
+    async () => {
+      const result = await checkIn(db, slug, parsed.data, new Date());
+      if (result.status === 'closed') return fail(t('checkin.closed'));
+      if (result.status === 'already_answered') return { status: 'already_answered' };
+      if (result.status === 'not_found') {
+        if (ip) {
+          failuresByPerson.hit(personKey);
+          failuresByIp.hit(ip);
+        }
+        return fail(t('checkin.notFound'));
+      }
+      if (result.status !== 'ok') return fail(t('errors.unavailable'));
+      return { status: 'checked_in', feedbackUrl: WORKSHOP_PATHS.feedback(result.feedbackToken) };
     }
-    return fail(t('checkin.notFound'));
-  }
-  if (result.status !== 'ok') return fail(t('errors.unavailable'));
-  return { status: 'checked_in', feedbackUrl: WORKSHOP_PATHS.feedback(result.feedbackToken) };
+  );
 }

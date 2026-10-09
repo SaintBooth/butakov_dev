@@ -8,6 +8,7 @@ import { issueToken } from '../db/tokens';
 import { currentConsents } from '../domain/consents';
 import { nextRetryAt, resolveJob, type TemplateId } from '../domain/emailPlan';
 import type { TokenPurpose } from '../domain/tokens';
+import { describeError } from '../server/describeError';
 import { composeEmail, type OutgoingMail } from './compose';
 import { failOnMissingMessage } from './strict';
 
@@ -24,15 +25,6 @@ const t = createTranslator({
   namespace: 'workshop.notify',
   onError: failOnMissingMessage,
 });
-
-// Provider messages quote the recipient address, so only the error class and codes are stored.
-export function describeError(err: unknown): string {
-  if (!(err instanceof Error)) return 'UnknownError';
-  const { code, responseCode } = err as Error & { code?: unknown; responseCode?: unknown };
-  return [err.name, code, responseCode]
-    .filter((p): p is string | number => typeof p === 'string' || typeof p === 'number')
-    .join(':');
-}
 
 async function issueLinks(db: Sql | TransactionSql, job: DueJob, template: TemplateId, now: Date) {
   const link = async (purpose: TokenPurpose, path: (token: string) => string) =>

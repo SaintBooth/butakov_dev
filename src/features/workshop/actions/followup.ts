@@ -13,6 +13,7 @@ import {
   readFollowupForm,
   type FollowupInput,
 } from '../schema';
+import { guardDb } from '../server/actionGuard';
 import { notifyOwner } from '../server/notify';
 import { resolveToken } from '../server/tokenAccess';
 import type { FormState } from './register';
@@ -44,22 +45,31 @@ export async function followupAction(
     formError: message,
   });
   if (!env || !db) return fail(t('errors.unavailable'));
-  const access = await resolveToken(db, token, 'followup', new Date());
-  if (access.state !== 'valid') return fail(t(`token.${access.state}`));
+  return guardDb(
+    'followup',
+    () => fail(t('errors.unavailable')),
+    async () => {
+      const access = await resolveToken(db, token, 'followup', new Date());
+      if (access.state !== 'valid') return fail(t(`token.${access.state}`));
 
-  const parsed = createFollowupSchema(t).safeParse(readFollowupForm(fd));
-  if (!parsed.success) {
-    return {
-      status: 'error',
-      fieldErrors: issuesToFieldErrors(parsed.error.issues),
-      formError: null,
-    };
-  }
+      const parsed = createFollowupSchema(t).safeParse(readFollowupForm(fd));
+      if (!parsed.success) {
+        return {
+          status: 'error',
+          fieldErrors: issuesToFieldErrors(parsed.error.issues),
+          formError: null,
+        };
+      }
 
-  const result = await saveFollowup(db, access.ctx, parsed.data, new Date());
-  if (result === 'duplicate') return fail(t('token.used'));
-  if (parsed.data.letterOk) {
-    await notifyOwner(env, t('notify.letterReady', { registrationId: access.ctx.registrationId }));
-  }
-  return { status: 'success' };
+      const result = await saveFollowup(db, access.ctx, parsed.data, new Date());
+      if (result === 'duplicate') return fail(t('token.used'));
+      if (parsed.data.letterOk) {
+        await notifyOwner(
+          env,
+          t('notify.letterReady', { registrationId: access.ctx.registrationId })
+        );
+      }
+      return { status: 'success' };
+    }
+  );
 }

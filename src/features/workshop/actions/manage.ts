@@ -10,6 +10,7 @@ import { cancelPendingEmails } from '../db/emailJobs';
 import { cancelRegistration } from '../db/registrations';
 import type { TokenContext } from '../db/tokens';
 import { consentTextHash } from '../domain/consents';
+import { guardDb } from '../server/actionGuard';
 import { resolveToken } from '../server/tokenAccess';
 
 export type ManageIntent = 'cancel' | 'unsubscribe' | 'revoke';
@@ -67,16 +68,22 @@ export async function manageAction(
   const db = getDb();
   const intent = intentSchema.safeParse(fd.get('intent'));
   if (!db || !intent.success) return { done: null, error: t('errors.unavailable') };
-  const access = await resolveToken(db, token, 'manage', new Date());
-  if (access.state !== 'valid') return { done: null, error: t(`token.${access.state}`) };
-  const applied = await applyManageIntent(db, access.ctx, intent.data, {
-    version: CONSENT_VERSION,
-    hashes: {
-      marketing: consentTextHash(t.raw('consents.marketing') as string),
-      portfolio: consentTextHash(t.raw('consents.portfolio') as string),
-      quote: consentTextHash(t.raw('consents.quote') as string),
-    },
-  });
-  if (!applied) return { done: null, error: t('errors.unavailable') };
-  return { done: intent.data, error: null };
+  return guardDb(
+    'manage',
+    () => ({ done: null, error: t('errors.unavailable') }),
+    async () => {
+      const access = await resolveToken(db, token, 'manage', new Date());
+      if (access.state !== 'valid') return { done: null, error: t(`token.${access.state}`) };
+      const applied = await applyManageIntent(db, access.ctx, intent.data, {
+        version: CONSENT_VERSION,
+        hashes: {
+          marketing: consentTextHash(t.raw('consents.marketing') as string),
+          portfolio: consentTextHash(t.raw('consents.portfolio') as string),
+          quote: consentTextHash(t.raw('consents.quote') as string),
+        },
+      });
+      if (!applied) return { done: null, error: t('errors.unavailable') };
+      return { done: intent.data, error: null };
+    }
+  );
 }

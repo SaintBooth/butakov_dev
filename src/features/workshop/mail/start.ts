@@ -1,9 +1,10 @@
 import { MAILER } from '@/config/workshop';
 import { getWorkshopEnv } from '@/config/workshopEnv';
 import { getDb } from '../db/client';
+import { describeError } from '../server/describeError';
 import { notifyOwner } from '../server/notify';
 import { createSmtpSender } from './transport';
-import { describeError, runMailerTick } from './worker';
+import { runMailerTick } from './worker';
 
 // On globalThis so that dev hot reloads, which re-evaluate this module, cannot start a second interval.
 const globals = globalThis as typeof globalThis & { __workshopMailerStarted?: boolean };
