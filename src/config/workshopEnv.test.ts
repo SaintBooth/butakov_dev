@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { parseWorkshopEnv } from './workshopEnv';
 
 const base = {
@@ -70,5 +70,94 @@ describe('parseWorkshopEnv', () => {
       expect(r.env.SMTP_HOST).toBeUndefined();
       expect(r.env.SMTP_PORT).toBeUndefined();
     }
+  });
+});
+
+describe('parseWorkshopEnv secrets', () => {
+  it('rejects a short admin token and names the variable, not its value', () => {
+    const r = parseWorkshopEnv({ ...base, WORKSHOP_ADMIN_TOKEN: 'c'.repeat(31) });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error).toContain('WORKSHOP_ADMIN_TOKEN');
+      expect(r.error).not.toContain('c'.repeat(31));
+    }
+  });
+
+  it('accepts an admin token of exactly the minimum length', () => {
+    expect(parseWorkshopEnv({ ...base, WORKSHOP_ADMIN_TOKEN: 'c'.repeat(32) }).ok).toBe(true);
+  });
+});
+
+describe('parseWorkshopEnv partial SMTP', () => {
+  const smtp: Record<string, string> = {
+    SMTP_HOST: 'h',
+    SMTP_PORT: '465',
+    SMTP_USER: 'u',
+    SMTP_PASS: 'p',
+    MAIL_FROM: 'a@b.ru',
+  };
+
+  it.each(Object.keys(smtp))('rejects the enabled mailer without %s', (missing) => {
+    const { [missing]: _omitted, ...rest } = smtp;
+    const r = parseWorkshopEnv({ ...base, ...rest, WORKSHOP_MAILER_ENABLED: 'true' });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toContain('WORKSHOP_MAILER_ENABLED');
+  });
+
+  it('never echoes the SMTP password when the configuration is rejected', () => {
+    const r = parseWorkshopEnv({
+      ...base,
+      SMTP_PASS: 'hunter2-secret',
+      WORKSHOP_MAILER_ENABLED: 'true',
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).not.toContain('hunter2-secret');
+  });
+});
+
+describe('getWorkshopEnv', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+    vi.resetModules();
+  });
+
+  async function loadFresh() {
+    vi.resetModules();
+    return (await import('./workshopEnv')).getWorkshopEnv;
+  }
+
+  it('returns null and logs the variable names when the environment is invalid', async () => {
+    vi.stubEnv('DATABASE_URL', '');
+    vi.stubEnv('WORKSHOP_FORM_SECRET', 'x');
+    vi.stubEnv('WORKSHOP_ADMIN_TOKEN', 'y');
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const getWorkshopEnv = await loadFresh();
+
+    expect(getWorkshopEnv()).toBeNull();
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(String(log.mock.calls[0][0])).toContain('WORKSHOP_FORM_SECRET');
+  });
+
+  it('parses once and keeps serving the cached result', async () => {
+    vi.stubEnv('DATABASE_URL', base.DATABASE_URL);
+    vi.stubEnv('WORKSHOP_FORM_SECRET', base.WORKSHOP_FORM_SECRET);
+    vi.stubEnv('WORKSHOP_ADMIN_TOKEN', base.WORKSHOP_ADMIN_TOKEN);
+    const getWorkshopEnv = await loadFresh();
+
+    const first = getWorkshopEnv();
+    expect(first?.DATABASE_URL).toBe(base.DATABASE_URL);
+    vi.stubEnv('DATABASE_URL', 'postgres://changed');
+    expect(getWorkshopEnv()).toBe(first);
+  });
+
+  it('caches the failure too, so a broken environment is logged only once', async () => {
+    vi.stubEnv('DATABASE_URL', '');
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const getWorkshopEnv = await loadFresh();
+
+    getWorkshopEnv();
+    getWorkshopEnv();
+    expect(log).toHaveBeenCalledTimes(1);
   });
 });
