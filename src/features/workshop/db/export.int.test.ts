@@ -34,6 +34,18 @@ beforeAll(async () => {
   await sql`
     INSERT INTO workshop_consents (participant_id, kind, granted, text_version, text_sha256)
     SELECT id, 'portfolio', false, 'v', 'c' FROM workshop_participants WHERE email = 'revoked@x.ru'`;
+
+  // 'yes' and 'revoked' both granted a quote; 'revoked' withdrew it afterwards. 'no' never granted one.
+  for (const granted of [true, false]) {
+    await sql`
+      INSERT INTO workshop_consents (participant_id, kind, granted, text_version, text_sha256)
+      SELECT id, 'quote', ${granted}, 'v', 'q' FROM workshop_participants
+      WHERE email = 'revoked@x.ru' OR (${granted} AND email = 'yes@x.ru')`;
+  }
+  await sql`
+    INSERT INTO workshop_feedback (registration_id, recommend_score, applicability, testimonial)
+    SELECT r.id, 9, 4, p.email FROM workshop_registrations r
+    JOIN workshop_participants p ON p.id = r.participant_id`;
 });
 afterAll(async () => {
   await sql.end();
@@ -43,6 +55,11 @@ describe('buildExport', () => {
   it('lists only attendees with a current portfolio consent', async () => {
     const out = await buildExport(sql, 'ai-test', 'attendees');
     expect(out?.rows.map((r) => r[1])).toEqual(['yes@x.ru']);
+  });
+
+  it('exports feedback only for people whose latest quote consent is granted', async () => {
+    const out = await buildExport(sql, 'ai-test', 'feedback');
+    expect(out?.rows.map((r) => r[0])).toEqual(['yes@x.ru']);
   });
 
   it('summarises with absolute numbers and no personal data', async () => {

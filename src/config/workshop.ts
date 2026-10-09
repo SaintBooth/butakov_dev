@@ -79,6 +79,7 @@ export const MIN_FILL_MS = 3000;
 export const RATE_LIMITS = {
   register: { max: 5, windowMs: 10 * 60_000 },
   checkin: { max: 10, windowMs: 10 * 60_000 },
+  export: { max: 10, windowMs: 10 * 60_000 },
 } as const;
 
 // One retry delay per failed attempt; when they run out the job is marked failed (5 attempts total).
