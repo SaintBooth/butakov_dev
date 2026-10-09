@@ -48,6 +48,15 @@ function optionalEnum<V extends readonly [string, ...string[]]>(values: V, t: T)
   return z.preprocess(blankToUndefined, z.enum(values, { error: t('errors.invalid') }).optional());
 }
 
+function requiredText(min: number, max: number, message: string) {
+  return z.string({ error: message }).trim().min(min, message).max(max, message);
+}
+
+// Unticked checkboxes are absent from the form data; a missing flag means "no".
+function flag(t: T) {
+  return z.boolean({ error: t('errors.invalid') }).default(false);
+}
+
 function email(t: T) {
   return z.preprocess(
     trimLower,
@@ -57,17 +66,9 @@ function email(t: T) {
 
 export function createRegistrationSchema(t: T) {
   return z.object({
-    fullName: z
-      .string({ error: t('errors.fullName') })
-      .trim()
-      .min(2, t('errors.fullName'))
-      .max(FIELD_LIMITS.fullName, t('errors.fullName')),
+    fullName: requiredText(2, FIELD_LIMITS.fullName, t('errors.fullName')),
     email: email(t),
-    company: z
-      .string({ error: t('errors.company') })
-      .trim()
-      .min(1, t('errors.company'))
-      .max(FIELD_LIMITS.company, t('errors.company')),
+    company: requiredText(1, FIELD_LIMITS.company, t('errors.company')),
     positionLevel: z.enum(POSITION_LEVELS, { error: t('errors.positionLevel') }),
     positionTitle: optionalText(FIELD_LIMITS.positionTitle, t),
     fullNameLatin: optionalLatin(FIELD_LIMITS.fullNameLatin, t),
@@ -91,8 +92,8 @@ export function createRegistrationSchema(t: T) {
       .array(z.enum(TOPICS, { error: t('errors.invalid') }))
       .max(MAX_TOPICS, t('errors.topics')),
     consentPd: z.literal(true, { error: t('errors.consentPd') }),
-    consentMarketing: z.boolean({ error: t('errors.invalid') }),
-    consentPortfolio: z.boolean({ error: t('errors.invalid') }),
+    consentMarketing: flag(t),
+    consentPortfolio: flag(t),
   });
 }
 
@@ -101,7 +102,7 @@ export function createCheckinSchema(t: T) {
     email: email(t),
     code: z.preprocess(
       (v) => (typeof v === 'string' ? v.trim().toUpperCase() : v),
-      z.string().length(CHECKIN_CODE_LENGTH, t('errors.code'))
+      z.string({ error: t('errors.code') }).length(CHECKIN_CODE_LENGTH, t('errors.code'))
     ),
   });
 }
@@ -127,9 +128,9 @@ export function createFeedbackSchema(t: T) {
     mostUseful: optionalText(FIELD_LIMITS.feedbackText, t),
     planToImplement: optionalText(FIELD_LIMITS.feedbackText, t),
     testimonial: optionalText(FIELD_LIMITS.feedbackText, t),
-    consentQuote: z.boolean({ error: t('errors.invalid') }).default(false),
-    wantsReview: z.boolean({ error: t('errors.invalid') }).default(false),
-    followupOk: z.boolean({ error: t('errors.invalid') }).default(false),
+    consentQuote: flag(t),
+    wantsReview: flag(t),
+    followupOk: flag(t),
   });
 }
 
@@ -138,7 +139,7 @@ export function createFollowupSchema(t: T) {
     .object({
       implemented: optionalText(FIELD_LIMITS.followupText, t),
       result: optionalText(FIELD_LIMITS.followupText, t),
-      letterOk: z.boolean({ error: t('errors.invalid') }),
+      letterOk: flag(t),
     })
     .refine((d) => Boolean(d.implemented || d.result), {
       message: t('errors.followupEmpty'),
