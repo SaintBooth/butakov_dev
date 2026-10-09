@@ -2,6 +2,7 @@ import type { Sql } from 'postgres';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestDb, seedSession } from '@/test/db';
 import { issueToken } from '../db/tokens';
+import { followupSendAt } from '../domain/emailPlan';
 import type { FeedbackInput } from '../schema';
 import { registerParticipant } from '../server/registerParticipant';
 import { resolveToken } from '../server/tokenAccess';
@@ -91,5 +92,25 @@ describe('saveFeedback', () => {
   it('rejects array token as invalid', async () => {
     const access = await resolveToken(sql, ['token1', 'token2'], 'feedback', new Date());
     expect(access.state).toBe('invalid');
+  });
+
+  it('queues the follow-up for the configured delay after the session ends', async () => {
+    await saveFeedback(sql, await validCtx(), input, 'qh', new Date());
+    const [job] = await sql`SELECT send_at FROM workshop_email_jobs WHERE kind = 'followup'`;
+    const [session] = await sql`SELECT ends_at FROM workshop_sessions`;
+    expect(job.sendAt).toEqual(followupSendAt(session.endsAt));
+  });
+
+  it('queues no follow-up when the participant did not agree to it', async () => {
+    await saveFeedback(sql, await validCtx(), { ...input, followupOk: false }, 'qh', new Date());
+    const jobs = await sql`SELECT id FROM workshop_email_jobs WHERE kind = 'followup'`;
+    expect(jobs).toHaveLength(0);
+  });
+
+  it('records a declined quote as a granted=false row, not as no row', async () => {
+    await saveFeedback(sql, await validCtx(), { ...input, consentQuote: false }, 'qh', new Date());
+    const rows = await sql`SELECT granted, text_sha256 FROM workshop_consents WHERE kind = 'quote'`;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ granted: false, textSha256: 'qh' });
   });
 });

@@ -1,5 +1,10 @@
 import type { Sql } from 'postgres';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import {
+  CHECKIN_CLOSES_AFTER_END_MIN,
+  CHECKIN_OPENS_BEFORE_END_MIN,
+  MINUTE_MS,
+} from '@/config/workshop';
 import { createTestDb, seedSession } from '@/test/db';
 import { registerParticipant } from '../server/registerParticipant';
 import { checkIn } from './checkin';
@@ -96,5 +101,36 @@ describe('checkIn', () => {
     expect(reg).toMatchObject({ status: 'cancelled', attendedAt: null });
     const [{ n }] = await sql`SELECT count(*)::int AS n FROM workshop_tokens`;
     expect(n).toBe(0);
+  });
+
+  it('leaves the registration unattended and issues no token for a wrong code', async () => {
+    const r = await checkIn(sql, 'ai-test', { email: 'ivan@x.ru', code: 'ZZZZZZ' }, duringWindow);
+    expect(r.status).toBe('not_found');
+    const [reg] = await sql`SELECT status, attended_at FROM workshop_registrations`;
+    expect(reg).toMatchObject({ status: 'registered', attendedAt: null });
+    const [{ n }] = await sql`SELECT count(*)::int AS n FROM workshop_tokens`;
+    expect(n).toBe(0);
+  });
+
+  it('is open up to the closing minute and closed right after it', async () => {
+    const lastMoment = new Date(endsAt.getTime() + CHECKIN_CLOSES_AFTER_END_MIN * MINUTE_MS);
+    const justAfter = new Date(lastMoment.getTime() + 1);
+    const input = { email: 'ivan@x.ru', code: 'AB3K9Z' };
+
+    expect((await checkIn(sql, 'ai-test', input, justAfter)).status).toBe('closed');
+    const [untouched] = await sql`SELECT status FROM workshop_registrations`;
+    expect(untouched.status).toBe('registered');
+
+    expect((await checkIn(sql, 'ai-test', input, lastMoment)).status).toBe('ok');
+  });
+
+  it('opens exactly at the opening minute and not a millisecond before', async () => {
+    const opening = new Date(endsAt.getTime() - CHECKIN_OPENS_BEFORE_END_MIN * MINUTE_MS);
+    const input = { email: 'ivan@x.ru', code: 'AB3K9Z' };
+
+    expect((await checkIn(sql, 'ai-test', input, new Date(opening.getTime() - 1))).status).toBe(
+      'closed'
+    );
+    expect((await checkIn(sql, 'ai-test', input, opening)).status).toBe('ok');
   });
 });

@@ -1,7 +1,9 @@
 import type { Sql } from 'postgres';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestDb, seedSession } from '@/test/db';
+import { listConsentEvents } from '../db/consents';
 import { issueToken } from '../db/tokens';
+import { currentConsents } from '../domain/consents';
 import { registerParticipant } from '../server/registerParticipant';
 import { resolveToken } from '../server/tokenAccess';
 import { applyManageIntent } from './manage';
@@ -103,5 +105,35 @@ describe('manage intents', () => {
     const [row] =
       await sql`SELECT granted FROM workshop_consents WHERE kind = 'marketing' ORDER BY id DESC LIMIT 1`;
     expect(row.granted).toBe(false);
+  });
+
+  it('reports an expired token as expired', async () => {
+    await sql`UPDATE workshop_tokens SET expires_at = now() - interval '1 second'`;
+    expect((await resolveToken(sql, token, 'manage', new Date())).state).toBe('expired');
+  });
+
+  it('reports a token with a used_at stamp as used', async () => {
+    await sql`UPDATE workshop_tokens SET used_at = now()`;
+    expect((await resolveToken(sql, token, 'manage', new Date())).state).toBe('used');
+  });
+
+  it.each([
+    ['revoke', ['portfolio', 'quote'], { portfolio: false, quote: false, marketing: true }],
+    ['unsubscribe', ['marketing'], { portfolio: true, quote: false, marketing: false }],
+  ] as const)('%s appends %j and keeps the granted rows', async (intent, revoked, expected) => {
+    const [{ participantId }] = await sql`SELECT participant_id FROM workshop_registrations`;
+    const before = await sql`SELECT id, kind, granted FROM workshop_consents ORDER BY id`;
+    expect(before.filter((r) => r.granted).map((r) => r.kind)).toEqual(
+      expect.arrayContaining(['pd_processing', 'marketing', 'portfolio'])
+    );
+
+    await applyManageIntent(sql, await ctx(), intent, audit);
+
+    const after = await sql`SELECT id, kind, granted FROM workshop_consents ORDER BY id`;
+    expect(after.slice(0, before.length)).toEqual(before);
+    expect(after.slice(before.length).map((r) => [r.kind, r.granted])).toEqual(
+      revoked.map((kind) => [kind, false])
+    );
+    expect(currentConsents(await listConsentEvents(sql, participantId))).toMatchObject(expected);
   });
 });

@@ -179,4 +179,25 @@ describe('runMailerTick', () => {
       await sql`SELECT status, attempts, last_error FROM workshop_email_jobs WHERE kind = 'confirmation'`;
     expect(job).toMatchObject({ status: 'pending', attempts: 1, lastError: 'PostgresError:42P01' });
   });
+
+  it('leaves a future-dated job untouched by a tick', async () => {
+    const futureJobs = () =>
+      sql`SELECT id, kind, status, attempts, send_at, sent_at, last_error
+          FROM workshop_email_jobs WHERE kind <> 'confirmation' ORDER BY id`;
+    const before = await futureJobs();
+    expect(before.length).toBeGreaterThan(0);
+
+    const sent: OutgoingMail[] = [];
+    await runMailerTick({
+      db: sql,
+      send: async (m) => void sent.push(m),
+      now: () => new Date(),
+      notify: noopNotify,
+    });
+
+    expect(sent).toHaveLength(1);
+    expect(await futureJobs()).toEqual(before);
+    const tokens = await sql`SELECT purpose FROM workshop_tokens`;
+    expect(tokens.map((t) => t.purpose)).toEqual(['manage']);
+  });
 });
