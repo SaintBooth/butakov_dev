@@ -14,6 +14,33 @@ describe('parseWorkshopEnv', () => {
     if (r.ok) expect(r.env.WORKSHOP_MAILER_ENABLED).toBe(false);
   });
 
+  it('falls back to DB_CONNECTION_STRING injected by the hosting panel', () => {
+    const { DATABASE_URL: _unused, ...rest } = base;
+    const r = parseWorkshopEnv({ ...rest, DB_CONNECTION_STRING: 'postgres://h/panel' });
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.env.DATABASE_URL).toBe('postgres://h/panel');
+  });
+
+  it('lets DATABASE_URL win over DB_CONNECTION_STRING and ignores an empty one', () => {
+    const both = parseWorkshopEnv({ ...base, DB_CONNECTION_STRING: 'postgres://h/panel' });
+    if (both.ok) expect(both.env.DATABASE_URL).toBe(base.DATABASE_URL);
+    else throw new Error(both.error);
+    const empty = parseWorkshopEnv({
+      ...base,
+      DATABASE_URL: '',
+      DB_CONNECTION_STRING: 'postgres://h/panel',
+    });
+    if (empty.ok) expect(empty.env.DATABASE_URL).toBe('postgres://h/panel');
+    else throw new Error(empty.error);
+  });
+
+  it('is invalid when neither variable is set', () => {
+    const { DATABASE_URL: _unused, ...rest } = base;
+    const r = parseWorkshopEnv(rest);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toContain('DATABASE_URL');
+  });
+
   it('rejects a short form secret and names the variable, not its value', () => {
     const r = parseWorkshopEnv({ ...base, WORKSHOP_FORM_SECRET: 'short' });
     expect(r.ok).toBe(false);

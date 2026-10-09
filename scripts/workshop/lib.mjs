@@ -68,9 +68,18 @@ export function readSiteUrl(env = process.env) {
   return env.SITE_URL.replace(/\/+$/, '');
 }
 
+/**
+ * Same precedence as src/config/workshopEnv.ts: the hosting panel injects DB_CONNECTION_STRING.
+ * @param {Record<string, string | undefined>} [env]
+ */
+export function readDatabaseUrl(env = process.env) {
+  const url = env.DATABASE_URL || env.DB_CONNECTION_STRING;
+  if (!url) throw new Error('DATABASE_URL (or DB_CONNECTION_STRING) is not set');
+  return url;
+}
+
 /** @param {string} [url] */
-export function connect(url = process.env.DATABASE_URL) {
-  if (!url) throw new Error('DATABASE_URL is not set');
+export function connect(url = readDatabaseUrl()) {
   return postgres(url, { max: 1, transform: postgres.camel, onnotice: () => {} });
 }
 

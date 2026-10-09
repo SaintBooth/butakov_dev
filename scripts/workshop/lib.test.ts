@@ -5,6 +5,7 @@ import {
   CHECKIN_CODE_LENGTH,
   generateCheckinCode,
   parseCreateSessionArgs,
+  readDatabaseUrl,
   readSiteUrl,
 } from './lib.mjs';
 
@@ -81,5 +82,16 @@ describe('readSiteUrl', () => {
 
   it('drops trailing slashes', () => {
     expect(readSiteUrl({ SITE_URL: 'https://example.test//' })).toBe('https://example.test');
+  });
+});
+
+describe('readDatabaseUrl', () => {
+  it('prefers DATABASE_URL, falls back to the panel DB_CONNECTION_STRING', () => {
+    expect(readDatabaseUrl({ DATABASE_URL: 'a', DB_CONNECTION_STRING: 'b' })).toBe('a');
+    expect(readDatabaseUrl({ DATABASE_URL: '', DB_CONNECTION_STRING: 'b' })).toBe('b');
+  });
+
+  it('names both variables when neither is set', () => {
+    expect(() => readDatabaseUrl({})).toThrow(/DATABASE_URL \(or DB_CONNECTION_STRING\)/);
   });
 });

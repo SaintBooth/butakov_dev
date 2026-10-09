@@ -41,7 +41,11 @@ export type WorkshopEnv = z.infer<typeof envSchema>;
 export function parseWorkshopEnv(
   source: Record<string, string | undefined>
 ): { ok: true; env: WorkshopEnv } | { ok: false; error: string } {
-  const r = envSchema.safeParse(source);
+  // Netangels injects the database URL as DB_CONNECTION_STRING; an explicit DATABASE_URL wins.
+  const r = envSchema.safeParse({
+    ...source,
+    DATABASE_URL: source.DATABASE_URL || source.DB_CONNECTION_STRING,
+  });
   if (r.success) return { ok: true, env: r.data };
   // Only variable names and rule messages; zod issues never carry the secret values.
   const error = r.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
