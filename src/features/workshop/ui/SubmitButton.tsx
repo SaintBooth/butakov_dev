@@ -1,10 +1,12 @@
-'use client';
-
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { useFormStatus } from 'react-dom';
 
-export function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
-  const { pending } = useFormStatus();
+interface SubmitButtonProps {
+  label: string;
+  pendingLabel: string;
+  pending: boolean;
+}
+
+export function SubmitButton({ label, pendingLabel, pending }: SubmitButtonProps) {
   return (
     <button
       type="submit"

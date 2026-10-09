@@ -2,7 +2,7 @@
 
 import { CalendarPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useActionState, useState, type FormEvent } from 'react';
+import { startTransition, useActionState, useState, type FormEvent } from 'react';
 import type { FormState } from '../actions/register';
 import {
   createRegistrationSchema,
@@ -24,7 +24,7 @@ interface RegistrationFormProps {
 
 export function RegistrationForm({ action, stamp, icsHref }: RegistrationFormProps) {
   const t = useTranslations('workshop');
-  const [state, formAction] = useActionState(action, { status: 'idle' });
+  const [state, formAction, pending] = useActionState(action, { status: 'idle' });
   const [clientErrors, setClientErrors] = useState<FieldErrors | null>(null);
 
   if (state.status === 'success') {
@@ -43,22 +43,24 @@ export function RegistrationForm({ action, stamp, icsHref }: RegistrationFormPro
     );
   }
 
-  // Same schema as the server: fail fast in the browser; the server re-validates anyway.
+  // Submitted by hand rather than via <form action>: React 19 resets uncontrolled fields after a
+  // form action, which would wipe the user's answers on every server-side error.
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    const r = createRegistrationSchema(t).safeParse(
-      readRegistrationForm(new FormData(e.currentTarget))
-    );
-    if (r.success) {
-      setClientErrors(null);
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    // Same schema as the server: fail fast in the browser; the server re-validates anyway.
+    const r = createRegistrationSchema(t).safeParse(readRegistrationForm(fd));
+    if (!r.success) {
+      setClientErrors(issuesToFieldErrors(r.error.issues));
       return;
     }
-    e.preventDefault();
-    setClientErrors(issuesToFieldErrors(r.error.issues));
+    setClientErrors(null);
+    startTransition(() => formAction(fd));
   };
 
   const errors = clientErrors ?? (state.status === 'error' ? state.fieldErrors : {});
   return (
-    <form action={formAction} onSubmit={onSubmit} noValidate className="flex flex-col gap-8">
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-8">
       <input
         type="text"
         name="website"
@@ -74,7 +76,11 @@ export function RegistrationForm({ action, stamp, icsHref }: RegistrationFormPro
       {state.status === 'error' && state.formError && (
         <Notice tone="error">{state.formError}</Notice>
       )}
-      <SubmitButton label={t('register.submit')} pendingLabel={t('register.submitting')} />
+      <SubmitButton
+        pending={pending}
+        label={t('register.submit')}
+        pendingLabel={t('register.submitting')}
+      />
     </form>
   );
 }

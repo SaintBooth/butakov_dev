@@ -46,6 +46,18 @@ export const TOPICS = [
 ] as const;
 export const MAX_TOPICS = 3;
 
+// Shared by the zod schema and the input maxLength so the two cannot drift.
+export const FIELD_LIMITS = {
+  fullName: 100,
+  email: 254,
+  company: 150,
+  positionTitle: 120,
+  fullNameLatin: 100,
+  positionLatin: 120,
+  profileUrl: 300,
+  taskText: 1000,
+} as const;
+
 export const CONSENT_VERSION = '2026-10-09';
 export const CONSENT_KINDS = ['pd_processing', 'marketing', 'portfolio', 'quote'] as const;
 

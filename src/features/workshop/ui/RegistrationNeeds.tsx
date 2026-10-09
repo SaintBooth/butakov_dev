@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { AI_LEVELS, CHALLENGES, TOPICS } from '@/config/workshop';
+import { AI_LEVELS, CHALLENGES, FIELD_LIMITS, TOPICS } from '@/config/workshop';
 import type { FieldErrors } from '../schema';
 import { ChoiceList } from './ChoiceList';
 import { sectionTitleClass } from './formStyles';
@@ -24,7 +24,7 @@ export function RegistrationNeeds({ errors }: { errors: FieldErrors }) {
       <TextField
         name="taskText"
         multiline
-        maxLength={1000}
+        maxLength={FIELD_LIMITS.taskText}
         label={t('fields.taskText')}
         hint={t('fields.taskTextHint')}
         error={errors.taskText}

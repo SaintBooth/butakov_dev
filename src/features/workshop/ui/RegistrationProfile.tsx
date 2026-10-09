@@ -1,7 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { COMPANY_SIZES, DECISION_ROLES, INDUSTRIES, POSITION_LEVELS } from '@/config/workshop';
+import {
+  COMPANY_SIZES,
+  FIELD_LIMITS,
+  DECISION_ROLES,
+  INDUSTRIES,
+  POSITION_LEVELS,
+} from '@/config/workshop';
 import type { FieldErrors } from '../schema';
 import { sectionTitleClass } from './formStyles';
 import { SelectField } from './SelectField';
@@ -18,7 +24,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         name="fullName"
         label={t('fields.fullName')}
         required
-        maxLength={100}
+        maxLength={FIELD_LIMITS.fullName}
         autoComplete="name"
         error={errors.fullName}
       />
@@ -27,7 +33,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         type="email"
         label={t('fields.email')}
         required
-        maxLength={254}
+        maxLength={FIELD_LIMITS.email}
         autoComplete="email"
         hint={t('fields.emailHint')}
         error={errors.email}
@@ -36,7 +42,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         name="company"
         label={t('fields.company')}
         required
-        maxLength={150}
+        maxLength={FIELD_LIMITS.company}
         autoComplete="organization"
         hint={t('fields.companyHint')}
         error={errors.company}
@@ -53,21 +59,21 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
       <TextField
         name="positionTitle"
         label={t('fields.positionTitle')}
-        maxLength={120}
+        maxLength={FIELD_LIMITS.positionTitle}
         autoComplete="organization-title"
         error={errors.positionTitle}
       />
       <TextField
         name="fullNameLatin"
         label={t('fields.fullNameLatin')}
-        maxLength={100}
+        maxLength={FIELD_LIMITS.fullNameLatin}
         hint={t('fields.latinHint')}
         error={errors.fullNameLatin}
       />
       <TextField
         name="positionLatin"
         label={t('fields.positionLatin')}
-        maxLength={120}
+        maxLength={FIELD_LIMITS.positionLatin}
         hint={t('fields.latinHint')}
         error={errors.positionLatin}
       />
@@ -75,7 +81,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         name="profileUrl"
         type="url"
         label={t('fields.profileUrl')}
-        maxLength={300}
+        maxLength={FIELD_LIMITS.profileUrl}
         hint={t('fields.profileUrlHint')}
         error={errors.profileUrl}
       />

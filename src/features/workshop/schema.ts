@@ -5,6 +5,7 @@ import {
   CHECKIN_CODE_LENGTH,
   COMPANY_SIZES,
   DECISION_ROLES,
+  FIELD_LIMITS,
   INDUSTRIES,
   MAX_TOPICS,
   POSITION_LEVELS,
@@ -48,7 +49,10 @@ function optionalEnum<V extends readonly [string, ...string[]]>(values: V, t: T)
 }
 
 function email(t: T) {
-  return z.preprocess(trimLower, z.email(t('errors.email')).max(254, t('errors.email')));
+  return z.preprocess(
+    trimLower,
+    z.email(t('errors.email')).max(FIELD_LIMITS.email, t('errors.email'))
+  );
 }
 
 export function createRegistrationSchema(t: T) {
@@ -57,23 +61,23 @@ export function createRegistrationSchema(t: T) {
       .string({ error: t('errors.fullName') })
       .trim()
       .min(2, t('errors.fullName'))
-      .max(100, t('errors.fullName')),
+      .max(FIELD_LIMITS.fullName, t('errors.fullName')),
     email: email(t),
     company: z
       .string({ error: t('errors.company') })
       .trim()
       .min(1, t('errors.company'))
-      .max(150, t('errors.company')),
+      .max(FIELD_LIMITS.company, t('errors.company')),
     positionLevel: z.enum(POSITION_LEVELS, { error: t('errors.positionLevel') }),
-    positionTitle: optionalText(120, t),
-    fullNameLatin: optionalLatin(100, t),
-    positionLatin: optionalLatin(120, t),
+    positionTitle: optionalText(FIELD_LIMITS.positionTitle, t),
+    fullNameLatin: optionalLatin(FIELD_LIMITS.fullNameLatin, t),
+    positionLatin: optionalLatin(FIELD_LIMITS.positionLatin, t),
     profileUrl: z.preprocess(
       blankToUndefined,
       z
         .string({ error: t('errors.profileUrl') })
         .trim()
-        .max(300, t('errors.profileUrl'))
+        .max(FIELD_LIMITS.profileUrl, t('errors.profileUrl'))
         .regex(HTTPS_URL, t('errors.profileUrl'))
         .optional()
     ),
@@ -81,7 +85,7 @@ export function createRegistrationSchema(t: T) {
     companySize: optionalEnum(COMPANY_SIZES, t),
     decisionRole: optionalEnum(DECISION_ROLES, t),
     aiLevel: optionalEnum(AI_LEVELS, t),
-    taskText: optionalText(1000, t),
+    taskText: optionalText(FIELD_LIMITS.taskText, t),
     challenges: z.array(z.enum(CHALLENGES, { error: t('errors.invalid') })),
     topics: z
       .array(z.enum(TOPICS, { error: t('errors.invalid') }))
