@@ -20,22 +20,22 @@ const HTTPS_URL = /^https:\/\/[^\s/]+\.[^\s]+$/;
 const blankToUndefined = (v: unknown) => (typeof v === 'string' && v.trim() === '' ? undefined : v);
 const trimLower = (v: unknown) => (typeof v === 'string' ? v.trim().toLowerCase() : v);
 
-function optionalText(max: number, t: T, errorKey: string = 'errors.invalid') {
+function optionalText(max: number, t: T) {
   return z.preprocess(
     blankToUndefined,
     z
-      .string({ error: t(errorKey) })
+      .string({ error: t('errors.invalid') })
       .trim()
       .max(max, t('errors.tooLong'))
       .optional()
   );
 }
 
-function optionalLatin(max: number, t: T, errorKey: string = 'errors.invalid') {
+function optionalLatin(max: number, t: T) {
   return z.preprocess(
     blankToUndefined,
     z
-      .string({ error: t(errorKey) })
+      .string({ error: t('errors.invalid') })
       .trim()
       .max(max, t('errors.tooLong'))
       .regex(LATIN, t('errors.latin'))
@@ -43,12 +43,8 @@ function optionalLatin(max: number, t: T, errorKey: string = 'errors.invalid') {
   );
 }
 
-function optionalEnum<V extends readonly [string, ...string[]]>(
-  values: V,
-  t: T,
-  errorKey: string = 'errors.invalid'
-) {
-  return z.preprocess(blankToUndefined, z.enum(values, { error: t(errorKey) }).optional());
+function optionalEnum<V extends readonly [string, ...string[]]>(values: V, t: T) {
+  return z.preprocess(blankToUndefined, z.enum(values, { error: t('errors.invalid') }).optional());
 }
 
 function email(t: T) {
@@ -69,9 +65,9 @@ export function createRegistrationSchema(t: T) {
       .min(1, t('errors.company'))
       .max(150, t('errors.company')),
     positionLevel: z.enum(POSITION_LEVELS, { error: t('errors.positionLevel') }),
-    positionTitle: optionalText(120, t, 'errors.positionTitle'),
-    fullNameLatin: optionalLatin(100, t, 'errors.fullNameLatin'),
-    positionLatin: optionalLatin(120, t, 'errors.positionLatin'),
+    positionTitle: optionalText(120, t),
+    fullNameLatin: optionalLatin(100, t),
+    positionLatin: optionalLatin(120, t),
     profileUrl: z.preprocess(
       blankToUndefined,
       z
@@ -81,18 +77,18 @@ export function createRegistrationSchema(t: T) {
         .regex(HTTPS_URL, t('errors.profileUrl'))
         .optional()
     ),
-    industry: optionalEnum(INDUSTRIES, t, 'errors.industry'),
-    companySize: optionalEnum(COMPANY_SIZES, t, 'errors.companySize'),
-    decisionRole: optionalEnum(DECISION_ROLES, t, 'errors.decisionRole'),
-    aiLevel: optionalEnum(AI_LEVELS, t, 'errors.aiLevel'),
-    taskText: optionalText(1000, t, 'errors.taskText'),
-    challenges: z.array(z.enum(CHALLENGES, { error: t('errors.challenges') })),
+    industry: optionalEnum(INDUSTRIES, t),
+    companySize: optionalEnum(COMPANY_SIZES, t),
+    decisionRole: optionalEnum(DECISION_ROLES, t),
+    aiLevel: optionalEnum(AI_LEVELS, t),
+    taskText: optionalText(1000, t),
+    challenges: z.array(z.enum(CHALLENGES, { error: t('errors.invalid') })),
     topics: z
-      .array(z.enum(TOPICS, { error: t('errors.topics') }))
+      .array(z.enum(TOPICS, { error: t('errors.invalid') }))
       .max(MAX_TOPICS, t('errors.topics')),
     consentPd: z.literal(true, { error: t('errors.consentPd') }),
-    consentMarketing: z.boolean({ error: t('errors.consentMarketing') }),
-    consentPortfolio: z.boolean({ error: t('errors.consentPortfolio') }),
+    consentMarketing: z.boolean({ error: t('errors.invalid') }),
+    consentPortfolio: z.boolean({ error: t('errors.invalid') }),
   });
 }
 
@@ -108,7 +104,8 @@ export function createCheckinSchema(t: T) {
 
 function score(min: number, max: number, t: T) {
   // A blank must fail: z.coerce alone would silently turn '' into 0.
-  // Non-numeric input (e.g. 'abc') becomes NaN; provide error message for coerce step.
+  // Non-numeric input becomes NaN after coerce, failing the type check before
+  // downstream .int()/.min()/.max() validators can provide context-specific messages.
   return z.preprocess(
     blankToUndefined,
     z.coerce
@@ -123,21 +120,21 @@ export function createFeedbackSchema(t: T) {
   return z.object({
     recommendScore: score(0, 10, t),
     applicability: score(1, 5, t),
-    mostUseful: optionalText(1000, t, 'errors.mostUseful'),
-    planToImplement: optionalText(1000, t, 'errors.planToImplement'),
-    testimonial: optionalText(1000, t, 'errors.testimonial'),
-    consentQuote: z.boolean({ error: t('errors.consentQuote') }).default(false),
-    wantsReview: z.boolean({ error: t('errors.wantsReview') }).default(false),
-    followupOk: z.boolean({ error: t('errors.followupOk') }).default(false),
+    mostUseful: optionalText(1000, t),
+    planToImplement: optionalText(1000, t),
+    testimonial: optionalText(1000, t),
+    consentQuote: z.boolean({ error: t('errors.invalid') }).default(false),
+    wantsReview: z.boolean({ error: t('errors.invalid') }).default(false),
+    followupOk: z.boolean({ error: t('errors.invalid') }).default(false),
   });
 }
 
 export function createFollowupSchema(t: T) {
   return z
     .object({
-      implemented: optionalText(2000, t, 'errors.implemented'),
-      result: optionalText(2000, t, 'errors.result'),
-      letterOk: z.boolean({ error: t('errors.letterOk') }),
+      implemented: optionalText(2000, t),
+      result: optionalText(2000, t),
+      letterOk: z.boolean({ error: t('errors.invalid') }),
     })
     .refine((d) => Boolean(d.implemented || d.result), {
       message: t('errors.followupEmpty'),

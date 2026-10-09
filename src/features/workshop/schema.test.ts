@@ -87,7 +87,7 @@ describe('registration schema', () => {
       readRegistrationForm(form([...minimal, ['industry', 'invalid_industry']]))
     );
     expect(r.success).toBe(false);
-    if (!r.success) expect(issuesToFieldErrors(r.error.issues).industry).toBe('errors.industry');
+    if (!r.success) expect(issuesToFieldErrors(r.error.issues).industry).toBe('errors.invalid');
   });
 });
 
