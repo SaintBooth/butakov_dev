@@ -16,7 +16,8 @@ export function ScaleField({ name, label, min, max, lowLabel, highLabel, error }
   return (
     <fieldset id={id}>
       <legend className={labelClass}>{label} *</legend>
-      <div className="mt-2 flex flex-wrap gap-1.5">
+      {/* Announces the field as required without native validation, which the form does itself. */}
+      <div role="radiogroup" aria-required="true" className="mt-2 flex flex-wrap gap-1.5">
         {values.map((v) => (
           <label key={v} className="cursor-pointer">
             <input
