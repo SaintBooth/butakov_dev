@@ -7,10 +7,11 @@ import { getDb } from '@/features/workshop/db/client';
 import { resolveToken, tokenFromParam } from '@/features/workshop/server/tokenAccess';
 import { FeedbackForm } from '@/features/workshop/ui/FeedbackForm';
 import { Notice } from '@/features/workshop/ui/Notice';
+import { workshopPageMetadata } from '@/features/workshop/metadata';
 import { PageShell } from '@/features/workshop/ui/PageShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+export const generateMetadata = (): Promise<Metadata> => workshopPageMetadata('feedback');
 
 interface Props {
   params: Promise<{ locale: string }>;

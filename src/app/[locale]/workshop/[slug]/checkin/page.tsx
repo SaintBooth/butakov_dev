@@ -6,10 +6,11 @@ import { checkinAction } from '@/features/workshop/actions/checkin';
 import { getDb } from '@/features/workshop/db/client';
 import { findSessionBySlug } from '@/features/workshop/db/sessions';
 import { CheckinForm } from '@/features/workshop/ui/CheckinForm';
+import { workshopPageMetadata } from '@/features/workshop/metadata';
 import { PageShell } from '@/features/workshop/ui/PageShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+export const generateMetadata = (): Promise<Metadata> => workshopPageMetadata('checkin');
 
 export default async function CheckinPage({
   params,
