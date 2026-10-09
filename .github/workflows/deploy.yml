@@ -62,6 +62,12 @@ jobs:
           mkdir -p bundle/.next/static
           cp -r .next/static/. bundle/.next/static/
           cp -r public bundle/public
+          # Migrations and operator scripts run on the host over SSH; the standalone
+          # trace only includes files the app imports, so copy them explicitly.
+          mkdir -p bundle/db bundle/scripts
+          cp -r db/migrations bundle/db/migrations
+          cp -r scripts/workshop bundle/scripts/workshop
+          rm -f bundle/scripts/workshop/*.test.ts
           # project package.json has "type": "module", so the shim must be ESM.
           # Listen on 0.0.0.0: the gateway connects via APP_IP, Next middleware
           # self-proxies via localhost. hello.js duplicates app.js because the
