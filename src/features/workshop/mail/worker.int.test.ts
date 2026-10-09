@@ -1,9 +1,20 @@
 import type { Sql } from 'postgres';
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestDb, seedSession } from '@/test/db';
 import { registerParticipant } from '../server/registerParticipant';
 import type { OutgoingMail } from './compose';
 import { runMailerTick } from './worker';
+
+vi.mock('./compose', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./compose')>();
+  return {
+    ...actual,
+    composeEmail: (ctx: Parameters<typeof actual.composeEmail>[0]) => {
+      if (ctx.to === 'poison@x.ru') throw new Error('compose failed for poison@x.ru');
+      return actual.composeEmail(ctx);
+    },
+  };
+});
 
 let sql: Sql;
 beforeEach(async () => {
@@ -79,7 +90,7 @@ describe('runMailerTick', () => {
     await runMailerTick(failing);
     const [job] =
       await sql`SELECT status, attempts, last_error FROM workshop_email_jobs WHERE kind = 'confirmation'`;
-    expect(job).toMatchObject({ status: 'pending', attempts: 1, lastError: 'smtp down' });
+    expect(job).toMatchObject({ status: 'pending', attempts: 1, lastError: 'Error' });
 
     await sql`UPDATE workshop_email_jobs SET attempts = 4, send_at = now() - interval '1 second' WHERE kind = 'confirmation'`;
     const pings: string[] = [];
@@ -87,5 +98,51 @@ describe('runMailerTick', () => {
     const [dead] = await sql`SELECT status FROM workshop_email_jobs WHERE kind = 'confirmation'`;
     expect(dead.status).toBe('failed');
     expect(pings).toHaveLength(1);
+  });
+  it('keeps earlier jobs sent when a later job fails to compose, and stores no address', async () => {
+    const [{ id: sessionId }] = await sql`SELECT id FROM workshop_sessions`;
+    const [{ id: participantId }] = await sql`
+      INSERT INTO workshop_participants (email, full_name)
+      VALUES ('poison@x.ru', 'Яд') RETURNING id`;
+    const [{ id: registrationId }] = await sql`
+      INSERT INTO workshop_registrations (participant_id, session_id, company, position_level)
+      VALUES (${participantId}, ${sessionId}, 'ООО', 'head') RETURNING id`;
+    await sql`UPDATE workshop_email_jobs SET send_at = now() - interval '1 minute' WHERE kind = 'confirmation'`;
+    await sql`
+      INSERT INTO workshop_email_jobs (registration_id, kind, send_at)
+      VALUES (${registrationId}, 'confirmation', now() - interval '30 seconds')`;
+
+    const sent: OutgoingMail[] = [];
+    const r = await runMailerTick({
+      db: sql,
+      send: async (m) => void sent.push(m),
+      now: () => new Date(),
+      notify: noopNotify,
+    });
+    expect(r.sent).toBe(1);
+    expect(sent.map((m) => m.to)).toEqual(['ivan@x.ru']);
+    const jobs = await sql`
+      SELECT j.status, j.attempts, j.last_error, j.registration_id
+      FROM workshop_email_jobs j WHERE j.kind = 'confirmation' ORDER BY j.id`;
+    expect(jobs[0]).toMatchObject({ status: 'sent' });
+    expect(jobs[1]).toMatchObject({ status: 'pending', attempts: 1, lastError: 'Error' });
+    expect(JSON.stringify(jobs)).not.toContain('poison@x.ru');
+  });
+
+  it('stores only error class, code and response code, never the message', async () => {
+    const err = Object.assign(new Error('rejected ivan@x.ru'), {
+      code: 'EENVELOPE',
+      responseCode: 550,
+    });
+    await runMailerTick({
+      db: sql,
+      send: async () => {
+        throw err;
+      },
+      now: () => new Date(),
+      notify: noopNotify,
+    });
+    const [job] = await sql`SELECT last_error FROM workshop_email_jobs WHERE kind = 'confirmation'`;
+    expect(job.lastError).toBe('Error:EENVELOPE:550');
   });
 });

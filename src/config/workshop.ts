@@ -80,7 +80,13 @@ export const RATE_LIMITS = {
 } as const;
 
 // One retry delay per failed attempt; when they run out the job is marked failed (5 attempts total).
-export const MAILER = { tickMs: 60_000, batchSize: 20, retryDelaysMin: [1, 5, 15, 60] } as const;
+export const MAILER = {
+  tickMs: 60_000,
+  batchSize: 20,
+  retryDelaysMin: [1, 5, 15, 60],
+  // nodemailer defaults are minutes; a hung server must not hold a job's row lock that long.
+  smtpTimeoutMs: 15_000,
+} as const;
 
 export const TELEGRAM_API_BASE = 'https://api.telegram.org';
 

@@ -18,7 +18,15 @@ export interface MailerDeps {
 }
 
 const t = createTranslator({ locale: WORKSHOP_LOCALE, messages, namespace: 'workshop.notify' });
-const MAX_ERROR_LENGTH = 500;
+
+// Provider messages quote the recipient address, so only the error class and codes are stored.
+function describeError(err: unknown): string {
+  if (!(err instanceof Error)) return 'UnknownError';
+  const { code, responseCode } = err as Error & { code?: unknown; responseCode?: unknown };
+  return [err.name, code, responseCode]
+    .filter((p): p is string | number => typeof p === 'string' || typeof p === 'number')
+    .join(':');
+}
 
 async function issueLinks(db: Sql | TransactionSql, job: DueJob, template: TemplateId, now: Date) {
   const link = async (purpose: TokenPurpose, path: (token: string) => string) =>
@@ -31,21 +39,26 @@ async function issueLinks(db: Sql | TransactionSql, job: DueJob, template: Templ
   };
 }
 
-export async function runMailerTick(
-  deps: MailerDeps
-): Promise<{ sent: number; cancelled: number; failed: number }> {
-  const stats = { sent: 0, cancelled: 0, failed: 0 };
-  const failedJobs: number[] = [];
-  await deps.db.begin(async (tx) => {
+type TickStats = { sent: number; cancelled: number; failed: number };
+type JobOutcome = { jobId: number; exhausted: boolean };
+
+// One short transaction per job: a failure or a slow SMTP call only holds that job's row lock,
+// and mails already sent stay marked as sent.
+async function processNextJob(deps: MailerDeps, stats: TickStats): Promise<JobOutcome | null> {
+  return deps.db.begin(async (tx) => {
     const now = deps.now();
-    for (const job of await claimDueJobs(tx, now, MAILER.batchSize)) {
-      const consents = currentConsents(await listConsentEvents(tx, job.participantId));
-      const decision = resolveJob(job.kind, job.registrationStatus, consents.marketing);
-      if (decision.action === 'cancel') {
-        await markCancelled(tx, job.id);
-        stats.cancelled++;
-        continue;
-      }
+    const [job] = await claimDueJobs(tx, now, 1);
+    if (!job) return null;
+    const consents = currentConsents(await listConsentEvents(tx, job.participantId));
+    const decision = resolveJob(job.kind, job.registrationStatus, consents.marketing);
+    if (decision.action === 'cancel') {
+      await markCancelled(tx, job.id);
+      stats.cancelled++;
+      return { jobId: job.id, exhausted: false };
+    }
+    // Compose and link issuing are inside the try: a poison job must retry, not block the queue.
+    // SQL failures in the marks below still abort the tick.
+    try {
       const mail = composeEmail({
         template: decision.template,
         includeAnnouncement: decision.includeAnnouncement,
@@ -60,27 +73,26 @@ export async function runMailerTick(
         links: await issueLinks(tx, job, decision.template, now),
         now,
       });
-      // Only the SMTP call is caught: a SQL error must abort the tick, not poison the transaction.
-      try {
-        await deps.send(mail);
-      } catch (err) {
-        const attempts = job.attempts + 1;
-        const nextAt = nextRetryAt(attempts, now);
-        const message = (err instanceof Error ? err.message : String(err)).slice(
-          0,
-          MAX_ERROR_LENGTH
-        );
-        await markRetry(tx, job.id, attempts, nextAt, message);
-        if (!nextAt) {
-          stats.failed++;
-          failedJobs.push(job.id);
-        }
-        continue;
-      }
-      await markSent(tx, job.id, now);
-      stats.sent++;
+      await deps.send(mail);
+    } catch (err) {
+      const attempts = job.attempts + 1;
+      const nextAt = nextRetryAt(attempts, now);
+      await markRetry(tx, job.id, attempts, nextAt, describeError(err));
+      if (!nextAt) stats.failed++;
+      return { jobId: job.id, exhausted: !nextAt };
     }
+    await markSent(tx, job.id, now);
+    stats.sent++;
+    return { jobId: job.id, exhausted: false };
   });
-  for (const jobId of failedJobs) await deps.notify(t('mailFailed', { jobId }));
+}
+
+export async function runMailerTick(deps: MailerDeps): Promise<TickStats> {
+  const stats = { sent: 0, cancelled: 0, failed: 0 };
+  for (let i = 0; i < MAILER.batchSize; i++) {
+    const outcome = await processNextJob(deps, stats);
+    if (!outcome) break;
+    if (outcome.exhausted) await deps.notify(t('mailFailed', { jobId: outcome.jobId }));
+  }
   return stats;
 }
