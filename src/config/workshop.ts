@@ -99,6 +99,8 @@ export const MAILER = {
   smtpTimeoutMs: 15_000,
 } as const;
 
+export const ICS_PRODID = '-//butakov.dev//workshop//RU';
+
 export const TELEGRAM_API_BASE = 'https://api.telegram.org';
 
 const base = `/${WORKSHOP_LOCALE}`;

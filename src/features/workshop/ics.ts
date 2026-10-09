@@ -1,3 +1,5 @@
+import { ICS_PRODID } from '@/config/workshop';
+
 export interface IcsEvent {
   uid: string;
   title: string;
@@ -22,7 +24,13 @@ function escapeText(s: string): string {
     .replace(/\\/g, '\\\\')
     .replace(/;/g, '\\;')
     .replace(/,/g, '\\,')
-    .replace(/\r?\n/g, '\\n');
+    .replace(/\r\n|\r|\n/g, '\\n');
+}
+
+// URI values are not TEXT: RFC 5545 forbids escaping them, so only the line breaks that would
+// inject extra properties are removed.
+function stripLineBreaks(s: string): string {
+  return s.replace(/[\r\n]+/g, '');
 }
 
 // RFC 5545 §3.1: fold at 75 octets; a continuation line starts with a space.
@@ -49,18 +57,18 @@ export function buildIcs(e: IcsEvent): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//butakov.dev//workshop//RU',
+    `PRODID:${ICS_PRODID}`,
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:${e.uid}`,
+    `UID:${escapeText(e.uid)}`,
     `DTSTAMP:${utc(e.now)}`,
     `DTSTART:${utc(e.startsAt)}`,
     `DTEND:${utc(e.endsAt)}`,
     `SUMMARY:${escapeText(e.title)}`,
   ];
   if (e.description) lines.push(`DESCRIPTION:${escapeText(e.description)}`);
-  if (e.url) lines.push(`URL:${e.url}`);
+  if (e.url) lines.push(`URL:${stripLineBreaks(e.url)}`);
   lines.push('END:VEVENT', 'END:VCALENDAR');
   return `${lines.map(fold).join('\r\n')}\r\n`;
 }
