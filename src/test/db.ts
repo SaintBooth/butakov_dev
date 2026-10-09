@@ -7,6 +7,10 @@ const MIGRATIONS_DIR = fileURLToPath(new URL('../../db/migrations', import.meta.
 export async function createTestDb(): Promise<Sql> {
   const url = process.env.TEST_DATABASE_URL;
   if (!url) throw new Error('TEST_DATABASE_URL is required for integration tests');
+  // The next statement drops the whole public schema; never aim it at a real database.
+  if (!new URL(url).pathname.endsWith('_test')) {
+    throw new Error('TEST_DATABASE_URL must point to a database whose name ends with _test');
+  }
   const sql = connect(url) as unknown as Sql;
   await sql.unsafe('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
   await applyMigrations(sql, MIGRATIONS_DIR);
