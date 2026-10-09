@@ -1,5 +1,5 @@
 import type { Sql } from 'postgres';
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WorkshopEnv } from '@/config/workshopEnv';
 import { createTestDb, seedRegistration, seedSession } from '@/test/db';
 import { issueToken, type TokenContext } from '../db/tokens';
@@ -49,6 +49,9 @@ beforeEach(async () => {
   await seedSession(sql);
   registrationId = await seedRegistration(sql);
   token = await issueToken(sql, registrationId, 'followup', new Date(), new Date());
+});
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 afterAll(async () => {
   await sql.end();
