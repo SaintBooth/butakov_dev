@@ -1,8 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { LANDING_IDS, landingUrl } from '@/config/landings';
+import { LANDING_IDS, landingUrl, SITE_URL } from '@/config/landings';
 import { getAllCaseFrontmatters } from '@/utils/cases';
-
-const BASE = 'https://butakov.dev';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [casesEn, casesRu] = await Promise.all([
@@ -24,18 +22,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const ru = ruBySlug.get(slug);
     if (en) {
       caseEntries.push({
-        url: `${BASE}/journal/${slug}`,
+        url: `${SITE_URL}/journal/${slug}`,
         lastModified: en.frontmatter.date,
         priority: 0.6,
-        ...(ru ? { alternates: { languages: { ru: `${BASE}/ru/journal/${slug}` } } } : {}),
+        ...(ru ? { alternates: { languages: { ru: `${SITE_URL}/ru/journal/${slug}` } } } : {}),
       });
     }
     if (ru) {
       caseEntries.push({
-        url: `${BASE}/ru/journal/${slug}`,
+        url: `${SITE_URL}/ru/journal/${slug}`,
         lastModified: ru.frontmatter.date,
         priority: 0.6,
-        ...(en ? { alternates: { languages: { en: `${BASE}/journal/${slug}` } } } : {}),
+        ...(en ? { alternates: { languages: { en: `${SITE_URL}/journal/${slug}` } } } : {}),
       });
     }
   }
@@ -52,11 +50,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   return [
-    { url: BASE, priority: 1.0, changeFrequency: 'monthly', lastModified: latestDate },
-    { url: `${BASE}/ru`, priority: 0.9, changeFrequency: 'monthly', lastModified: latestDate },
-    { url: `${BASE}/journal`, priority: 0.8, changeFrequency: 'weekly', lastModified: latestDate },
+    { url: SITE_URL, priority: 1.0, changeFrequency: 'monthly', lastModified: latestDate },
+    { url: `${SITE_URL}/ru`, priority: 0.9, changeFrequency: 'monthly', lastModified: latestDate },
     {
-      url: `${BASE}/ru/journal`,
+      url: `${SITE_URL}/journal`,
+      priority: 0.8,
+      changeFrequency: 'weekly',
+      lastModified: latestDate,
+    },
+    {
+      url: `${SITE_URL}/ru/journal`,
       priority: 0.7,
       changeFrequency: 'weekly',
       lastModified: latestDate,

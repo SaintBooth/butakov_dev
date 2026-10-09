@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { getAllCaseFrontmatters } from '@/utils/cases';
 import { getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
+import { SITE_URL } from '@/config/landings';
 import JournalList from '@/features/journal/JournalList';
 
 interface Props {
@@ -14,7 +15,7 @@ type JournalFilter = 'all' | 'cases' | 'opinions';
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const isRu = locale === 'ru';
-  const base = 'https://butakov.dev';
+  const base = SITE_URL;
   const ruPrefix = locale === 'en' ? '' : '/ru';
   const url = `${base}${ruPrefix}/journal`;
   const title = isRu ? 'Журнал | butakov.dev' : 'Journal | butakov.dev';
@@ -56,7 +57,7 @@ export default async function JournalPage({ params, searchParams }: Props) {
   const cases = await getAllCaseFrontmatters(locale);
 
   const isRu = locale === 'ru';
-  const base = 'https://butakov.dev';
+  const base = SITE_URL;
   const ruPrefix = locale === 'en' ? '' : '/ru';
   const breadcrumbSchema = getSchemaBreadcrumb([
     { name: isRu ? 'Главная' : 'Home', url: `${base}${ruPrefix}` },
