@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { cache } from 'react';
 import { WORKSHOP_LOCALE, WORKSHOP_PATHS } from '@/config/workshop';
 import { getWorkshopEnv } from '@/config/workshopEnv';
 import { registerAction } from '@/features/workshop/actions/register';
@@ -19,12 +20,17 @@ interface Props {
   params: Promise<{ locale: string; slug: string }>;
 }
 
+// generateMetadata and the page both need the session; cache() makes that one query per request.
+const loadSession = cache(async (slug: string) => {
+  const db = getDb();
+  return db ? findSessionBySlug(db, slug) : null;
+});
+
 async function load(params: Props['params']) {
   const { locale, slug } = await params;
   const env = getWorkshopEnv();
-  const db = getDb();
-  if (locale !== WORKSHOP_LOCALE || !env || !db) notFound();
-  const session = await findSessionBySlug(db, slug);
+  if (locale !== WORKSHOP_LOCALE || !env) notFound();
+  const session = await loadSession(slug);
   if (!session) notFound();
   // Evaluated here, not in render: the React purity lint forbids Date.now() in components.
   const now = Date.now();
