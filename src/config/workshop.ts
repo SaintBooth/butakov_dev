@@ -150,3 +150,13 @@ export function icsUid(slug: string): string {
 export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path}`;
 }
+
+// Headers a gateway may put the caller's address in; the ip-check route reports them so the owner
+// can pick WORKSHOP_IP_HEADER after deploy.
+export const IP_CANDIDATE_HEADERS = [
+  'x-forwarded-for',
+  'x-real-ip',
+  'x-client-ip',
+  'cf-connecting-ip',
+  'forwarded',
+] as const;
