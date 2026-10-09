@@ -61,6 +61,10 @@ export async function findToken(
   return row ?? null;
 }
 
-export async function markTokenUsed(db: Sql, tokenId: number, now: Date): Promise<void> {
+export async function markTokenUsed(
+  db: Sql | TransactionSql,
+  tokenId: number,
+  now: Date
+): Promise<void> {
   await db`UPDATE workshop_tokens SET used_at = ${now} WHERE id = ${tokenId}`;
 }
