@@ -1,6 +1,7 @@
 import { randomInt } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { parseArgs } from 'node:util';
 import postgres from 'postgres';
 
 // Keep in sync with src/config/workshop.ts (scripts/workshop/lib.test.ts enforces it).
@@ -14,6 +15,57 @@ export function generateCheckinCode(pick = randomInt) {
     code += CHECKIN_CODE_ALPHABET[pick(CHECKIN_CODE_ALPHABET.length)];
   }
   return code;
+}
+
+export const CREATE_SESSION_USAGE = `usage: node scripts/workshop/create-session.mjs --slug ai-2026-10 --title "ИИ в бизнесе и жизни" \\
+  --starts 2026-10-20T15:00:00+03:00 --ends 2026-10-20T17:00:00+03:00 --meeting https://telemost.yandex.ru/j/... [--capacity 30]`;
+
+// The offset is mandatory: without it Date() would read the time in the machine's own zone.
+const ISO_WITH_OFFSET = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+
+/** @param {string} name @param {string} value */
+function parseInstant(name, value) {
+  const at = new Date(value);
+  if (!ISO_WITH_OFFSET.test(value) || Number.isNaN(at.getTime())) {
+    throw new Error(`--${name} must be an ISO date-time with an offset, e.g. 2026-10-20T15:00:00+03:00`);
+  }
+  return at;
+}
+
+/**
+ * @param {string[]} argv
+ * @returns {{ slug: string, title: string, startsAt: Date, endsAt: Date, meetingUrl: string, capacity?: number }}
+ * @throws {Error} with a message fit to print as is
+ */
+export function parseCreateSessionArgs(argv) {
+  const { values } = parseArgs({
+    args: argv,
+    options: {
+      slug: { type: 'string' },
+      title: { type: 'string' },
+      starts: { type: 'string' },
+      ends: { type: 'string' },
+      meeting: { type: 'string' },
+      capacity: { type: 'string' },
+    },
+  });
+  if (!values.slug || !values.title || !values.starts || !values.ends || !values.meeting) {
+    throw new Error(CREATE_SESSION_USAGE);
+  }
+  const startsAt = parseInstant('starts', values.starts);
+  const endsAt = parseInstant('ends', values.ends);
+  if (endsAt <= startsAt) throw new Error('--ends must be later than --starts');
+  const session = { slug: values.slug, title: values.title, startsAt, endsAt, meetingUrl: values.meeting };
+  if (values.capacity === undefined) return session;
+  // Left out when absent: the column default is the single source for the usual capacity.
+  if (!/^[1-9]\d*$/.test(values.capacity)) throw new Error('--capacity must be a positive integer');
+  return { ...session, capacity: Number(values.capacity) };
+}
+
+/** @param {Record<string, string | undefined>} [env] */
+export function readSiteUrl(env = process.env) {
+  if (!env.SITE_URL) throw new Error('SITE_URL is not set (e.g. https://butakov.dev)');
+  return env.SITE_URL.replace(/\/+$/, '');
 }
 
 /** @param {string} [url] */
