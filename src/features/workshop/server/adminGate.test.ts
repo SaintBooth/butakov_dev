@@ -9,6 +9,7 @@ describe('createAdminGate', () => {
     expect(check(`Bearer ${TOKEN}`, TOKEN, '1.1.1.1')).toBe('ok');
     expect(check('Bearer nope', TOKEN, '1.1.1.1')).toBe('unauthorized');
     expect(check(null, TOKEN, '1.1.1.1')).toBe('unauthorized');
+    expect(check(TOKEN, TOKEN, '1.1.1.1')).toBe('unauthorized');
   });
 
   it('answers limited once an ip is over budget, even with the right token', () => {

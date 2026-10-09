@@ -4,8 +4,11 @@ import { createRateLimiter } from './rateLimit';
 
 export type GateResult = 'ok' | 'unauthorized' | 'limited';
 
+const BEARER_PREFIX = 'Bearer ';
+
 function tokenMatches(header: string | null, token: string): boolean {
-  const given = Buffer.from(header?.replace(/^Bearer /, '') ?? '');
+  if (!header?.startsWith(BEARER_PREFIX)) return false;
+  const given = Buffer.from(header.slice(BEARER_PREFIX.length));
   const expected = Buffer.from(token);
   return given.length === expected.length && timingSafeEqual(given, expected);
 }
