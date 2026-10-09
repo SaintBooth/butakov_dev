@@ -47,3 +47,44 @@ export async function applyMigrations(sql, dir) {
   }
   return ran;
 }
+
+/**
+ * Retention, spec §9: without a portfolio consent → 12 months after the last session;
+ * with a consent → 36 months after it was given; a revoked consent counts as none.
+ * @param {import('postgres').Sql} sql
+ * @param {{ dryRun: boolean, now?: Date }} opts
+ * @returns {Promise<number[]>}
+ */
+export async function purgeParticipants(sql, { dryRun, now = new Date() }) {
+  const due = await sql`
+    WITH latest_portfolio AS (
+      SELECT DISTINCT ON (participant_id) participant_id, granted, created_at
+      FROM workshop_consents WHERE kind = 'portfolio'
+      ORDER BY participant_id, id DESC
+    ), last_session AS (
+      SELECT r.participant_id, max(s.ends_at) AS last_end
+      FROM workshop_registrations r JOIN workshop_sessions s ON s.id = r.session_id
+      GROUP BY r.participant_id
+    )
+    SELECT p.id FROM workshop_participants p
+    LEFT JOIN last_session ls ON ls.participant_id = p.id
+    LEFT JOIN latest_portfolio lp ON lp.participant_id = p.id
+    WHERE (ls.last_end IS NULL OR ls.last_end < ${now}::timestamptz - interval '12 months')
+      AND (lp.granted IS NOT TRUE OR lp.created_at < ${now}::timestamptz - interval '36 months')`;
+  const ids = due.map((r) => r.id);
+  if (dryRun || ids.length === 0) return ids;
+
+  await sql.begin(async (tx) => {
+    const regs = (await tx`SELECT id FROM workshop_registrations WHERE participant_id = ANY(${ids})`).map((r) => r.id);
+    if (regs.length > 0) {
+      await tx`DELETE FROM workshop_email_jobs WHERE registration_id = ANY(${regs})`;
+      await tx`DELETE FROM workshop_tokens WHERE registration_id = ANY(${regs})`;
+      await tx`DELETE FROM workshop_followups WHERE registration_id = ANY(${regs})`;
+      await tx`DELETE FROM workshop_feedback WHERE registration_id = ANY(${regs})`;
+    }
+    await tx`DELETE FROM workshop_consents WHERE participant_id = ANY(${ids})`;
+    await tx`DELETE FROM workshop_registrations WHERE participant_id = ANY(${ids})`;
+    await tx`DELETE FROM workshop_participants WHERE id = ANY(${ids})`;
+  });
+  return ids;
+}
