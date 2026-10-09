@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { WORKSHOP_LOCALE } from '@/config/workshop';
+import { REGISTRATION_STATUS, WORKSHOP_LOCALE } from '@/config/workshop';
 import { manageAction } from '@/features/workshop/actions/manage';
 import { getDb } from '@/features/workshop/db/client';
 import { formatSessionDate } from '@/features/workshop/format';
@@ -43,7 +43,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
       <Notice tone="info">{t(`manage.status.${ctx.registrationStatus}`)}</Notice>
       <ManagePanel
         action={manageAction.bind(null, tokenFromParam(token))}
-        canCancel={ctx.registrationStatus === 'registered'}
+        canCancel={ctx.registrationStatus === REGISTRATION_STATUS.registered}
       />
     </PageShell>
   );
