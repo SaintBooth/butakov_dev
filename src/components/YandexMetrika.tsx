@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { YM_ID } from '@/config/analytics';
+import { usePathname } from 'next/navigation';
+import { YM_ID, isAnalyticsDisabledPath } from '@/config/analytics';
 import { readConsent } from '@/config/consent';
 
 declare global {
@@ -40,8 +41,11 @@ function injectTag() {
 }
 
 export function YandexMetrika() {
+  const pathname = usePathname();
+  const disabled = isAnalyticsDisabledPath(pathname);
+
   useEffect(() => {
-    if (readConsent() === 'declined') return;
+    if (disabled || readConsent() === 'declined') return;
     ensureQueue();
     window.ym(YM_ID, 'init', {
       webvisor: true,
@@ -77,7 +81,9 @@ export function YandexMetrika() {
       if (idleId !== undefined) window.cancelIdleCallback(idleId);
       if (timeoutId !== undefined) clearTimeout(timeoutId);
     };
-  }, []);
+  }, [disabled]);
+
+  if (disabled) return null;
 
   return (
     <noscript>
