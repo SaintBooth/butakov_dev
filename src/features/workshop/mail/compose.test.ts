@@ -54,4 +54,16 @@ describe('composeEmail', () => {
     });
     expect(m.text).toContain('https://butakov.dev/ru/workshop/feedback?t=f');
   });
+
+  it('links only its own urls and keeps punctuation out of the href', () => {
+    const m = composeEmail({
+      ...base,
+      fullName: 'Иван https://evil.example/x',
+      links: { manage: 'https://butakov.dev/ru/workshop/manage?t=m' },
+    });
+    expect(m.html).not.toContain('<a href="https://evil.example');
+    expect(m.html).toContain('Иван https://evil.example/x');
+    expect(m.html).toContain('<a href="https://butakov.dev/ru/workshop/manage?t=m">');
+    expect(m.html).not.toMatch(/href="[^"]*(&gt;|\.)"/);
+  });
 });

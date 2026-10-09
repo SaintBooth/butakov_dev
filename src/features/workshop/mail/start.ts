@@ -3,16 +3,17 @@ import { getWorkshopEnv } from '@/config/workshopEnv';
 import { getDb } from '../db/client';
 import { notifyOwner } from '../server/notify';
 import { createSmtpSender } from './transport';
-import { runMailerTick } from './worker';
+import { describeError, runMailerTick } from './worker';
 
-let started = false;
+// On globalThis so that dev hot reloads, which re-evaluate this module, cannot start a second interval.
+const globals = globalThis as typeof globalThis & { __workshopMailerStarted?: boolean };
 
 export function startMailer(): void {
-  if (started) return;
+  if (globals.__workshopMailerStarted) return;
   const env = getWorkshopEnv();
   const db = getDb();
-  if (!env || !db || env.WORKSHOP_MAILER_ENABLED !== 'true') return;
-  started = true;
+  if (!env || !db || !env.WORKSHOP_MAILER_ENABLED) return;
+  globals.__workshopMailerStarted = true;
 
   const deps = {
     db,
@@ -26,12 +27,8 @@ export function startMailer(): void {
     if (running) return;
     running = true;
     runMailerTick(deps)
-      .catch((err) =>
-        console.error(
-          '[workshop] mailer tick failed:',
-          err instanceof Error ? err.message : 'unknown'
-        )
-      )
+      // Error messages from the driver can carry row data, so only the class and code are logged.
+      .catch((err) => console.error('[workshop] mailer tick failed:', describeError(err)))
       .finally(() => {
         running = false;
       });

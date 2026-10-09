@@ -16,6 +16,19 @@ vi.mock('./compose', async (importOriginal) => {
   };
 });
 
+// Lets a test make token issuing fail with a real SQL error, which aborts the transaction.
+const sqlFault = vi.hoisted(() => ({ onIssue: false }));
+vi.mock('../db/tokens', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../db/tokens')>();
+  return {
+    ...actual,
+    issueToken: async (...args: Parameters<typeof actual.issueToken>) => {
+      if (sqlFault.onIssue) await args[0]`SELECT * FROM workshop_no_such_table`;
+      return actual.issueToken(...args);
+    },
+  };
+});
+
 let sql: Sql;
 beforeEach(async () => {
   if (sql) await sql.end();
@@ -91,6 +104,9 @@ describe('runMailerTick', () => {
     const [job] =
       await sql`SELECT status, attempts, last_error FROM workshop_email_jobs WHERE kind = 'confirmation'`;
     expect(job).toMatchObject({ status: 'pending', attempts: 1, lastError: 'Error' });
+    // The manage token issued for the failed attempt must not outlive it.
+    const [{ n }] = await sql`SELECT count(*)::int AS n FROM workshop_tokens`;
+    expect(n).toBe(0);
 
     await sql`UPDATE workshop_email_jobs SET attempts = 4, send_at = now() - interval '1 second' WHERE kind = 'confirmation'`;
     const pings: string[] = [];
@@ -144,5 +160,23 @@ describe('runMailerTick', () => {
     });
     const [job] = await sql`SELECT last_error FROM workshop_email_jobs WHERE kind = 'confirmation'`;
     expect(job.lastError).toBe('Error:EENVELOPE:550');
+  });
+
+  it('turns a SQL error while issuing links into a normal retry', async () => {
+    sqlFault.onIssue = true;
+    try {
+      const r = await runMailerTick({
+        db: sql,
+        send: async () => {},
+        now: () => new Date(),
+        notify: noopNotify,
+      });
+      expect(r).toEqual({ sent: 0, cancelled: 0, failed: 0 });
+    } finally {
+      sqlFault.onIssue = false;
+    }
+    const [job] =
+      await sql`SELECT status, attempts, last_error FROM workshop_email_jobs WHERE kind = 'confirmation'`;
+    expect(job).toMatchObject({ status: 'pending', attempts: 1, lastError: 'PostgresError:42P01' });
   });
 });

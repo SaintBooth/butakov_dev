@@ -9,6 +9,7 @@ import { currentConsents } from '../domain/consents';
 import { nextRetryAt, resolveJob, type TemplateId } from '../domain/emailPlan';
 import type { TokenPurpose } from '../domain/tokens';
 import { composeEmail, type OutgoingMail } from './compose';
+import { failOnMissingMessage } from './strict';
 
 export interface MailerDeps {
   db: Sql;
@@ -17,10 +18,15 @@ export interface MailerDeps {
   notify: (text: string) => Promise<void>;
 }
 
-const t = createTranslator({ locale: WORKSHOP_LOCALE, messages, namespace: 'workshop.notify' });
+const t = createTranslator({
+  locale: WORKSHOP_LOCALE,
+  messages,
+  namespace: 'workshop.notify',
+  onError: failOnMissingMessage,
+});
 
 // Provider messages quote the recipient address, so only the error class and codes are stored.
-function describeError(err: unknown): string {
+export function describeError(err: unknown): string {
   if (!(err instanceof Error)) return 'UnknownError';
   const { code, responseCode } = err as Error & { code?: unknown; responseCode?: unknown };
   return [err.name, code, responseCode]
@@ -42,6 +48,36 @@ async function issueLinks(db: Sql | TransactionSql, job: DueJob, template: Templ
 type TickStats = { sent: number; cancelled: number; failed: number };
 type JobOutcome = { jobId: number; exhausted: boolean };
 
+// Everything that can fail for a reason specific to one job runs in a savepoint: a failed SQL
+// statement would otherwise leave the transaction aborted and make the retry bookkeeping fail
+// too, and tokens issued for a mail that never left are rolled back instead of orphaned.
+async function prepareAndSend(
+  deps: MailerDeps,
+  sp: TransactionSql,
+  job: DueJob,
+  now: Date
+): Promise<'sent' | 'cancelled'> {
+  const consents = currentConsents(await listConsentEvents(sp, job.participantId));
+  const decision = resolveJob(job.kind, job.registrationStatus, consents.marketing);
+  if (decision.action === 'cancel') return 'cancelled';
+  const mail = composeEmail({
+    template: decision.template,
+    includeAnnouncement: decision.includeAnnouncement,
+    to: job.email,
+    fullName: job.fullName,
+    slug: job.slug,
+    sessionTitle: job.sessionTitle,
+    startsAt: job.startsAt,
+    endsAt: job.endsAt,
+    meetingUrl: job.meetingUrl,
+    materialsUrl: job.materialsUrl,
+    links: await issueLinks(sp, job, decision.template, now),
+    now,
+  });
+  await deps.send(mail);
+  return 'sent';
+}
+
 // One short transaction per job: a failure or a slow SMTP call only holds that job's row lock,
 // and mails already sent stay marked as sent.
 async function processNextJob(deps: MailerDeps, stats: TickStats): Promise<JobOutcome | null> {
@@ -49,37 +85,21 @@ async function processNextJob(deps: MailerDeps, stats: TickStats): Promise<JobOu
     const now = deps.now();
     const [job] = await claimDueJobs(tx, now, 1);
     if (!job) return null;
-    const consents = currentConsents(await listConsentEvents(tx, job.participantId));
-    const decision = resolveJob(job.kind, job.registrationStatus, consents.marketing);
-    if (decision.action === 'cancel') {
-      await markCancelled(tx, job.id);
-      stats.cancelled++;
-      return { jobId: job.id, exhausted: false };
-    }
-    // Compose and link issuing are inside the try: a poison job must retry, not block the queue.
-    // SQL failures in the marks below still abort the tick.
+    let result: 'sent' | 'cancelled';
     try {
-      const mail = composeEmail({
-        template: decision.template,
-        includeAnnouncement: decision.includeAnnouncement,
-        to: job.email,
-        fullName: job.fullName,
-        slug: job.slug,
-        sessionTitle: job.sessionTitle,
-        startsAt: job.startsAt,
-        endsAt: job.endsAt,
-        meetingUrl: job.meetingUrl,
-        materialsUrl: job.materialsUrl,
-        links: await issueLinks(tx, job, decision.template, now),
-        now,
-      });
-      await deps.send(mail);
+      result = await tx.savepoint((sp) => prepareAndSend(deps, sp, job, now));
     } catch (err) {
+      // A poison job must retry, not block the queue.
       const attempts = job.attempts + 1;
       const nextAt = nextRetryAt(attempts, now);
       await markRetry(tx, job.id, attempts, nextAt, describeError(err));
       if (!nextAt) stats.failed++;
       return { jobId: job.id, exhausted: !nextAt };
+    }
+    if (result === 'cancelled') {
+      await markCancelled(tx, job.id);
+      stats.cancelled++;
+      return { jobId: job.id, exhausted: false };
     }
     await markSent(tx, job.id, now);
     stats.sent++;

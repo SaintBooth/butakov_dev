@@ -4,6 +4,7 @@ import { icsUid, WORKSHOP_LOCALE } from '@/config/workshop';
 import type { TemplateId } from '../domain/emailPlan';
 import { formatSessionDate } from '../format';
 import { buildIcs } from '../ics';
+import { failOnMissingMessage } from './strict';
 
 export interface OutgoingMail {
   to: string;
@@ -29,8 +30,12 @@ export interface EmailContext {
   now: Date;
 }
 
-const t = createTranslator({ locale: WORKSHOP_LOCALE, messages, namespace: 'workshop' });
-const URL_RE = /(https:\/\/[^\s<]+)/g;
+const t = createTranslator({
+  locale: WORKSHOP_LOCALE,
+  messages,
+  namespace: 'workshop',
+  onError: failOnMissingMessage,
+});
 
 function escapeHtml(s: string): string {
   return s
@@ -40,10 +45,20 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function toHtml(text: string): string {
-  const paragraphs = text
-    .split('\n\n')
-    .map((p) => escapeHtml(p).replace(URL_RE, '<a href="$1">$1</a>').replace(/\n/g, '<br>'));
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Only the URLs the template placed itself are linked. Scanning for anything URL-shaped would
+// also link a participant's name and swallow trailing punctuation or `&gt;` into the href.
+function toHtml(text: string, trustedUrls: string[]): string {
+  const known = trustedUrls
+    .map(escapeHtml)
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp);
+  const linkify = (html: string) =>
+    known.length === 0
+      ? html
+      : html.replace(new RegExp(known.join('|'), 'g'), (url) => `<a href="${url}">${url}</a>`);
+  const paragraphs = text.split('\n\n').map((p) => linkify(escapeHtml(p)).replace(/\n/g, '<br>'));
   return `<!doctype html><html><body style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#0f172a">${paragraphs
     .map((p) => `<p>${p}</p>`)
     .join('')}</body></html>`;
@@ -70,7 +85,12 @@ export function composeEmail(ctx: EmailContext): OutgoingMail {
     to: ctx.to,
     subject: t(`email.${ctx.template}.subject`, vars),
     text,
-    html: toHtml(text),
+    html: toHtml(
+      text,
+      [ctx.meetingUrl, ctx.materialsUrl, ...Object.values(ctx.links)].filter((u): u is string =>
+        Boolean(u)
+      )
+    ),
     headers: { 'List-Unsubscribe': `<${ctx.links.manage}>` },
   };
   if (ctx.template === 'confirmation') {

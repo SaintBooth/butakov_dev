@@ -11,7 +11,13 @@ const envSchema = z
     WORKSHOP_ADMIN_TOKEN: z.string().min(32),
     // Header the Netangels gateway puts the client IP in. Unset = rate limiting off.
     WORKSHOP_IP_HEADER: optional(z.string().min(1)),
-    WORKSHOP_MAILER_ENABLED: z.enum(['true', 'false']).default('false'),
+    WORKSHOP_MAILER_ENABLED: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z
+        .enum(['true', 'false'])
+        .default('false')
+        .transform((v) => v === 'true')
+    ),
     SMTP_HOST: optional(z.string().min(1)),
     SMTP_PORT: optional(z.coerce.number().int().positive()),
     SMTP_USER: optional(z.string().min(1)),
@@ -22,7 +28,7 @@ const envSchema = z
   })
   .refine(
     (e) =>
-      e.WORKSHOP_MAILER_ENABLED === 'false' ||
+      !e.WORKSHOP_MAILER_ENABLED ||
       Boolean(e.SMTP_HOST && e.SMTP_PORT && e.SMTP_USER && e.SMTP_PASS && e.MAIL_FROM),
     {
       message: 'SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM are required',

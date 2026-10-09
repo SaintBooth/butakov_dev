@@ -11,7 +11,7 @@ describe('parseWorkshopEnv', () => {
   it('accepts the minimal set with the mailer off by default', () => {
     const r = parseWorkshopEnv(base);
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.env.WORKSHOP_MAILER_ENABLED).toBe('false');
+    if (r.ok) expect(r.env.WORKSHOP_MAILER_ENABLED).toBe(false);
   });
 
   it('rejects a short form secret and names the variable, not its value', () => {
@@ -21,6 +21,21 @@ describe('parseWorkshopEnv', () => {
       expect(r.error).toContain('WORKSHOP_FORM_SECRET');
       expect(r.error).not.toContain('short');
     }
+  });
+
+  it('parses the mailer flag to a boolean and treats an empty value as off', () => {
+    const smtp = {
+      SMTP_HOST: 'h',
+      SMTP_PORT: '465',
+      SMTP_USER: 'u',
+      SMTP_PASS: 'p',
+      MAIL_FROM: 'a@b.ru',
+    };
+    const on = parseWorkshopEnv({ ...base, ...smtp, WORKSHOP_MAILER_ENABLED: 'true' });
+    expect(on.ok && on.env.WORKSHOP_MAILER_ENABLED).toBe(true);
+    const empty = parseWorkshopEnv({ ...base, WORKSHOP_MAILER_ENABLED: '' });
+    expect(empty.ok && empty.env.WORKSHOP_MAILER_ENABLED).toBe(false);
+    expect(parseWorkshopEnv({ ...base, WORKSHOP_MAILER_ENABLED: 'yes' }).ok).toBe(false);
   });
 
   it('requires SMTP settings when the mailer is enabled', () => {
