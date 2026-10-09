@@ -30,7 +30,8 @@ export type FormState =
   | { status: 'success' }
   | { status: 'error'; fieldErrors: FieldErrors; formError: string | null };
 
-const allow = createRateLimiter(RATE_LIMITS.register);
+const attemptsByPerson = createRateLimiter(RATE_LIMITS.register);
+const attemptsByIp = createRateLimiter(RATE_LIMITS.registerIp);
 const formError = (message: string): FormState => ({
   status: 'error',
   fieldErrors: {},
@@ -61,7 +62,6 @@ export async function registerAction(
 
   const h = await headers();
   const ip = getClientIp(h, env.WORKSHOP_IP_HEADER);
-  if (ip && !allow(ip)) return formError(t('errors.rateLimited'));
 
   const parsed = createRegistrationSchema(t).safeParse(readRegistrationForm(fd));
   if (!parsed.success) {
@@ -70,6 +70,17 @@ export async function registerAction(
       fieldErrors: issuesToFieldErrors(parsed.error.issues),
       formError: null,
     };
+  }
+
+  // The spec cap (5 per 10 minutes) is per person; the higher per-ip cap lets colleagues behind
+  // one NAT register while still bounding a single address that rotates emails.
+  if (ip) {
+    const personKey = `${ip}:${parsed.data.email}`;
+    if (attemptsByPerson.isLimited(personKey) || attemptsByIp.isLimited(ip)) {
+      return formError(t('errors.rateLimited'));
+    }
+    attemptsByPerson.hit(personKey);
+    attemptsByIp.hit(ip);
   }
 
   const outcome = await registerParticipant(

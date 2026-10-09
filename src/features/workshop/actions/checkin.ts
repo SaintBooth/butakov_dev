@@ -28,7 +28,9 @@ export type CheckinResult =
 // redirect(): a soft navigation would let the already-initialised Metrika record the token URL.
 export type CheckinState = FormState | { status: 'checked_in'; feedbackUrl: string };
 
-const allow = createRateLimiter(RATE_LIMITS.checkin);
+// Only failed code guesses are counted, so attendees who check in correctly never spend budget.
+const failuresByPerson = createRateLimiter(RATE_LIMITS.checkin);
+const failuresByIp = createRateLimiter(RATE_LIMITS.checkinIp);
 
 export async function checkIn(
   db: Sql,
@@ -73,12 +75,22 @@ export async function checkinAction(
   }
 
   // Keyed by ip and email so one person guessing codes is throttled, while a room of
-  // attendees behind a single NAT address is not locked out together.
-  if (ip && !allow(`${ip}:${parsed.data.email}`)) return fail(t('errors.rateLimited'));
+  // attendees behind a single NAT address is not locked out together. The per-ip cap is
+  // higher and stops rotating emails from brute-forcing the code.
+  const personKey = `${ip}:${parsed.data.email}`;
+  if (ip && (failuresByPerson.isLimited(personKey) || failuresByIp.isLimited(ip))) {
+    return fail(t('errors.rateLimited'));
+  }
 
   const result = await checkIn(db, slug, parsed.data, new Date());
   if (result.status === 'closed') return fail(t('checkin.closed'));
-  if (result.status === 'not_found') return fail(t('checkin.notFound'));
+  if (result.status === 'not_found') {
+    if (ip) {
+      failuresByPerson.hit(personKey);
+      failuresByIp.hit(ip);
+    }
+    return fail(t('checkin.notFound'));
+  }
   if (result.status !== 'ok') return fail(t('errors.unavailable'));
   return { status: 'checked_in', feedbackUrl: WORKSHOP_PATHS.feedback(result.feedbackToken) };
 }

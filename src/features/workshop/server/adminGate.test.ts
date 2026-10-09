@@ -19,4 +19,16 @@ describe('createAdminGate', () => {
     expect(check(`Bearer ${TOKEN}`, TOKEN, '2.2.2.2')).toBe('limited');
     expect(check(`Bearer ${TOKEN}`, TOKEN, '3.3.3.3')).toBe('ok');
   });
+
+  it('does not count the correct token, so the owner is never locked out by it', () => {
+    const check = createAdminGate({ max: 2, windowMs: 60_000 });
+    for (let i = 0; i < 10; i++) expect(check(`Bearer ${TOKEN}`, TOKEN, '4.4.4.4')).toBe('ok');
+  });
+
+  it('keeps failures of one address from limiting another', () => {
+    const check = createAdminGate({ max: 2, windowMs: 60_000 });
+    for (let i = 0; i < 5; i++) check('Bearer x', TOKEN, '5.5.5.5');
+    expect(check('Bearer x', TOKEN, '5.5.5.5')).toBe('limited');
+    expect(check(`Bearer ${TOKEN}`, TOKEN, '6.6.6.6')).toBe('ok');
+  });
 });

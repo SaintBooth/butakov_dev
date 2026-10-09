@@ -78,11 +78,17 @@ export const FOLLOWUP_AFTER_END_DAYS = 45;
 export const MIN_FILL_MS = 3000;
 // A form left open longer than this is stale; the visitor is asked to reload it.
 export const MAX_STAMP_AGE_MS = 24 * 3_600_000;
+// Per-ip budgets sit above the per-person ones: colleagues share one NAT address, while rotating
+// emails (or tokens) from one address is exactly what the per-ip failure caps are for.
 export const RATE_LIMITS = {
   register: { max: 5, windowMs: 10 * 60_000 },
+  registerIp: { max: 30, windowMs: 10 * 60_000 },
   checkin: { max: 10, windowMs: 10 * 60_000 },
+  checkinIp: { max: 30, windowMs: 10 * 60_000 },
   export: { max: 10, windowMs: 10 * 60_000 },
 } as const;
+// Upper bound on distinct keys one rate limiter remembers, so a flood of addresses cannot grow memory.
+export const MAX_TRACKED_KEYS = 10_000;
 
 // One retry delay per failed attempt; when they run out the job is marked failed (5 attempts total).
 export const MAILER = {

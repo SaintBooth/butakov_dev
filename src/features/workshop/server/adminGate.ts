@@ -14,11 +14,14 @@ function tokenMatches(header: string | null, token: string): boolean {
 }
 
 export function createAdminGate(limit: { max: number; windowMs: number } = RATE_LIMITS.export) {
-  const allow = createRateLimiter(limit);
-  // Every attempt is counted before the token is checked: a limiter that only counted failures
-  // could not refuse a lucky correct guess made after the budget was already spent.
+  const failures = createRateLimiter(limit);
+  // Only failed attempts are counted, so the owner's correct token never spends budget and a
+  // flood of wrong tokens from another address cannot lock the owner out. The budget is checked
+  // first: an address that already spent it is refused even when it then guesses right.
   return function check(header: string | null, token: string, ip: string | null): GateResult {
-    if (ip && !allow(ip)) return 'limited';
-    return tokenMatches(header, token) ? 'ok' : 'unauthorized';
+    if (ip && failures.isLimited(ip)) return 'limited';
+    if (tokenMatches(header, token)) return 'ok';
+    if (ip) failures.hit(ip);
+    return 'unauthorized';
   };
 }
