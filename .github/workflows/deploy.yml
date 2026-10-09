@@ -68,6 +68,11 @@ jobs:
           cp -r db/migrations bundle/db/migrations
           cp -r scripts/workshop bundle/scripts/workshop
           rm -f bundle/scripts/workshop/*.test.ts
+          # webpack inlines `postgres` into the .next chunks, so the standalone trace
+          # ships no node_modules/postgres; the operator scripts import it by name.
+          # It has zero dependencies, so copying the package directory is enough.
+          mkdir -p bundle/node_modules
+          cp -r node_modules/postgres bundle/node_modules/postgres
           # project package.json has "type": "module", so the shim must be ESM.
           # Listen on 0.0.0.0: the gateway connects via APP_IP, Next middleware
           # self-proxies via localhost. hello.js duplicates app.js because the
@@ -82,6 +87,10 @@ jobs:
             echo "await import('./server.js');"
           } > bundle/app.js
           cp bundle/app.js bundle/hello.js
+
+      - name: Smoke-test operator script dependencies
+        working-directory: bundle
+        run: node --input-type=module -e "await import('postgres')"
 
       # Netangels host sits behind a hostile SSH-scan flood (mass brute-force,
       # not targeted) that periodically overflows the sshd listen queue and
