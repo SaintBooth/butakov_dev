@@ -1,0 +1,44 @@
+import { describe, expect, it } from 'vitest';
+import { parseWorkshopEnv } from './workshopEnv';
+
+const base = {
+  DATABASE_URL: 'postgres://u:p@localhost:5432/db',
+  WORKSHOP_FORM_SECRET: 'a'.repeat(32),
+  WORKSHOP_ADMIN_TOKEN: 'b'.repeat(32),
+};
+
+describe('parseWorkshopEnv', () => {
+  it('accepts the minimal set with the mailer off by default', () => {
+    const r = parseWorkshopEnv(base);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.env.WORKSHOP_MAILER_ENABLED).toBe('false');
+  });
+
+  it('rejects a short form secret and names the variable, not its value', () => {
+    const r = parseWorkshopEnv({ ...base, WORKSHOP_FORM_SECRET: 'short' });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error).toContain('WORKSHOP_FORM_SECRET');
+      expect(r.error).not.toContain('short');
+    }
+  });
+
+  it('requires SMTP settings when the mailer is enabled', () => {
+    const r = parseWorkshopEnv({ ...base, WORKSHOP_MAILER_ENABLED: 'true' });
+    expect(r.ok).toBe(false);
+  });
+
+  it('accepts a full mailer configuration', () => {
+    const r = parseWorkshopEnv({
+      ...base,
+      WORKSHOP_MAILER_ENABLED: 'true',
+      SMTP_HOST: 'mail.netangels.ru',
+      SMTP_PORT: '465',
+      SMTP_USER: 'workshop@butakov.dev',
+      SMTP_PASS: 'secret',
+      MAIL_FROM: 'Александр Бутаков <workshop@butakov.dev>',
+    });
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.env.SMTP_PORT).toBe(465);
+  });
+});
