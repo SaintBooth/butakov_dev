@@ -20,19 +20,35 @@ const HTTPS_URL = /^https:\/\/[^\s/]+\.[^\s]+$/;
 const blankToUndefined = (v: unknown) => (typeof v === 'string' && v.trim() === '' ? undefined : v);
 const trimLower = (v: unknown) => (typeof v === 'string' ? v.trim().toLowerCase() : v);
 
-function optionalText(max: number, t: T) {
-  return z.preprocess(blankToUndefined, z.string().trim().max(max, t('errors.tooLong')).optional());
-}
-
-function optionalLatin(max: number, t: T) {
+function optionalText(max: number, t: T, errorKey: string = 'errors.invalid') {
   return z.preprocess(
     blankToUndefined,
-    z.string().trim().max(max, t('errors.tooLong')).regex(LATIN, t('errors.latin')).optional()
+    z
+      .string({ error: t(errorKey) })
+      .trim()
+      .max(max, t('errors.tooLong'))
+      .optional()
   );
 }
 
-function optionalEnum<V extends readonly [string, ...string[]]>(values: V) {
-  return z.preprocess(blankToUndefined, z.enum(values).optional());
+function optionalLatin(max: number, t: T, errorKey: string = 'errors.invalid') {
+  return z.preprocess(
+    blankToUndefined,
+    z
+      .string({ error: t(errorKey) })
+      .trim()
+      .max(max, t('errors.tooLong'))
+      .regex(LATIN, t('errors.latin'))
+      .optional()
+  );
+}
+
+function optionalEnum<V extends readonly [string, ...string[]]>(
+  values: V,
+  t: T,
+  errorKey: string = 'errors.invalid'
+) {
+  return z.preprocess(blankToUndefined, z.enum(values, { error: t(errorKey) }).optional());
 }
 
 function email(t: T) {
@@ -41,32 +57,42 @@ function email(t: T) {
 
 export function createRegistrationSchema(t: T) {
   return z.object({
-    fullName: z.string().trim().min(2, t('errors.fullName')).max(100, t('errors.fullName')),
+    fullName: z
+      .string({ error: t('errors.fullName') })
+      .trim()
+      .min(2, t('errors.fullName'))
+      .max(100, t('errors.fullName')),
     email: email(t),
-    company: z.string().trim().min(1, t('errors.company')).max(150, t('errors.company')),
+    company: z
+      .string({ error: t('errors.company') })
+      .trim()
+      .min(1, t('errors.company'))
+      .max(150, t('errors.company')),
     positionLevel: z.enum(POSITION_LEVELS, { error: t('errors.positionLevel') }),
-    positionTitle: optionalText(120, t),
-    fullNameLatin: optionalLatin(100, t),
-    positionLatin: optionalLatin(120, t),
+    positionTitle: optionalText(120, t, 'errors.positionTitle'),
+    fullNameLatin: optionalLatin(100, t, 'errors.fullNameLatin'),
+    positionLatin: optionalLatin(120, t, 'errors.positionLatin'),
     profileUrl: z.preprocess(
       blankToUndefined,
       z
-        .string()
+        .string({ error: t('errors.profileUrl') })
         .trim()
         .max(300, t('errors.profileUrl'))
         .regex(HTTPS_URL, t('errors.profileUrl'))
         .optional()
     ),
-    industry: optionalEnum(INDUSTRIES),
-    companySize: optionalEnum(COMPANY_SIZES),
-    decisionRole: optionalEnum(DECISION_ROLES),
-    aiLevel: optionalEnum(AI_LEVELS),
-    taskText: optionalText(1000, t),
-    challenges: z.array(z.enum(CHALLENGES)),
-    topics: z.array(z.enum(TOPICS)).max(MAX_TOPICS, t('errors.topics')),
+    industry: optionalEnum(INDUSTRIES, t, 'errors.industry'),
+    companySize: optionalEnum(COMPANY_SIZES, t, 'errors.companySize'),
+    decisionRole: optionalEnum(DECISION_ROLES, t, 'errors.decisionRole'),
+    aiLevel: optionalEnum(AI_LEVELS, t, 'errors.aiLevel'),
+    taskText: optionalText(1000, t, 'errors.taskText'),
+    challenges: z.array(z.enum(CHALLENGES, { error: t('errors.challenges') })),
+    topics: z
+      .array(z.enum(TOPICS, { error: t('errors.topics') }))
+      .max(MAX_TOPICS, t('errors.topics')),
     consentPd: z.literal(true, { error: t('errors.consentPd') }),
-    consentMarketing: z.boolean(),
-    consentPortfolio: z.boolean(),
+    consentMarketing: z.boolean({ error: t('errors.consentMarketing') }),
+    consentPortfolio: z.boolean({ error: t('errors.consentPortfolio') }),
   });
 }
 
@@ -82,9 +108,14 @@ export function createCheckinSchema(t: T) {
 
 function score(min: number, max: number, t: T) {
   // A blank must fail: z.coerce alone would silently turn '' into 0.
+  // Non-numeric input (e.g. 'abc') becomes NaN; provide error message for coerce step.
   return z.preprocess(
     blankToUndefined,
-    z.coerce.number().int(t('errors.score')).min(min, t('errors.score')).max(max, t('errors.score'))
+    z.coerce
+      .number({ error: t('errors.score') })
+      .int(t('errors.score'))
+      .min(min, t('errors.score'))
+      .max(max, t('errors.score'))
   );
 }
 
@@ -92,21 +123,21 @@ export function createFeedbackSchema(t: T) {
   return z.object({
     recommendScore: score(0, 10, t),
     applicability: score(1, 5, t),
-    mostUseful: optionalText(1000, t),
-    planToImplement: optionalText(1000, t),
-    testimonial: optionalText(1000, t),
-    consentQuote: z.boolean().default(false),
-    wantsReview: z.boolean().default(false),
-    followupOk: z.boolean().default(false),
+    mostUseful: optionalText(1000, t, 'errors.mostUseful'),
+    planToImplement: optionalText(1000, t, 'errors.planToImplement'),
+    testimonial: optionalText(1000, t, 'errors.testimonial'),
+    consentQuote: z.boolean({ error: t('errors.consentQuote') }).default(false),
+    wantsReview: z.boolean({ error: t('errors.wantsReview') }).default(false),
+    followupOk: z.boolean({ error: t('errors.followupOk') }).default(false),
   });
 }
 
 export function createFollowupSchema(t: T) {
   return z
     .object({
-      implemented: optionalText(2000, t),
-      result: optionalText(2000, t),
-      letterOk: z.boolean(),
+      implemented: optionalText(2000, t, 'errors.implemented'),
+      result: optionalText(2000, t, 'errors.result'),
+      letterOk: z.boolean({ error: t('errors.letterOk') }),
     })
     .refine((d) => Boolean(d.implemented || d.result), {
       message: t('errors.followupEmpty'),

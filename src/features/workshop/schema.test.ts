@@ -81,6 +81,14 @@ describe('registration schema', () => {
     expect(http.success).toBe(false);
     expect(https.success).toBe(true);
   });
+
+  it('rejects tampered enum value and returns localized key', () => {
+    const r = registration.safeParse(
+      readRegistrationForm(form([...minimal, ['industry', 'invalid_industry']]))
+    );
+    expect(r.success).toBe(false);
+    if (!r.success) expect(issuesToFieldErrors(r.error.issues).industry).toBe('errors.industry');
+  });
 });
 
 describe('checkin schema', () => {
@@ -98,6 +106,12 @@ describe('feedback schema', () => {
     expect(s.safeParse({ recommendScore: '9', applicability: '4' }).success).toBe(true);
     expect(s.safeParse({ recommendScore: '', applicability: '4' }).success).toBe(false);
     expect(s.safeParse({ recommendScore: '11', applicability: '4' }).success).toBe(false);
+  });
+
+  it('rejects non-numeric score and returns localized error key', () => {
+    const r = s.safeParse({ recommendScore: 'abc', applicability: '4' });
+    expect(r.success).toBe(false);
+    if (!r.success) expect(issuesToFieldErrors(r.error.issues).recommendScore).toBe('errors.score');
   });
 });
 
