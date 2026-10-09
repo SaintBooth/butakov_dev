@@ -81,6 +81,13 @@ describe('saveFeedback', () => {
     expect(fb.recommendScore).toBe(9);
   });
 
+  it('shows a second valid token as already used once feedback exists', async () => {
+    await saveFeedback(sql, await validCtx(), input, 'qh', new Date());
+    const [{ id }] = await sql`SELECT id FROM workshop_registrations`;
+    const emailed = await issueToken(sql, id, 'feedback', new Date(), new Date());
+    expect((await resolveToken(sql, emailed, 'feedback', new Date())).state).toBe('used');
+  });
+
   it('rejects array token as invalid', async () => {
     const access = await resolveToken(sql, ['token1', 'token2'], 'feedback', new Date());
     expect(access.state).toBe('invalid');

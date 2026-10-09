@@ -1,5 +1,6 @@
 import type { Sql } from 'postgres';
 import { TOKEN_MAX_LENGTH } from '@/config/workshop';
+import { hasResponse } from '../db/responses';
 import { findToken, type TokenContext } from '../db/tokens';
 import { hashToken, tokenState, type TokenPurpose } from '../domain/tokens';
 
@@ -18,5 +19,11 @@ export async function resolveToken(
   const ctx = await findToken(db, hashToken(raw), purpose);
   if (!ctx) return { state: 'invalid' };
   const state = tokenState(ctx, now);
-  return state === 'valid' ? { state, ctx } : { state };
+  if (state !== 'valid') return { state };
+  // A participant can hold two valid tokens (check-in and the emailed one); once the answer
+  // exists the other one must say so instead of showing a form that fails on submit.
+  if (purpose !== 'manage' && (await hasResponse(db, ctx.registrationId, purpose))) {
+    return { state: 'used' };
+  }
+  return { state, ctx };
 }

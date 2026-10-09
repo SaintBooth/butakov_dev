@@ -31,3 +31,16 @@ export async function insertFollowup(
     RETURNING registration_id`;
   return rows.length > 0;
 }
+
+export async function hasResponse(
+  db: Sql | TransactionSql,
+  registrationId: number,
+  kind: 'feedback' | 'followup'
+): Promise<boolean> {
+  // Table names cannot be bound parameters, hence one query per kind.
+  const [row] =
+    kind === 'feedback'
+      ? await db`SELECT 1 AS found FROM workshop_feedback WHERE registration_id = ${registrationId}`
+      : await db`SELECT 1 AS found FROM workshop_followups WHERE registration_id = ${registrationId}`;
+  return Boolean(row);
+}

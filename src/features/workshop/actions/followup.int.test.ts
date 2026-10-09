@@ -57,4 +57,13 @@ describe('saveFollowup', () => {
     expect(row.letterOk).toBe(true);
     expect((await resolveToken(sql, token, 'followup', new Date())).state).toBe('used');
   });
+
+  it('shows a second valid token as already used once the answer exists', async () => {
+    const access = await resolveToken(sql, token, 'followup', new Date());
+    if (access.state !== 'valid') throw new Error(access.state);
+    await saveFollowup(sql, access.ctx, { implemented: 'x', letterOk: false }, new Date());
+    const [{ id }] = await sql`SELECT id FROM workshop_registrations`;
+    const another = await issueToken(sql, id, 'followup', new Date(), new Date());
+    expect((await resolveToken(sql, another, 'followup', new Date())).state).toBe('used');
+  });
 });
