@@ -2,7 +2,6 @@
 
 import type { Sql } from 'postgres';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { RATE_LIMITS, WORKSHOP_LOCALE, WORKSHOP_PATHS } from '@/config/workshop';
 import { getWorkshopEnv } from '@/config/workshopEnv';
@@ -25,6 +24,10 @@ export type CheckinResult =
   | { status: 'ok'; feedbackToken: string }
   | { status: 'closed' | 'not_found' };
 
+// The feedback URL carries a token, so it is handed to the client for a full page load instead of
+// redirect(): a soft navigation would let the already-initialised Metrika record the token URL.
+export type CheckinState = FormState | { status: 'checked_in'; feedbackUrl: string };
+
 const allow = createRateLimiter(RATE_LIMITS.checkin);
 
 export async function checkIn(
@@ -45,13 +48,13 @@ export async function checkIn(
 
 export async function checkinAction(
   slug: string,
-  _prev: FormState,
+  _prev: CheckinState,
   fd: FormData
-): Promise<FormState> {
+): Promise<CheckinState> {
   const t = await getTranslations({ locale: WORKSHOP_LOCALE, namespace: 'workshop' });
   const env = getWorkshopEnv();
   const db = getDb();
-  const fail = (message: string): FormState => ({
+  const fail = (message: string): CheckinState => ({
     status: 'error',
     fieldErrors: {},
     formError: message,
@@ -77,6 +80,5 @@ export async function checkinAction(
   if (result.status === 'closed') return fail(t('checkin.closed'));
   if (result.status === 'not_found') return fail(t('checkin.notFound'));
   if (result.status !== 'ok') return fail(t('errors.unavailable'));
-  // redirect() works by throwing, so it must stay outside any try/catch.
-  redirect(WORKSHOP_PATHS.feedback(result.feedbackToken));
+  return { status: 'checked_in', feedbackUrl: WORKSHOP_PATHS.feedback(result.feedbackToken) };
 }
