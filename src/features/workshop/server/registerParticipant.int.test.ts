@@ -134,7 +134,7 @@ describe('registerParticipant', () => {
       await sql`SELECT count(*)::int AS n FROM workshop_participants WHERE email = 'new@x.ru'`;
     expect(stray.n).toBe(0);
     const [old] = await sql`SELECT full_name FROM workshop_participants WHERE email = 'old@x.ru'`;
-    expect(old.full_name).toBe('Старое Имя');
+    expect(old.fullName).toBe('Старое Имя');
     const [consents] = await sql`SELECT count(*)::int AS n FROM workshop_consents`;
     expect(consents.n).toBe(3);
   });
