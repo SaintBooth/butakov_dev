@@ -28,8 +28,10 @@ export async function markAttended(
 export async function cancelRegistration(
   db: Sql | TransactionSql,
   registrationId: number
-): Promise<void> {
-  await db`
+): Promise<boolean> {
+  const rows = await db`
     UPDATE workshop_registrations SET status = 'cancelled', updated_at = now()
-    WHERE id = ${registrationId} AND status = 'registered'`;
+    WHERE id = ${registrationId} AND status = 'registered'
+    RETURNING id`;
+  return rows.length === 1;
 }

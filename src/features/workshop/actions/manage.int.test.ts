@@ -71,6 +71,27 @@ describe('manage intents', () => {
     expect(n.n).toBe(0);
   });
 
+  it('cancel on an attended registration is a no-op that keeps pending emails', async () => {
+    await sql`UPDATE workshop_registrations SET status = 'attended'`;
+    // The follow-up job is only queued once the session is over; add it as that flow would.
+    await sql`
+      INSERT INTO workshop_email_jobs (registration_id, kind, send_at)
+      SELECT id, 'followup', now() + interval '45 days' FROM workshop_registrations`;
+    const [before] =
+      await sql`SELECT count(*)::int AS n FROM workshop_email_jobs WHERE status = 'pending'`;
+    expect(before.n).toBeGreaterThan(0);
+    const applied = await applyManageIntent(sql, await ctx(), 'cancel', audit);
+    expect(applied).toBe(false);
+    const [reg] = await sql`SELECT status FROM workshop_registrations`;
+    expect(reg.status).toBe('attended');
+    const [after] =
+      await sql`SELECT count(*)::int AS n FROM workshop_email_jobs WHERE status = 'pending'`;
+    expect(after.n).toBe(before.n);
+    const kept = await sql`
+      SELECT kind FROM workshop_email_jobs WHERE status = 'pending' AND kind IN ('post_session', 'followup')`;
+    expect(kept.map((j) => j.kind).sort()).toEqual(['followup', 'post_session']);
+  });
+
   it('revoke appends false rows for portfolio and quote', async () => {
     await applyManageIntent(sql, await ctx(), 'revoke', audit);
     const rows = await sql`SELECT kind FROM workshop_consents WHERE granted = false ORDER BY id`;

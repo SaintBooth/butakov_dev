@@ -30,13 +30,15 @@ export async function applyManageIntent(
   ctx: TokenContext,
   intent: ManageIntent,
   audit: RevokeAudit
-): Promise<void> {
+): Promise<boolean> {
   if (intent === 'cancel') {
-    await db.begin(async (tx) => {
-      await cancelRegistration(tx, ctx.registrationId);
+    // The page hides the button for other statuses, but the server is the authority: an
+    // attended participant must keep their post-session and follow-up emails.
+    return db.begin(async (tx) => {
+      if (!(await cancelRegistration(tx, ctx.registrationId))) return false;
       await cancelPendingEmails(tx, ctx.registrationId);
+      return true;
     });
-    return;
   }
   const kinds: (keyof RevokeAudit['hashes'])[] =
     intent === 'unsubscribe' ? ['marketing'] : ['portfolio', 'quote'];
@@ -53,6 +55,7 @@ export async function applyManageIntent(
       userAgent: null,
     }))
   );
+  return true;
 }
 
 export async function manageAction(
@@ -66,7 +69,7 @@ export async function manageAction(
   if (!db || !intent.success) return { done: null, error: t('errors.unavailable') };
   const access = await resolveToken(db, token, 'manage', new Date());
   if (access.state !== 'valid') return { done: null, error: t(`token.${access.state}`) };
-  await applyManageIntent(db, access.ctx, intent.data, {
+  const applied = await applyManageIntent(db, access.ctx, intent.data, {
     version: CONSENT_VERSION,
     hashes: {
       marketing: consentTextHash(t.raw('consents.marketing') as string),
@@ -74,5 +77,6 @@ export async function manageAction(
       quote: consentTextHash(t.raw('consents.quote') as string),
     },
   });
+  if (!applied) return { done: null, error: t('errors.unavailable') };
   return { done: intent.data, error: null };
 }
