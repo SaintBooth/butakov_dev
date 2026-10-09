@@ -59,7 +59,6 @@ export async function checkinAction(
   if (!env || !db) return fail(t('errors.unavailable'));
 
   const ip = getClientIp(await headers(), env.WORKSHOP_IP_HEADER);
-  if (ip && !allow(ip)) return fail(t('errors.rateLimited'));
 
   const parsed = createCheckinSchema(t).safeParse(readCheckinForm(fd));
   if (!parsed.success) {
@@ -69,6 +68,10 @@ export async function checkinAction(
       formError: null,
     };
   }
+
+  // Keyed by ip and email so one person guessing codes is throttled, while a room of
+  // attendees behind a single NAT address is not locked out together.
+  if (ip && !allow(`${ip}:${parsed.data.email}`)) return fail(t('errors.rateLimited'));
 
   const result = await checkIn(db, slug, parsed.data, new Date());
   if (result.status === 'closed') return fail(t('checkin.closed'));
