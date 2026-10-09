@@ -106,6 +106,11 @@ export const WORKSHOP_PATHS = {
   privacy: `${base}/privacy/workshop`,
 } as const;
 
+// Same uid in the public file and the emailed one, so a calendar updates the event instead of duplicating it.
+export function icsUid(slug: string): string {
+  return `${slug}@${new URL(SITE_URL).host}`;
+}
+
 export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path}`;
 }

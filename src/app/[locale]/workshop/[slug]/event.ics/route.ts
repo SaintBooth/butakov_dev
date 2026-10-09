@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { absoluteUrl, WORKSHOP_LOCALE, WORKSHOP_PATHS } from '@/config/workshop';
+import { absoluteUrl, icsUid, WORKSHOP_LOCALE, WORKSHOP_PATHS } from '@/config/workshop';
 import { getDb } from '@/features/workshop/db/client';
 import { findSessionBySlug } from '@/features/workshop/db/sessions';
 import { buildIcs } from '@/features/workshop/ics';
@@ -17,7 +17,7 @@ export async function GET(
   if (!session) notFound();
   // Public file: the meeting link is left out on purpose, it only goes out by email.
   const ics = buildIcs({
-    uid: `${session.slug}@butakov.dev`,
+    uid: icsUid(session.slug),
     title: session.title,
     startsAt: session.startsAt,
     endsAt: session.endsAt,

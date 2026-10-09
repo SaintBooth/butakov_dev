@@ -1,6 +1,6 @@
 import { createTranslator } from 'next-intl';
 import messages from '../../../../messages/ru.json';
-import { WORKSHOP_LOCALE } from '@/config/workshop';
+import { icsUid, WORKSHOP_LOCALE } from '@/config/workshop';
 import type { TemplateId } from '../domain/emailPlan';
 import { formatSessionDate } from '../format';
 import { buildIcs } from '../ics';
@@ -79,7 +79,7 @@ export function composeEmail(ctx: EmailContext): OutgoingMail {
         filename: `${ctx.slug}.ics`,
         contentType: 'text/calendar; charset=utf-8; method=PUBLISH',
         content: buildIcs({
-          uid: `${ctx.slug}@butakov.dev`,
+          uid: icsUid(ctx.slug),
           title: ctx.sessionTitle,
           startsAt: ctx.startsAt,
           endsAt: ctx.endsAt,
