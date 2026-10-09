@@ -39,7 +39,15 @@ export function createRateLimiter({ max, windowMs }: Limit, maxKeys = MAX_TRACKE
     hits.set(key, live);
   }
 
-  return { isLimited, hit };
+  /** Takes back the latest hit, for a provisional hit whose work failed through no fault of the caller. */
+  function refund(key: string, now = Date.now()): void {
+    const live = recent(key, now);
+    live.pop();
+    if (live.length === 0) hits.delete(key);
+    else hits.set(key, live);
+  }
+
+  return { isLimited, hit, refund };
 }
 
 export type RateLimiter = ReturnType<typeof createRateLimiter>;

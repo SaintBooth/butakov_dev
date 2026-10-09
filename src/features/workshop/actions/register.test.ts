@@ -150,6 +150,22 @@ describe('registerAction outage handling', () => {
     expect(await submit(submission())).toEqual({ status: 'success' });
   });
 
+  it('bounds a parallel burst from one person to the budget', async () => {
+    const results = await Promise.all(
+      Array.from({ length: RATE_LIMITS.register.max + 4 }, () => submit(submission()))
+    );
+    expect(results.filter((r) => r.status === 'success')).toHaveLength(RATE_LIMITS.register.max);
+    expect(mocks.register).toHaveBeenCalledTimes(RATE_LIMITS.register.max);
+  });
+
+  it('refunds the provisional hit when the database fails', async () => {
+    mocks.register.mockRejectedValueOnce(new Error('down'));
+    await submit(submission());
+    for (let i = 0; i < RATE_LIMITS.register.max; i++) {
+      expect(await submit(submission())).toEqual({ status: 'success' });
+    }
+  });
+
   it('still spends the budget on a definite answer such as a full session', async () => {
     mocks.register.mockResolvedValue({ status: 'full' });
     for (let i = 0; i < RATE_LIMITS.register.max; i++) await submit(submission());

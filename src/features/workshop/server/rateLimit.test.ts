@@ -2,6 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { createRateLimiter } from './rateLimit';
 
 describe('createRateLimiter', () => {
+  it('refund takes back the latest hit and forgets an emptied key', () => {
+    const { isLimited, hit, refund } = createRateLimiter({ max: 2, windowMs: 1000 }, 1);
+    hit('a', 0);
+    hit('a', 1);
+    expect(isLimited('a', 2)).toBe(true);
+    refund('a', 2);
+    expect(isLimited('a', 2)).toBe(false);
+    refund('a', 3);
+    refund('a', 3);
+    hit('b', 4);
+    expect(isLimited('b', 4)).toBe(false);
+  });
+
   it('isLimited reads the budget without spending it', () => {
     const { isLimited, hit } = createRateLimiter({ max: 2, windowMs: 1000 });
     expect(isLimited('a', 0)).toBe(false);
