@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useActionState } from 'react';
+import { startTransition, useActionState, type FormEvent } from 'react';
+import { CHECKIN_CODE_LENGTH } from '@/config/workshop';
 import type { FormState } from '../actions/register';
 import { Notice } from './Notice';
 import { SubmitButton } from './SubmitButton';
@@ -14,9 +15,18 @@ export function CheckinForm({
 }) {
   const t = useTranslations('workshop');
   const [state, formAction, pending] = useActionState(action, { status: 'idle' });
+
+  // Submitted by hand rather than via <form action>: React 19 resets uncontrolled fields after a
+  // form action, which would wipe the user's answers on every server-side error.
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(() => formAction(fd));
+  };
+
   const errors = state.status === 'error' ? state.fieldErrors : {};
   return (
-    <form action={formAction} noValidate className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
       <TextField
         name="email"
         type="email"
@@ -29,7 +39,7 @@ export function CheckinForm({
         name="code"
         label={t('checkin.code')}
         required
-        maxLength={6}
+        maxLength={CHECKIN_CODE_LENGTH}
         autoComplete="off"
         error={errors.code}
       />
