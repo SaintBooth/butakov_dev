@@ -8,10 +8,11 @@ import { formatSessionDate } from '@/features/workshop/format';
 import { resolveToken, tokenFromParam } from '@/features/workshop/server/tokenAccess';
 import { ManagePanel } from '@/features/workshop/ui/ManagePanel';
 import { Notice } from '@/features/workshop/ui/Notice';
+import { workshopPageMetadata } from '@/features/workshop/metadata';
 import { PageShell } from '@/features/workshop/ui/PageShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+export const generateMetadata = (): Promise<Metadata> => workshopPageMetadata('manage');
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -40,9 +41,9 @@ export default async function ManagePage({ params, searchParams }: Props) {
           date: formatSessionDate(ctx.sessionStartsAt, t('timezoneLabel')),
         })}
       </p>
-      <Notice tone="info">{t(`manage.status.${ctx.registrationStatus}`)}</Notice>
       <ManagePanel
         action={manageAction.bind(null, tokenFromParam(token))}
+        statusLabel={t(`manage.status.${ctx.registrationStatus}`)}
         canCancel={ctx.registrationStatus === REGISTRATION_STATUS.registered}
       />
     </PageShell>

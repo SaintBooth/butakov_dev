@@ -17,17 +17,21 @@ const buttonClass =
 interface ManagePanelProps {
   action: (prev: ManageState, fd: FormData) => Promise<ManageState>;
   canCancel: boolean;
+  statusLabel: string;
 }
 
-export function ManagePanel({ action, canCancel }: ManagePanelProps) {
+export function ManagePanel({ action, canCancel, statusLabel }: ManagePanelProps) {
   const t = useTranslations('workshop.manage');
   const [state, formAction, pending] = useActionState(action, { done: null, error: null });
+  // The page was rendered before the action ran, so the post-cancel state comes from the result.
+  const cancelled = state.done === 'cancel';
   return (
     <div className="flex flex-col gap-4">
+      <Notice tone="info">{cancelled ? t('status.cancelled') : statusLabel}</Notice>
       {state.done && <Notice tone="success">{t(DONE_KEY[state.done])}</Notice>}
       {state.error && <Notice tone="error">{state.error}</Notice>}
       <form action={formAction} className="flex flex-wrap gap-2">
-        {canCancel && (
+        {canCancel && !cancelled && (
           <button name="intent" value="cancel" disabled={pending} className={buttonClass}>
             {t('cancel')}
           </button>
