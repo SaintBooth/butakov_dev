@@ -36,7 +36,7 @@ function input(email: string, extra: Partial<RegistrationInput> = {}): Registrat
 }
 
 describe('registerParticipant', () => {
-  it('stores the registration, three consent rows and the email plan', async () => {
+  it('stores the registration, one consent row per kind and the email plan', async () => {
     await seedSession(sql);
     const r = await registerParticipant(sql, 'ai-test', input('ivan@x.ru'), audit, new Date());
     expect(r.status).toBe('ok');
@@ -135,7 +135,8 @@ describe('registerParticipant', () => {
     expect(stray.n).toBe(0);
     const [old] = await sql`SELECT full_name FROM workshop_participants WHERE email = 'old@x.ru'`;
     expect(old.fullName).toBe('Старое Имя');
+    // Only the accepted registrant logged consents: one row per kind in the audit.
     const [consents] = await sql`SELECT count(*)::int AS n FROM workshop_consents`;
-    expect(consents.n).toBe(3);
+    expect(consents.n).toBe(Object.keys(audit.hashes).length);
   });
 });

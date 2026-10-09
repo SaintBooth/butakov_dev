@@ -1,6 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import type { Sql } from 'postgres';
 import { applyMigrations, connect } from '../../scripts/workshop/lib.mjs';
+import type { RegistrationInput } from '../features/workshop/schema';
+import {
+  registerParticipant,
+  type ConsentAudit,
+} from '../features/workshop/server/registerParticipant';
 
 const MIGRATIONS_DIR = fileURLToPath(new URL('../../db/migrations', import.meta.url));
 
@@ -41,4 +46,46 @@ export async function seedSession(
   const [s] = await sql<{ id: number; slug: string }[]>`
     INSERT INTO workshop_sessions ${sql(row)} RETURNING id, slug`;
   return s;
+}
+
+export const TEST_AUDIT: ConsentAudit = {
+  version: 'v',
+  hashes: { pd_processing: 'a', marketing: 'b', portfolio: 'c' },
+  ip: null,
+  userAgent: null,
+};
+
+export function testRegistrationInput(
+  email: string,
+  extra: Partial<RegistrationInput> = {}
+): RegistrationInput {
+  return {
+    fullName: 'Иван',
+    email,
+    company: 'ООО',
+    positionLevel: 'head',
+    challenges: [],
+    topics: [],
+    consentPd: true,
+    consentMarketing: false,
+    consentPortfolio: false,
+    ...extra,
+  };
+}
+
+export async function seedRegistration(
+  sql: Sql,
+  email = 'ivan@x.ru',
+  extra: Partial<RegistrationInput> = {},
+  slug = 'ai-test'
+): Promise<number> {
+  const r = await registerParticipant(
+    sql,
+    slug,
+    testRegistrationInput(email, extra),
+    TEST_AUDIT,
+    new Date()
+  );
+  if (r.status !== 'ok') throw new Error(`seedRegistration: ${r.status}`);
+  return r.registrationId;
 }
