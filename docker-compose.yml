@@ -12,6 +12,16 @@ services:
       - PORT=3000
     networks:
       - butakov-net
+  postgres-test:
+    image: postgres:16-alpine
+    profiles: ['test']
+    environment:
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=workshop_test
+    ports:
+      - '54329:5432'
+    tmpfs:
+      - /var/lib/postgresql/data
 
 networks:
   butakov-net:
