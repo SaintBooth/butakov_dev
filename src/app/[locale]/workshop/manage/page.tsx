@@ -5,7 +5,7 @@ import { WORKSHOP_LOCALE } from '@/config/workshop';
 import { manageAction } from '@/features/workshop/actions/manage';
 import { getDb } from '@/features/workshop/db/client';
 import { formatSessionDate } from '@/features/workshop/format';
-import { resolveToken } from '@/features/workshop/server/tokenAccess';
+import { resolveToken, tokenFromParam } from '@/features/workshop/server/tokenAccess';
 import { ManagePanel } from '@/features/workshop/ui/ManagePanel';
 import { Notice } from '@/features/workshop/ui/Notice';
 import { PageShell } from '@/features/workshop/ui/PageShell';
@@ -15,7 +15,7 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 interface Props {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ t?: string }>;
+  searchParams: Promise<{ t?: string | string[] }>;
 }
 
 export default async function ManagePage({ params, searchParams }: Props) {
@@ -42,7 +42,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
       </p>
       <Notice tone="info">{t(`manage.status.${ctx.registrationStatus}`)}</Notice>
       <ManagePanel
-        action={manageAction.bind(null, token ?? '')}
+        action={manageAction.bind(null, tokenFromParam(token))}
         canCancel={ctx.registrationStatus === 'registered'}
       />
     </PageShell>

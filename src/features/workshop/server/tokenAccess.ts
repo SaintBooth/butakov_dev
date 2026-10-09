@@ -27,3 +27,8 @@ export async function resolveToken(
   }
   return { state, ctx };
 }
+
+// Next passes a repeated ?t=a&t=b as string[]; the bound server action needs a plain string.
+export function tokenFromParam(raw: string | string[] | undefined): string {
+  return typeof raw === 'string' ? raw : '';
+}
