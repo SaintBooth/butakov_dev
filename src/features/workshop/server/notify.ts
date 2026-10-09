@@ -1,9 +1,8 @@
 import { z } from 'zod';
-import { TELEGRAM_API_BASE } from '@/config/workshop';
+import { TELEGRAM_API_BASE, TELEGRAM_TIMEOUT_MS } from '@/config/workshop';
 import type { WorkshopEnv } from '@/config/workshopEnv';
 
 const telegramResponseSchema = z.object({ ok: z.boolean() });
-const TELEGRAM_TIMEOUT_MS = 5000;
 
 // Best effort: an owner ping must never fail a user action. Texts carry counts and ids only.
 export async function notifyOwner(env: WorkshopEnv, text: string): Promise<void> {

@@ -1,13 +1,18 @@
 import type { Sql } from 'postgres';
+import { REGISTRATION_STATUS } from '@/config/workshop';
 import { insertConsents } from '../db/consents';
 import { enqueueEmails } from '../db/emailJobs';
 import { countActiveRegistrations } from '../db/registrations';
+import type { ConsentKind } from '../domain/consents';
 import { planRegistrationEmails } from '../domain/emailPlan';
 import type { RegistrationInput } from '../schema';
 
+// The quote consent is given later, on the feedback form.
+type RegistrationConsentKind = Exclude<ConsentKind, 'quote'>;
+
 export interface ConsentAudit {
   version: string;
-  hashes: { pd_processing: string; marketing: string; portfolio: string };
+  hashes: Record<RegistrationConsentKind, string>;
   ip: string | null;
   userAgent: string | null;
 }
@@ -47,7 +52,7 @@ export async function registerParticipant(
       SELECT r.status FROM workshop_registrations r
       JOIN workshop_participants p ON p.id = r.participant_id
       WHERE r.session_id = ${session.id} AND p.email = ${input.email}`;
-    const takesNewSeat = !existing || existing.status === 'cancelled';
+    const takesNewSeat = !existing || existing.status === REGISTRATION_STATUS.cancelled;
     if (takesNewSeat && (await countActiveRegistrations(tx, session.id)) >= session.capacity) {
       return { status: 'full' } as const;
     }
@@ -78,12 +83,13 @@ export async function registerParticipant(
         company_size = EXCLUDED.company_size, decision_role = EXCLUDED.decision_role,
         ai_level = EXCLUDED.ai_level, task_text = EXCLUDED.task_text,
         challenges = EXCLUDED.challenges, topics = EXCLUDED.topics,
-        status = CASE WHEN workshop_registrations.status = 'cancelled' THEN 'registered'
+        status = CASE WHEN workshop_registrations.status = ${REGISTRATION_STATUS.cancelled}
+                      THEN ${REGISTRATION_STATUS.registered}
                       ELSE workshop_registrations.status END,
         updated_at = now()
       RETURNING id`;
 
-    const consent = (kind: 'pd_processing' | 'marketing' | 'portfolio', granted: boolean) => ({
+    const consent = (kind: RegistrationConsentKind, granted: boolean) => ({
       participantId: participant.id,
       registrationId: registration.id,
       kind,

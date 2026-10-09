@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { CONSENT_KINDS } from '@/config/workshop';
+import { CONSENT_KINDS } from '@/config/workshop';
 
 export type ConsentKind = (typeof CONSENT_KINDS)[number];
 
@@ -12,12 +12,7 @@ export interface ConsentEvent {
 export type ConsentState = Record<ConsentKind, boolean>;
 
 export function currentConsents(events: ConsentEvent[]): ConsentState {
-  const state: ConsentState = {
-    pd_processing: false,
-    marketing: false,
-    portfolio: false,
-    quote: false,
-  };
+  const state = Object.fromEntries(CONSENT_KINDS.map((kind) => [kind, false])) as ConsentState;
   const latest = new Map<ConsentKind, number>();
   for (const e of events) {
     const at = e.createdAt.getTime();

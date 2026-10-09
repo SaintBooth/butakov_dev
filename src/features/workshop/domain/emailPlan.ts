@@ -1,4 +1,12 @@
-import { EMAIL_OFFSETS_MIN, FOLLOWUP_AFTER_END_DAYS, MAILER } from '@/config/workshop';
+import {
+  DAY_MS,
+  EMAIL_OFFSETS_MIN,
+  FOLLOWUP_AFTER_END_DAYS,
+  MAILER,
+  MINUTE_MS,
+  REGISTRATION_STATUS,
+  type RegistrationStatus,
+} from '@/config/workshop';
 
 export type EmailKind =
   | 'confirmation'
@@ -13,7 +21,6 @@ export type TemplateId =
   | 'post_attended'
   | 'post_missed'
   | 'followup';
-export type RegistrationStatus = 'registered' | 'attended' | 'cancelled';
 
 export interface PlannedEmail {
   kind: EmailKind;
@@ -23,9 +30,6 @@ export interface PlannedEmail {
 export type JobDecision =
   | { action: 'cancel' }
   | { action: 'send'; template: TemplateId; includeAnnouncement: boolean };
-
-const MINUTE_MS = 60_000;
-const DAY_MS = 86_400_000;
 
 export function planRegistrationEmails(
   session: { startsAt: Date; endsAt: Date },
@@ -61,12 +65,12 @@ export function resolveJob(
   status: RegistrationStatus,
   marketingConsent: boolean
 ): JobDecision {
-  if (status === 'cancelled') return { action: 'cancel' };
+  if (status === REGISTRATION_STATUS.cancelled) return { action: 'cancel' };
   if (kind === 'post_session') {
-    return status === 'attended'
+    return status === REGISTRATION_STATUS.attended
       ? { action: 'send', template: 'post_attended', includeAnnouncement: false }
       : { action: 'send', template: 'post_missed', includeAnnouncement: marketingConsent };
   }
-  if (kind === 'followup' && status !== 'attended') return { action: 'cancel' };
+  if (kind === 'followup' && status !== REGISTRATION_STATUS.attended) return { action: 'cancel' };
   return { action: 'send', template: kind, includeAnnouncement: false };
 }

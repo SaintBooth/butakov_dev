@@ -1,20 +1,22 @@
 import type { Sql, TransactionSql } from 'postgres';
-import type { EmailKind, PlannedEmail, RegistrationStatus } from '../domain/emailPlan';
+import { EMAIL_JOB_STATUS, type RegistrationStatus } from '@/config/workshop';
+import type { EmailKind, PlannedEmail } from '../domain/emailPlan';
 
 export async function enqueueEmails(
   db: Sql | TransactionSql,
   registrationId: number,
   plan: PlannedEmail[]
 ): Promise<void> {
-  for (const e of plan) {
-    // A repeat registration re-sends the confirmation and revives jobs a cancellation stopped.
-    await db`
-      INSERT INTO workshop_email_jobs (registration_id, kind, send_at)
-      VALUES (${registrationId}, ${e.kind}, ${e.sendAt})
-      ON CONFLICT (registration_id, kind) DO UPDATE
-        SET status = 'pending', send_at = EXCLUDED.send_at, attempts = 0, last_error = NULL
-        WHERE workshop_email_jobs.kind = 'confirmation' OR workshop_email_jobs.status = 'cancelled'`;
-  }
+  if (plan.length === 0) return;
+  const rows = plan.map((e) => ({ registrationId, kind: e.kind, sendAt: e.sendAt }));
+  // A repeat registration re-sends the confirmation and revives jobs a cancellation stopped.
+  await db`
+    INSERT INTO workshop_email_jobs ${db(rows, 'registrationId', 'kind', 'sendAt')}
+    ON CONFLICT (registration_id, kind) DO UPDATE
+      SET status = ${EMAIL_JOB_STATUS.pending}, send_at = EXCLUDED.send_at,
+          attempts = 0, last_error = NULL
+      WHERE workshop_email_jobs.kind = 'confirmation'
+         OR workshop_email_jobs.status = ${EMAIL_JOB_STATUS.cancelled}`;
 }
 
 export async function cancelPendingEmails(
@@ -22,8 +24,8 @@ export async function cancelPendingEmails(
   registrationId: number
 ): Promise<void> {
   await db`
-    UPDATE workshop_email_jobs SET status = 'cancelled'
-    WHERE registration_id = ${registrationId} AND status = 'pending'`;
+    UPDATE workshop_email_jobs SET status = ${EMAIL_JOB_STATUS.cancelled}
+    WHERE registration_id = ${registrationId} AND status = ${EMAIL_JOB_STATUS.pending}`;
 }
 
 export interface DueJob {
@@ -57,14 +59,17 @@ export async function claimDueJobs(
     JOIN workshop_registrations r ON r.id = j.registration_id
     JOIN workshop_participants p ON p.id = r.participant_id
     JOIN workshop_sessions s ON s.id = r.session_id
-    WHERE j.status = 'pending' AND j.send_at <= ${now}
+    WHERE j.status = ${EMAIL_JOB_STATUS.pending} AND j.send_at <= ${now}
     ORDER BY j.send_at
     LIMIT ${limit}
     FOR UPDATE OF j SKIP LOCKED`;
 }
 
 export async function markSent(db: Sql | TransactionSql, id: number, now: Date): Promise<void> {
-  await db`UPDATE workshop_email_jobs SET status = 'sent', sent_at = ${now}, last_error = NULL WHERE id = ${id}`;
+  await db`
+    UPDATE workshop_email_jobs
+    SET status = ${EMAIL_JOB_STATUS.sent}, sent_at = ${now}, last_error = NULL
+    WHERE id = ${id}`;
 }
 
 export async function markRetry(
@@ -77,11 +82,11 @@ export async function markRetry(
   await db`
     UPDATE workshop_email_jobs
     SET attempts = ${attempts}, last_error = ${error},
-        status = ${nextAt ? 'pending' : 'failed'},
+        status = ${nextAt ? EMAIL_JOB_STATUS.pending : EMAIL_JOB_STATUS.failed},
         send_at = COALESCE(${nextAt}::timestamptz, send_at)
     WHERE id = ${id}`;
 }
 
 export async function markCancelled(db: Sql | TransactionSql, id: number): Promise<void> {
-  await db`UPDATE workshop_email_jobs SET status = 'cancelled' WHERE id = ${id}`;
+  await db`UPDATE workshop_email_jobs SET status = ${EMAIL_JOB_STATUS.cancelled} WHERE id = ${id}`;
 }

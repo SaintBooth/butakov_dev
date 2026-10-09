@@ -1,4 +1,5 @@
 import type { Sql } from 'postgres';
+import { REGISTRATION_STATUS } from '@/config/workshop';
 import type { CsvCell } from '../export/csv';
 
 export type ExportKind = 'attendees' | 'feedback' | 'summary' | 'program';
@@ -18,7 +19,7 @@ async function attendees(db: Sql, sessionId: number): Promise<Table> {
     SELECT p.full_name_latin, p.full_name, r.position_latin, r.position_title, r.position_level,
            r.company, r.industry, r.company_size, r.profile_url, r.attended_at
     FROM workshop_registrations r JOIN workshop_participants p ON p.id = r.participant_id
-    WHERE r.session_id = ${sessionId} AND r.status = 'attended' AND ${hasConsent(db, 'portfolio')}
+    WHERE r.session_id = ${sessionId} AND r.status = ${REGISTRATION_STATUS.attended} AND ${hasConsent(db, 'portfolio')}
     ORDER BY r.attended_at`;
   return {
     headers: [
@@ -85,15 +86,15 @@ async function summary(db: Sql, sessionId: number): Promise<Table> {
   const [totals] = await db<
     { registered: number; attended: number; companies: number; responded: number }[]
   >`
-    SELECT count(*) FILTER (WHERE r.status <> 'cancelled')::int AS registered,
-           count(*) FILTER (WHERE r.status = 'attended')::int AS attended,
-           count(DISTINCT lower(r.company)) FILTER (WHERE r.status = 'attended')::int AS companies,
+    SELECT count(*) FILTER (WHERE r.status <> ${REGISTRATION_STATUS.cancelled})::int AS registered,
+           count(*) FILTER (WHERE r.status = ${REGISTRATION_STATUS.attended})::int AS attended,
+           count(DISTINCT lower(r.company)) FILTER (WHERE r.status = ${REGISTRATION_STATUS.attended})::int AS companies,
            count(f.registration_id)::int AS responded
     FROM workshop_registrations r LEFT JOIN workshop_feedback f ON f.registration_id = r.id
     WHERE r.session_id = ${sessionId}`;
   const levels = await db<{ positionLevel: string; n: number }[]>`
     SELECT position_level, count(*)::int AS n FROM workshop_registrations
-    WHERE session_id = ${sessionId} AND status = 'attended'
+    WHERE session_id = ${sessionId} AND status = ${REGISTRATION_STATUS.attended}
     GROUP BY position_level ORDER BY n DESC`;
   const scores = await db<{ recommendScore: number; n: number }[]>`
     SELECT f.recommend_score, count(*)::int AS n FROM workshop_feedback f
@@ -126,7 +127,7 @@ async function program(db: Sql, sessionId: number): Promise<Table> {
   >`
     SELECT position_level, industry, ai_level, task_text, challenges, topics
     FROM workshop_registrations
-    WHERE session_id = ${sessionId} AND status <> 'cancelled' ORDER BY id`;
+    WHERE session_id = ${sessionId} AND status <> ${REGISTRATION_STATUS.cancelled} ORDER BY id`;
   return {
     headers: ['Position level', 'Industry', 'AI level', 'Task', 'Challenges', 'Topics'],
     rows: rows.map((r) => [

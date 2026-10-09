@@ -1,7 +1,9 @@
 import { timingSafeEqual } from 'node:crypto';
-import { CHECKIN_CLOSES_AFTER_END_MIN, CHECKIN_OPENS_BEFORE_END_MIN } from '@/config/workshop';
-
-const MINUTE_MS = 60_000;
+import {
+  CHECKIN_CLOSES_AFTER_END_MIN,
+  CHECKIN_OPENS_BEFORE_END_MIN,
+  MINUTE_MS,
+} from '@/config/workshop';
 
 export function isCheckinOpen(endsAt: Date, now: Date): boolean {
   const opens = endsAt.getTime() - CHECKIN_OPENS_BEFORE_END_MIN * MINUTE_MS;

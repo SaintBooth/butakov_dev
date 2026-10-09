@@ -1,5 +1,9 @@
 import { SITE_URL } from '@/config/landings';
 
+export const MINUTE_MS = 60_000;
+export const HOUR_MS = 60 * MINUTE_MS;
+export const DAY_MS = 24 * HOUR_MS;
+
 export const WORKSHOP_LOCALE = 'ru';
 export const WORKSHOP_TIME_ZONE = 'Europe/Moscow';
 
@@ -63,6 +67,22 @@ export const FIELD_LIMITS = {
 export const CONSENT_VERSION = '2026-10-09';
 export const CONSENT_KINDS = ['pd_processing', 'marketing', 'portfolio', 'quote'] as const;
 
+// The values mirror the CHECK constraints in db/migrations/001_workshop.sql.
+export const REGISTRATION_STATUS = {
+  registered: 'registered',
+  attended: 'attended',
+  cancelled: 'cancelled',
+} as const;
+export type RegistrationStatus = (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
+
+export const EMAIL_JOB_STATUS = {
+  pending: 'pending',
+  sent: 'sent',
+  failed: 'failed',
+  cancelled: 'cancelled',
+} as const;
+export type EmailJobStatus = (typeof EMAIL_JOB_STATUS)[keyof typeof EMAIL_JOB_STATUS];
+
 // Keep in sync with scripts/workshop/lib.mjs (scripts/workshop/lib.test.ts enforces it).
 export const CHECKIN_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 export const CHECKIN_CODE_LENGTH = 6;
@@ -77,22 +97,22 @@ export const FOLLOWUP_AFTER_END_DAYS = 45;
 
 export const MIN_FILL_MS = 3000;
 // A form left open longer than this is stale; the visitor is asked to reload it.
-export const MAX_STAMP_AGE_MS = 24 * 3_600_000;
+export const MAX_STAMP_AGE_MS = DAY_MS;
 // Per-ip budgets sit above the per-person ones: colleagues share one NAT address, while rotating
 // emails (or tokens) from one address is exactly what the per-ip failure caps are for.
 export const RATE_LIMITS = {
-  register: { max: 5, windowMs: 10 * 60_000 },
-  registerIp: { max: 30, windowMs: 10 * 60_000 },
-  checkin: { max: 10, windowMs: 10 * 60_000 },
-  checkinIp: { max: 30, windowMs: 10 * 60_000 },
-  export: { max: 10, windowMs: 10 * 60_000 },
+  register: { max: 5, windowMs: 10 * MINUTE_MS },
+  registerIp: { max: 30, windowMs: 10 * MINUTE_MS },
+  checkin: { max: 10, windowMs: 10 * MINUTE_MS },
+  checkinIp: { max: 30, windowMs: 10 * MINUTE_MS },
+  export: { max: 10, windowMs: 10 * MINUTE_MS },
 } as const;
 // Upper bound on distinct keys one rate limiter remembers, so a flood of addresses cannot grow memory.
 export const MAX_TRACKED_KEYS = 10_000;
 
 // One retry delay per failed attempt; when they run out the job is marked failed (5 attempts total).
 export const MAILER = {
-  tickMs: 60_000,
+  tickMs: MINUTE_MS,
   batchSize: 20,
   retryDelaysMin: [1, 5, 15, 60],
   // nodemailer defaults are minutes; a hung server must not hold a job's row lock that long.
@@ -102,6 +122,7 @@ export const MAILER = {
 export const ICS_PRODID = '-//butakov.dev//workshop//RU';
 
 export const TELEGRAM_API_BASE = 'https://api.telegram.org';
+export const TELEGRAM_TIMEOUT_MS = 5000;
 
 const base = `/${WORKSHOP_LOCALE}`;
 

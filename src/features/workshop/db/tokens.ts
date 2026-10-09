@@ -1,5 +1,5 @@
 import type { Sql, TransactionSql } from 'postgres';
-import type { RegistrationStatus } from '../domain/emailPlan';
+import type { RegistrationStatus } from '@/config/workshop';
 import { createToken, tokenExpiry, type TokenPurpose } from '../domain/tokens';
 
 export interface TokenContext {

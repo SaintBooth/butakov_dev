@@ -1,10 +1,8 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { TOKEN_TTL_DAYS } from '@/config/workshop';
+import { DAY_MS, TOKEN_TTL_DAYS } from '@/config/workshop';
 
 export type TokenPurpose = 'manage' | 'feedback' | 'followup';
 export type TokenState = 'valid' | 'expired' | 'used';
-
-const DAY_MS = 86_400_000;
 
 export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
