@@ -1,9 +1,12 @@
+import { TOKEN_PAGES, WORKSHOP_LOCALE } from './workshop';
+
 export const YM_ID = 107722106;
 
 // Pages whose query string carries a bearer token (?t=...): Metrika records the full URL,
-// so a token sent there would grant access to a participant's data.
+// so a token sent there would grant access to a participant's data. Derived from the same
+// list that builds the token URLs, so the two cannot drift apart.
 export const NO_ANALYTICS_PATH_PATTERNS: readonly RegExp[] = [
-  /^\/[a-z]{2}\/workshop\/(manage|feedback|followup)\/?$/,
+  new RegExp(`^/${WORKSHOP_LOCALE}/workshop/(${TOKEN_PAGES.join('|')})/?$`),
 ];
 
 export function isAnalyticsDisabledPath(pathname: string): boolean {

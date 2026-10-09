@@ -96,13 +96,20 @@ export const MAILER = {
 export const TELEGRAM_API_BASE = 'https://api.telegram.org';
 
 const base = `/${WORKSHOP_LOCALE}`;
+
+// Pages that carry a bearer token in ?t=. The analytics blocklist is derived from this list,
+// so a new token page cannot be added to the URLs and forgotten in the blocklist.
+export const TOKEN_PAGES = ['manage', 'feedback', 'followup'] as const;
+export type TokenPage = (typeof TOKEN_PAGES)[number];
+const tokenUrl = (page: TokenPage, token: string) => `${base}/workshop/${page}?t=${token}`;
+
 export const WORKSHOP_PATHS = {
   register: (slug: string) => `${base}/workshop/${slug}`,
   checkin: (slug: string) => `${base}/workshop/${slug}/checkin`,
   ics: (slug: string) => `${base}/workshop/${slug}/event.ics`,
-  feedback: (token: string) => `${base}/workshop/feedback?t=${token}`,
-  followup: (token: string) => `${base}/workshop/followup?t=${token}`,
-  manage: (token: string) => `${base}/workshop/manage?t=${token}`,
+  feedback: (token: string) => tokenUrl('feedback', token),
+  followup: (token: string) => tokenUrl('followup', token),
+  manage: (token: string) => tokenUrl('manage', token),
   privacy: `${base}/privacy/workshop`,
 } as const;
 

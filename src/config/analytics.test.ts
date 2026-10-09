@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { isAnalyticsDisabledPath } from './analytics';
+import { WORKSHOP_PATHS } from './workshop';
 
 describe('isAnalyticsDisabledPath', () => {
   it.each(['/ru/workshop/manage', '/ru/workshop/feedback', '/ru/workshop/followup/'])(
@@ -17,5 +18,11 @@ describe('isAnalyticsDisabledPath', () => {
     '/ru/workshop/manage/x',
   ])('keeps analytics on other pages: %s', (path) => {
     expect(isAnalyticsDisabledPath(path)).toBe(false);
+  });
+
+  it('blocks the path of every token URL the app builds', () => {
+    for (const build of [WORKSHOP_PATHS.manage, WORKSHOP_PATHS.feedback, WORKSHOP_PATHS.followup]) {
+      expect(isAnalyticsDisabledPath(new URL(build('x'), 'https://a.test').pathname)).toBe(true);
+    }
   });
 });
