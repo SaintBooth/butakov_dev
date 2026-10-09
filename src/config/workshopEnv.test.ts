@@ -41,4 +41,19 @@ describe('parseWorkshopEnv', () => {
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.env.SMTP_PORT).toBe(465);
   });
+
+  it('treats empty optional variables as unset instead of disabling the feature', () => {
+    const r = parseWorkshopEnv({
+      ...base,
+      SMTP_HOST: '',
+      SMTP_PORT: '',
+      TELEGRAM_BOT_TOKEN: '',
+      WORKSHOP_IP_HEADER: '',
+    });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.env.SMTP_HOST).toBeUndefined();
+      expect(r.env.SMTP_PORT).toBeUndefined();
+    }
+  });
 });
