@@ -9,11 +9,12 @@ export type TokenAccess =
 
 export async function resolveToken(
   db: Sql,
-  raw: string | undefined,
+  raw: unknown,
   purpose: TokenPurpose,
   now: Date
 ): Promise<TokenAccess> {
-  if (!raw || raw.length > TOKEN_MAX_LENGTH) return { state: 'invalid' };
+  // Next.js can pass ?t=a&t=b as string[], which would crash hashToken (500).
+  if (typeof raw !== 'string' || !raw || raw.length > TOKEN_MAX_LENGTH) return { state: 'invalid' };
   const ctx = await findToken(db, hashToken(raw), purpose);
   if (!ctx) return { state: 'invalid' };
   const state = tokenState(ctx, now);

@@ -124,9 +124,9 @@ export function createFeedbackSchema(t: T) {
   return z.object({
     recommendScore: score(0, 10, t),
     applicability: score(1, 5, t),
-    mostUseful: optionalText(1000, t),
-    planToImplement: optionalText(1000, t),
-    testimonial: optionalText(1000, t),
+    mostUseful: optionalText(FIELD_LIMITS.feedbackText, t),
+    planToImplement: optionalText(FIELD_LIMITS.feedbackText, t),
+    testimonial: optionalText(FIELD_LIMITS.feedbackText, t),
     consentQuote: z.boolean({ error: t('errors.invalid') }).default(false),
     wantsReview: z.boolean({ error: t('errors.invalid') }).default(false),
     followupOk: z.boolean({ error: t('errors.invalid') }).default(false),
@@ -136,8 +136,8 @@ export function createFeedbackSchema(t: T) {
 export function createFollowupSchema(t: T) {
   return z
     .object({
-      implemented: optionalText(2000, t),
-      result: optionalText(2000, t),
+      implemented: optionalText(FIELD_LIMITS.followupText, t),
+      result: optionalText(FIELD_LIMITS.followupText, t),
       letterOk: z.boolean({ error: t('errors.invalid') }),
     })
     .refine((d) => Boolean(d.implemented || d.result), {

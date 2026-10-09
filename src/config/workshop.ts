@@ -56,6 +56,8 @@ export const FIELD_LIMITS = {
   positionLatin: 120,
   profileUrl: 300,
   taskText: 1000,
+  feedbackText: 1000,
+  followupText: 2000,
 } as const;
 
 export const CONSENT_VERSION = '2026-10-09';

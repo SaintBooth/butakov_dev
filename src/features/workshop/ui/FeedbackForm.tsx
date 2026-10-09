@@ -1,8 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useActionState } from 'react';
+import { startTransition, useActionState, useState, type FormEvent } from 'react';
+import { FIELD_LIMITS } from '@/config/workshop';
 import type { FormState } from '../actions/register';
+import {
+  createFeedbackSchema,
+  issuesToFieldErrors,
+  readFeedbackForm,
+  type FieldErrors,
+} from '../schema';
 import { Consent } from './Consent';
 import { Notice } from './Notice';
 import { ScaleField } from './ScaleField';
@@ -16,10 +23,28 @@ export function FeedbackForm({
 }) {
   const t = useTranslations('workshop');
   const [state, formAction, pending] = useActionState(action, { status: 'idle' });
+  const [clientErrors, setClientErrors] = useState<FieldErrors | null>(null);
+
   if (state.status === 'success') return <Notice tone="success">{t('feedback.success')}</Notice>;
-  const errors = state.status === 'error' ? state.fieldErrors : {};
+
+  // Submitted by hand rather than via <form action>: React 19 resets uncontrolled fields after a
+  // form action, which would wipe the user's answers on every server-side error.
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    // Same schema as the server: fail fast in the browser; the server re-validates anyway.
+    const r = createFeedbackSchema(t).safeParse(readFeedbackForm(fd));
+    if (!r.success) {
+      setClientErrors(issuesToFieldErrors(r.error.issues));
+      return;
+    }
+    setClientErrors(null);
+    startTransition(() => formAction(fd));
+  };
+
+  const errors = clientErrors ?? (state.status === 'error' ? state.fieldErrors : {});
   return (
-    <form action={formAction} noValidate className="flex flex-col gap-5">
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       <ScaleField
         name="recommendScore"
         min={0}
@@ -41,21 +66,21 @@ export function FeedbackForm({
       <TextField
         name="mostUseful"
         multiline
-        maxLength={1000}
+        maxLength={FIELD_LIMITS.feedbackText}
         label={t('feedback.mostUseful')}
         error={errors.mostUseful}
       />
       <TextField
         name="planToImplement"
         multiline
-        maxLength={1000}
+        maxLength={FIELD_LIMITS.feedbackText}
         label={t('feedback.planToImplement')}
         error={errors.planToImplement}
       />
       <TextField
         name="testimonial"
         multiline
-        maxLength={1000}
+        maxLength={FIELD_LIMITS.feedbackText}
         label={t('feedback.testimonial')}
         error={errors.testimonial}
       />

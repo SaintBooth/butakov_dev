@@ -80,4 +80,9 @@ describe('saveFeedback', () => {
     const [fb] = await sql`SELECT recommend_score FROM workshop_feedback`;
     expect(fb.recommendScore).toBe(9);
   });
+
+  it('rejects array token as invalid', async () => {
+    const access = await resolveToken(sql, ['token1', 'token2'], 'feedback', new Date());
+    expect(access.state).toBe('invalid');
+  });
 });
