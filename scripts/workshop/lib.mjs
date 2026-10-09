@@ -49,8 +49,9 @@ export async function applyMigrations(sql, dir) {
 }
 
 /**
- * Retention, spec §9: without a portfolio consent → 12 months after the last session;
- * with a consent → 36 months after it was given; a revoked consent counts as none.
+ * Retention, spec §9: a participant is kept while the latest portfolio or the latest quote
+ * consent is granted and younger than 36 months (a revoked consent counts as none);
+ * otherwise they are deleted 12 months after their last session.
  * @param {import('postgres').Sql} sql
  * @param {{ dryRun: boolean, now?: Date }} opts
  * @returns {Promise<number[]>}
@@ -60,10 +61,14 @@ export async function purgeParticipants(sql, { dryRun, now = new Date() }) {
   // the DELETEs must not be purged on a stale verdict.
   return sql.begin(async (tx) => {
     const due = await tx`
-      WITH latest_portfolio AS (
-        SELECT DISTINCT ON (participant_id) participant_id, granted, created_at
-        FROM workshop_consents WHERE kind = 'portfolio'
-        ORDER BY participant_id, id DESC
+      WITH latest_consent AS (
+        SELECT DISTINCT ON (participant_id, kind) participant_id, granted, created_at
+        FROM workshop_consents WHERE kind IN ('portfolio', 'quote')
+        ORDER BY participant_id, kind, id DESC
+      ), consent_hold AS (
+        SELECT participant_id,
+               bool_or(granted AND created_at >= ${now}::timestamptz - interval '36 months') AS held
+        FROM latest_consent GROUP BY participant_id
       ), last_session AS (
         SELECT r.participant_id, max(s.ends_at) AS last_end
         FROM workshop_registrations r JOIN workshop_sessions s ON s.id = r.session_id
@@ -71,9 +76,9 @@ export async function purgeParticipants(sql, { dryRun, now = new Date() }) {
       )
       SELECT p.id FROM workshop_participants p
       LEFT JOIN last_session ls ON ls.participant_id = p.id
-      LEFT JOIN latest_portfolio lp ON lp.participant_id = p.id
+      LEFT JOIN consent_hold ch ON ch.participant_id = p.id
       WHERE (ls.last_end IS NULL OR ls.last_end < ${now}::timestamptz - interval '12 months')
-        AND (lp.granted IS NOT TRUE OR lp.created_at < ${now}::timestamptz - interval '36 months')`;
+        AND ch.held IS NOT TRUE`;
     const ids = due.map((r) => r.id);
     if (dryRun || ids.length === 0) return ids;
 
