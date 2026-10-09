@@ -108,4 +108,34 @@ describe('registerParticipant', () => {
       await sql`SELECT count(*)::int AS n FROM workshop_email_jobs WHERE status = 'pending'`;
     expect(pending.n).toBe(4);
   });
+
+  it('leaves no participant or consent rows for a rejected registrant and keeps existing names', async () => {
+    await seedSession(sql, { capacity: 1 });
+    await registerParticipant(sql, 'ai-test', input('ivan@x.ru'), audit, new Date());
+    await sql`INSERT INTO workshop_participants (email, full_name) VALUES ('old@x.ru', 'Старое Имя')`;
+
+    const rejected = await registerParticipant(
+      sql,
+      'ai-test',
+      input('new@x.ru'),
+      audit,
+      new Date()
+    );
+    const rejectedKnown = await registerParticipant(
+      sql,
+      'ai-test',
+      input('old@x.ru', { fullName: 'Другое Имя' }),
+      audit,
+      new Date()
+    );
+    expect([rejected.status, rejectedKnown.status]).toEqual(['full', 'full']);
+
+    const [stray] =
+      await sql`SELECT count(*)::int AS n FROM workshop_participants WHERE email = 'new@x.ru'`;
+    expect(stray.n).toBe(0);
+    const [old] = await sql`SELECT full_name FROM workshop_participants WHERE email = 'old@x.ru'`;
+    expect(old.full_name).toBe('Старое Имя');
+    const [consents] = await sql`SELECT count(*)::int AS n FROM workshop_consents`;
+    expect(consents.n).toBe(3);
+  });
 });

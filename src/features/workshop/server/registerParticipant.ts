@@ -41,6 +41,17 @@ export async function registerParticipant(
       return { status: 'closed' } as const;
     }
 
+    // Capacity is checked before any personal data is written: a rejected registrant must leave no
+    // participant row behind, since no consent is logged for them.
+    const [existing] = await tx<{ status: string }[]>`
+      SELECT r.status FROM workshop_registrations r
+      JOIN workshop_participants p ON p.id = r.participant_id
+      WHERE r.session_id = ${session.id} AND p.email = ${input.email}`;
+    const takesNewSeat = !existing || existing.status === 'cancelled';
+    if (takesNewSeat && (await countActiveRegistrations(tx, session.id)) >= session.capacity) {
+      return { status: 'full' } as const;
+    }
+
     const [participant] = await tx<{ id: number }[]>`
       INSERT INTO workshop_participants (email, full_name, full_name_latin)
       VALUES (${input.email}, ${input.fullName}, ${input.fullNameLatin ?? null})
@@ -48,14 +59,6 @@ export async function registerParticipant(
         full_name = EXCLUDED.full_name,
         full_name_latin = COALESCE(EXCLUDED.full_name_latin, workshop_participants.full_name_latin)
       RETURNING id`;
-
-    const [existing] = await tx<{ status: string }[]>`
-      SELECT status FROM workshop_registrations
-      WHERE session_id = ${session.id} AND participant_id = ${participant.id}`;
-    const takesNewSeat = !existing || existing.status === 'cancelled';
-    if (takesNewSeat && (await countActiveRegistrations(tx, session.id)) >= session.capacity) {
-      return { status: 'full' } as const;
-    }
 
     const [registration] = await tx<{ id: number }[]>`
       INSERT INTO workshop_registrations (
