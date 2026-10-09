@@ -75,13 +75,11 @@ export async function registerAction(
 
   // The spec cap (5 per 10 minutes) is per person; the higher per-ip cap lets colleagues behind
   // one NAT register while still bounding a single address that rotates emails.
-  if (ip) {
-    const personKey = `${ip}:${parsed.data.email}`;
+  const personKey = ip ? `${ip}:${parsed.data.email}` : null;
+  if (ip && personKey) {
     if (attemptsByPerson.isLimited(personKey) || attemptsByIp.isLimited(ip)) {
       return formError(t('errors.rateLimited'));
     }
-    attemptsByPerson.hit(personKey);
-    attemptsByIp.hit(ip);
   }
 
   const outcome = await guardDb(
@@ -106,6 +104,11 @@ export async function registerAction(
       )
   );
   if (!outcome) return formError(t('errors.unavailable'));
+  // Spent only once the database answered: an outage must not burn the visitor's retry budget.
+  if (ip && personKey) {
+    attemptsByPerson.hit(personKey);
+    attemptsByIp.hit(ip);
+  }
   if (outcome.status === 'full') return formError(t('errors.full'));
   if (outcome.status !== 'ok') return formError(t('errors.closed'));
 

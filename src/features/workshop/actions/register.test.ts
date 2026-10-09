@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MAX_STAMP_AGE_MS, MIN_FILL_MS, RATE_LIMITS } from '@/config/workshop';
+import { CONSENT_VERSION, MAX_STAMP_AGE_MS, MIN_FILL_MS, RATE_LIMITS } from '@/config/workshop';
 import type { WorkshopEnv } from '@/config/workshopEnv';
 import { signStamp } from '../server/formStamp';
 import { registerAction, type FormState } from './register';
@@ -140,6 +140,23 @@ describe('registerAction validation and rate limit', () => {
   });
 });
 
+describe('registerAction outage handling', () => {
+  it('does not spend the rate budget while the database is down', async () => {
+    mocks.register.mockRejectedValue(new Error('down'));
+    for (let i = 0; i < RATE_LIMITS.register.max + 2; i++) {
+      expect(await submit(submission())).toMatchObject({ formError: 'errors.unavailable' });
+    }
+    mocks.register.mockResolvedValue({ status: 'ok', registrationId: 1, sessionId: 7 });
+    expect(await submit(submission())).toEqual({ status: 'success' });
+  });
+
+  it('still spends the budget on a definite answer such as a full session', async () => {
+    mocks.register.mockResolvedValue({ status: 'full' });
+    for (let i = 0; i < RATE_LIMITS.register.max; i++) await submit(submission());
+    expect(await submit(submission())).toMatchObject({ formError: 'errors.rateLimited' });
+  });
+});
+
 describe('registerAction outcomes', () => {
   it('reports success and pings the owner with the slug and the new count', async () => {
     expect(await submit(submission())).toEqual({ status: 'success' });
@@ -178,7 +195,11 @@ describe('registerAction outcomes', () => {
   it('passes the consent audit with the version, the hashes and the client address', async () => {
     await submit(submission());
     const audit = mocks.register.mock.calls[0][3];
-    expect(audit).toMatchObject({ ip: mocks.ip, userAgent: 'vitest' });
+    expect(audit).toMatchObject({
+      version: CONSENT_VERSION,
+      ip: mocks.ip,
+      userAgent: 'vitest',
+    });
     expect(Object.keys(audit.hashes)).toEqual(['pd_processing', 'marketing', 'portfolio']);
   });
 });
