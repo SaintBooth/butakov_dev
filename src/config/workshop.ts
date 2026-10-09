@@ -76,6 +76,8 @@ export const EMAIL_OFFSETS_MIN = { reminder24h: 24 * 60, reminder1h: 60, postSes
 export const FOLLOWUP_AFTER_END_DAYS = 45;
 
 export const MIN_FILL_MS = 3000;
+// A form left open longer than this is stale; the visitor is asked to reload it.
+export const MAX_STAMP_AGE_MS = 24 * 3_600_000;
 export const RATE_LIMITS = {
   register: { max: 5, windowMs: 10 * 60_000 },
   checkin: { max: 10, windowMs: 10 * 60_000 },

@@ -14,7 +14,8 @@ export function checkStamp(
   stamp: string,
   secret: string,
   nowMs: number,
-  minFillMs: number
+  minFillMs: number,
+  maxAgeMs: number
 ): StampCheck {
   const [ts, given] = stamp.split('.');
   const renderedAt = Number(ts);
@@ -22,5 +23,7 @@ export function checkStamp(
   const a = Buffer.from(given);
   const b = Buffer.from(mac(renderedAt, secret));
   if (a.length !== b.length || !timingSafeEqual(a, b)) return 'invalid';
-  return nowMs - renderedAt < minFillMs ? 'too_fast' : 'ok';
+  const age = nowMs - renderedAt;
+  if (age > maxAgeMs) return 'invalid';
+  return age < minFillMs ? 'too_fast' : 'ok';
 }

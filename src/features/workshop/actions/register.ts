@@ -2,7 +2,13 @@
 
 import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
-import { CONSENT_VERSION, MIN_FILL_MS, RATE_LIMITS, WORKSHOP_LOCALE } from '@/config/workshop';
+import {
+  CONSENT_VERSION,
+  MAX_STAMP_AGE_MS,
+  MIN_FILL_MS,
+  RATE_LIMITS,
+  WORKSHOP_LOCALE,
+} from '@/config/workshop';
 import { getWorkshopEnv } from '@/config/workshopEnv';
 import { getDb } from '../db/client';
 import { countActiveRegistrations } from '../db/registrations';
@@ -47,7 +53,8 @@ export async function registerAction(
     String(fd.get('stamp') ?? ''),
     env.WORKSHOP_FORM_SECRET,
     Date.now(),
-    MIN_FILL_MS
+    MIN_FILL_MS,
+    MAX_STAMP_AGE_MS
   );
   if (stamp === 'too_fast') return { status: 'success' };
   if (stamp === 'invalid') return formError(t('errors.reload'));
