@@ -39,14 +39,7 @@ export function createRateLimiter({ max, windowMs }: Limit, maxKeys = MAX_TRACKE
     hits.set(key, live);
   }
 
-  /** Spends one hit if the budget allows; for limits that count every attempt. */
-  function allow(key: string, now = Date.now()): boolean {
-    if (isLimited(key, now)) return false;
-    hit(key, now);
-    return true;
-  }
-
-  return { isLimited, hit, allow };
+  return { isLimited, hit };
 }
 
 export type RateLimiter = ReturnType<typeof createRateLimiter>;
