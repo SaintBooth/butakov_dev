@@ -7,6 +7,7 @@ import { RATE_LIMITS, WORKSHOP_LOCALE, WORKSHOP_PATHS } from '@/config/workshop'
 import { getWorkshopEnv } from '@/config/workshopEnv';
 import { getDb } from '../db/client';
 import { markAttended } from '../db/registrations';
+import { hasResponse } from '../db/responses';
 import { findSessionBySlug } from '../db/sessions';
 import { issueToken } from '../db/tokens';
 import { codesMatch, isCheckinOpen } from '../domain/checkin';
@@ -22,11 +23,14 @@ import type { FormState } from './register';
 
 export type CheckinResult =
   | { status: 'ok'; feedbackToken: string }
-  | { status: 'closed' | 'not_found' };
+  | { status: 'closed' | 'not_found' | 'already_answered' };
 
 // The feedback URL carries a token, so it is handed to the client for a full page load instead of
 // redirect(): a soft navigation would let the already-initialised Metrika record the token URL.
-export type CheckinState = FormState | { status: 'checked_in'; feedbackUrl: string };
+export type CheckinState =
+  | FormState
+  | { status: 'checked_in'; feedbackUrl: string }
+  | { status: 'already_answered' };
 
 // Only failed code guesses are counted, so attendees who check in correctly never spend budget.
 const failuresByPerson = createRateLimiter(RATE_LIMITS.checkin);
@@ -44,6 +48,9 @@ export async function checkIn(
   if (!codesMatch(input.code, session.checkinCode)) return { status: 'not_found' };
   const registrationId = await markAttended(db, session.id, input.email, now);
   if (!registrationId) return { status: 'not_found' };
+  // Tokens are stored hashed, so an earlier one cannot be handed out again; a repeat check-in
+  // after the answer was given must not mint another working link.
+  if (await hasResponse(db, registrationId, 'feedback')) return { status: 'already_answered' };
   const feedbackToken = await issueToken(db, registrationId, 'feedback', session.endsAt, now);
   return { status: 'ok', feedbackToken };
 }
@@ -84,6 +91,7 @@ export async function checkinAction(
 
   const result = await checkIn(db, slug, parsed.data, new Date());
   if (result.status === 'closed') return fail(t('checkin.closed'));
+  if (result.status === 'already_answered') return { status: 'already_answered' };
   if (result.status === 'not_found') {
     if (ip) {
       failuresByPerson.hit(personKey);

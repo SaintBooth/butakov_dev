@@ -65,4 +65,36 @@ describe('checkIn', () => {
       (await checkIn(sql, 'ai-test', { email: 'who@x.ru', code: 'AB3K9Z' }, duringWindow)).status
     ).toBe('not_found');
   });
+
+  it('does not issue another feedback token once feedback exists', async () => {
+    const first = await checkIn(
+      sql,
+      'ai-test',
+      { email: 'ivan@x.ru', code: 'AB3K9Z' },
+      duringWindow
+    );
+    expect(first.status).toBe('ok');
+    await sql`
+      INSERT INTO workshop_feedback (registration_id, recommend_score, applicability, wants_review, followup_ok)
+      SELECT id, 9, 4, false, false FROM workshop_registrations`;
+    const again = await checkIn(
+      sql,
+      'ai-test',
+      { email: 'ivan@x.ru', code: 'AB3K9Z' },
+      duringWindow
+    );
+    expect(again.status).toBe('already_answered');
+    const [{ n }] = await sql`SELECT count(*)::int AS n FROM workshop_tokens`;
+    expect(n).toBe(1);
+  });
+
+  it('does not revive a cancelled registration', async () => {
+    await sql`UPDATE workshop_registrations SET status = 'cancelled'`;
+    const r = await checkIn(sql, 'ai-test', { email: 'ivan@x.ru', code: 'AB3K9Z' }, duringWindow);
+    expect(r.status).toBe('not_found');
+    const [reg] = await sql`SELECT status, attended_at FROM workshop_registrations`;
+    expect(reg).toMatchObject({ status: 'cancelled', attendedAt: null });
+    const [{ n }] = await sql`SELECT count(*)::int AS n FROM workshop_tokens`;
+    expect(n).toBe(0);
+  });
 });

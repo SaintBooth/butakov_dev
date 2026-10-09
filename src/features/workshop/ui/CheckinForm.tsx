@@ -51,6 +51,7 @@ export function CheckinForm({
       {state.status === 'error' && state.formError && (
         <Notice tone="error">{state.formError}</Notice>
       )}
+      {state.status === 'already_answered' && <Notice tone="success">{t('token.used')}</Notice>}
       <SubmitButton
         pending={pending}
         label={t('checkin.submit')}

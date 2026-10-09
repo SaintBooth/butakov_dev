@@ -21,6 +21,7 @@ export async function markAttended(
     SET status = 'attended', attended_at = COALESCE(r.attended_at, ${now}), updated_at = ${now}
     FROM workshop_participants p
     WHERE r.participant_id = p.id AND p.email = ${email} AND r.session_id = ${sessionId}
+      AND r.status <> 'cancelled'
     RETURNING r.id`;
   return row?.id ?? null;
 }
