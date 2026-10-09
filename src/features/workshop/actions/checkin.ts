@@ -24,7 +24,9 @@ import type { FormState } from './register';
 
 export type CheckinResult =
   | { status: 'ok'; feedbackToken: string }
-  | { status: 'closed' | 'not_found' | 'already_answered' };
+  | { status: 'closed' }
+  | { status: 'not_found' }
+  | { status: 'already_answered' };
 
 // The feedback URL carries a token, so it is handed to the client for a full page load instead of
 // redirect(): a soft navigation would let the already-initialised Metrika record the token URL.
@@ -104,7 +106,6 @@ export async function checkinAction(
         }
         return fail(t('checkin.notFound'));
       }
-      if (result.status !== 'ok') return fail(t('errors.unavailable'));
       return { status: 'checked_in', feedbackUrl: WORKSHOP_PATHS.feedback(result.feedbackToken) };
     }
   );
