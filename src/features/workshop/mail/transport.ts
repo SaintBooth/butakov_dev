@@ -10,6 +10,8 @@ export function createSmtpSender(env: WorkshopEnv): (mail: OutgoingMail) => Prom
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     secure: env.SMTP_PORT === SMTPS_PORT,
+    // The host proxies outbound SMTP in plaintext, so on 587 never send the password unless STARTTLS succeeds.
+    requireTLS: env.SMTP_PORT !== SMTPS_PORT,
     connectionTimeout: MAILER.smtpTimeoutMs,
     greetingTimeout: MAILER.smtpTimeoutMs,
     socketTimeout: MAILER.smtpTimeoutMs,
