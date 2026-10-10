@@ -12,11 +12,13 @@ import type { FieldErrors } from '../schema';
 import { sectionTitleClass } from './formStyles';
 import { SelectField } from './SelectField';
 import { TextField } from './TextField';
+import { useAutoLatin } from './useAutoLatin';
 
 export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
   const t = useTranslations('workshop.register');
   const o = useTranslations('workshop.options');
   const placeholder = t('fields.selectPlaceholder');
+  const autoLatin = useAutoLatin();
   return (
     <section className="flex flex-col gap-4">
       <h2 className={sectionTitleClass}>{t('sections.about')}</h2>
@@ -27,6 +29,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         maxLength={FIELD_LIMITS.fullName}
         autoComplete="name"
         error={errors.fullName}
+        onValueChange={autoLatin.onNameChange}
       />
       <TextField
         name="email"
@@ -67,8 +70,10 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         name="fullNameLatin"
         label={t('fields.fullNameLatin')}
         maxLength={FIELD_LIMITS.fullNameLatin}
-        hint={t('fields.latinHint')}
+        hint={t('fields.fullNameLatinHint')}
         error={errors.fullNameLatin}
+        value={autoLatin.latin}
+        onValueChange={autoLatin.onLatinChange}
       />
       <TextField
         name="positionLatin"

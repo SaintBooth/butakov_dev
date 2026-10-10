@@ -1,3 +1,4 @@
+import type { ChangeEvent } from 'react';
 import { errorClass, hintClass, inputClass, labelClass } from './formStyles';
 
 interface TextFieldProps {
@@ -10,6 +11,9 @@ interface TextFieldProps {
   autoComplete?: string;
   hint?: string;
   error?: string;
+  // Set only when another field drives this one; plain fields stay uncontrolled.
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
 export function TextField({
@@ -22,6 +26,8 @@ export function TextField({
   autoComplete,
   hint,
   error,
+  value,
+  onValueChange,
 }: TextFieldProps) {
   const id = `ws-${name}`;
   const describedBy =
@@ -34,6 +40,11 @@ export function TextField({
     'aria-invalid': Boolean(error),
     'aria-describedby': describedBy,
     className: inputClass(Boolean(error)),
+    ...(value !== undefined && { value }),
+    ...(onValueChange && {
+      onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+        onValueChange(e.target.value),
+    }),
   };
   return (
     <div>
