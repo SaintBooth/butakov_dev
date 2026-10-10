@@ -12,13 +12,18 @@ import type { FieldErrors } from '../schema';
 import { sectionTitleClass } from './formStyles';
 import { SelectField } from './SelectField';
 import { TextField } from './TextField';
-import { useAutoLatin } from './useAutoLatin';
+import { transliterateName } from '../domain/translit';
+import { translatePosition } from '../domain/positionTitle';
+import { useDerivedField } from './useDerivedField';
+
+const englishPosition = (title: string) => translatePosition(title) ?? '';
 
 export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
   const t = useTranslations('workshop.register');
   const o = useTranslations('workshop.options');
   const placeholder = t('fields.selectPlaceholder');
-  const autoLatin = useAutoLatin();
+  const latinName = useDerivedField(transliterateName, FIELD_LIMITS.fullNameLatin);
+  const latinPosition = useDerivedField(englishPosition, FIELD_LIMITS.positionLatin);
   return (
     <section className="flex flex-col gap-4">
       <h2 className={sectionTitleClass}>{t('sections.about')}</h2>
@@ -29,7 +34,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         maxLength={FIELD_LIMITS.fullName}
         autoComplete="name"
         error={errors.fullName}
-        onValueChange={autoLatin.onNameChange}
+        onValueChange={latinName.onSourceChange}
       />
       <TextField
         name="email"
@@ -65,6 +70,7 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         maxLength={FIELD_LIMITS.positionTitle}
         autoComplete="organization-title"
         error={errors.positionTitle}
+        onValueChange={latinPosition.onSourceChange}
       />
       <TextField
         name="fullNameLatin"
@@ -72,15 +78,17 @@ export function RegistrationProfile({ errors }: { errors: FieldErrors }) {
         maxLength={FIELD_LIMITS.fullNameLatin}
         hint={t('fields.fullNameLatinHint')}
         error={errors.fullNameLatin}
-        value={autoLatin.latin}
-        onValueChange={autoLatin.onLatinChange}
+        value={latinName.value}
+        onValueChange={latinName.onValueChange}
       />
       <TextField
         name="positionLatin"
         label={t('fields.positionLatin')}
         maxLength={FIELD_LIMITS.positionLatin}
-        hint={t('fields.latinHint')}
+        hint={t('fields.positionLatinHint')}
         error={errors.positionLatin}
+        value={latinPosition.value}
+        onValueChange={latinPosition.onValueChange}
       />
       <TextField
         name="profileUrl"

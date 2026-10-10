@@ -16,6 +16,8 @@ type T = (key: string) => string;
 export type FieldErrors = Record<string, string>;
 
 const LATIN = /^[A-Za-z .,'&()-]+$/;
+// Job titles need digits and a few symbols that names never contain: "1C Developer", "UX/UI", "C++".
+const LATIN_TITLE = /^[A-Za-z0-9 .,'&()/+#-]+$/;
 const HTTPS_URL = /^https:\/\/[^\s/]+\.[^\s]+$/;
 
 const blankToUndefined = (v: unknown) => (typeof v === 'string' && v.trim() === '' ? undefined : v);
@@ -32,14 +34,14 @@ function optionalText(max: number, t: T) {
   );
 }
 
-function optionalLatin(max: number, t: T) {
+function optionalLatin(max: number, t: T, pattern: RegExp, message: string) {
   return z.preprocess(
     blankToUndefined,
     z
       .string({ error: t('errors.invalid') })
       .trim()
       .max(max, t('errors.tooLong'))
-      .regex(LATIN, t('errors.latin'))
+      .regex(pattern, message)
       .optional()
   );
 }
@@ -71,8 +73,13 @@ export function createRegistrationSchema(t: T) {
     company: requiredText(1, FIELD_LIMITS.company, t('errors.company')),
     positionLevel: z.enum(POSITION_LEVELS, { error: t('errors.positionLevel') }),
     positionTitle: optionalText(FIELD_LIMITS.positionTitle, t),
-    fullNameLatin: optionalLatin(FIELD_LIMITS.fullNameLatin, t),
-    positionLatin: optionalLatin(FIELD_LIMITS.positionLatin, t),
+    fullNameLatin: optionalLatin(FIELD_LIMITS.fullNameLatin, t, LATIN, t('errors.latin')),
+    positionLatin: optionalLatin(
+      FIELD_LIMITS.positionLatin,
+      t,
+      LATIN_TITLE,
+      t('errors.latinTitle')
+    ),
     profileUrl: z.preprocess(
       blankToUndefined,
       z

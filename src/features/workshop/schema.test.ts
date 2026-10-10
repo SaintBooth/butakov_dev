@@ -248,3 +248,25 @@ describe('issuesToFieldErrors', () => {
     });
   });
 });
+
+describe('latin fields', () => {
+  const parse = (extra: [string, string][]) =>
+    registration.safeParse(readRegistrationForm(form([...minimal, ...extra])));
+
+  it('accepts job titles with digits and symbols', () => {
+    expect(parse([['positionLatin', '1C Developer']]).success).toBe(true);
+    expect(parse([['positionLatin', 'UX/UI Designer']]).success).toBe(true);
+    expect(parse([['positionLatin', 'C++ Developer']]).success).toBe(true);
+  });
+
+  it('keeps names strict and reports each rule with its own message', () => {
+    const name = parse([['fullNameLatin', 'Ivan2']]);
+    expect(name.success).toBe(false);
+    if (!name.success)
+      expect(issuesToFieldErrors(name.error.issues).fullNameLatin).toBe('errors.latin');
+    const title = parse([['positionLatin', 'Директор']]);
+    expect(title.success).toBe(false);
+    if (!title.success)
+      expect(issuesToFieldErrors(title.error.issues).positionLatin).toBe('errors.latinTitle');
+  });
+});
