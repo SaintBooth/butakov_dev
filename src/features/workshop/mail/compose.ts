@@ -4,6 +4,7 @@ import { icsUid, WORKSHOP_LOCALE } from '@/config/workshop';
 import type { TemplateId } from '../domain/emailPlan';
 import { formatSessionDate } from '../format';
 import { buildIcs } from '../ics';
+import { renderEmailHtml, type EmailButton } from './layout';
 import { failOnMissingMessage } from './strict';
 
 export interface OutgoingMail {
@@ -37,60 +38,65 @@ const t = createTranslator({
   onError: failOnMissingMessage,
 });
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+// Long tokenised URLs never appear as text: in HTML they sit behind labelled buttons,
+// in the plain-text part each one follows its label on its own line.
+function buttonsFor(ctx: EmailContext): EmailButton[] {
+  const cta = (
+    key: 'meeting' | 'feedback' | 'followup' | 'materials',
+    url: string | null | undefined
+  ): EmailButton[] => (url ? [{ label: t(`email.cta.${key}`), url }] : []);
+  switch (ctx.template) {
+    case 'confirmation':
+    case 'reminder_24h':
+    case 'reminder_1h':
+      return cta('meeting', ctx.meetingUrl);
+    case 'post_attended':
+      return [...cta('feedback', ctx.links.feedback), ...cta('materials', ctx.materialsUrl)];
+    case 'post_missed':
+      return cta('materials', ctx.materialsUrl);
+    case 'followup':
+      return cta('followup', ctx.links.followup);
+  }
 }
 
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-// Only the URLs the template placed itself are linked. Scanning for anything URL-shaped would
-// also link a participant's name and swallow trailing punctuation or `&gt;` into the href.
-function toHtml(text: string, trustedUrls: string[]): string {
-  const known = trustedUrls
-    .map(escapeHtml)
-    .sort((a, b) => b.length - a.length)
-    .map(escapeRegExp);
-  const linkify = (html: string) =>
-    known.length === 0
-      ? html
-      : html.replace(new RegExp(known.join('|'), 'g'), (url) => `<a href="${url}">${url}</a>`);
-  const paragraphs = text.split('\n\n').map((p) => linkify(escapeHtml(p)).replace(/\n/g, '<br>'));
-  return `<!doctype html><html><body style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#0f172a">${paragraphs
-    .map((p) => `<p>${p}</p>`)
-    .join('')}</body></html>`;
-}
+const asText = (b: EmailButton) => `${b.label}: ${b.url}`;
 
 export function composeEmail(ctx: EmailContext): OutgoingMail {
   const vars = {
     name: ctx.fullName,
     title: ctx.sessionTitle,
     date: formatSessionDate(ctx.startsAt, t('timezoneLabel')),
-    meetingUrl: ctx.meetingUrl,
-    feedbackUrl: ctx.links.feedback ?? '',
-    followupUrl: ctx.links.followup ?? '',
   };
-  const parts = [t('email.greeting', vars), t(`email.${ctx.template}.body`, vars)];
-  const isPostSession = ctx.template === 'post_attended' || ctx.template === 'post_missed';
-  if (isPostSession && ctx.materialsUrl)
-    parts.push(t('email.materials', { url: ctx.materialsUrl }));
-  if (ctx.includeAnnouncement) parts.push(t('email.announcement'));
-  parts.push(t('email.signature'), `—\n${t('email.footer', { manageUrl: ctx.links.manage })}`);
-  const text = parts.join('\n\n');
+  const paragraphs = [
+    t('email.greeting', vars),
+    ...t(`email.${ctx.template}.body`, vars).split('\n\n'),
+  ];
+  const notes = ctx.includeAnnouncement ? [t('email.announcement')] : [];
+  const buttons = buttonsFor(ctx);
+  const signature = t('email.signature');
+  const footer = {
+    text: t('email.footer'),
+    link: { label: t('email.footerLink'), url: ctx.links.manage },
+  };
 
   const mail: OutgoingMail = {
     to: ctx.to,
     subject: t(`email.${ctx.template}.subject`, vars),
-    text,
-    html: toHtml(
-      text,
-      [ctx.meetingUrl, ctx.materialsUrl, ...Object.values(ctx.links)].filter((u): u is string =>
-        Boolean(u)
-      )
-    ),
+    text: [
+      ...paragraphs,
+      ...buttons.map(asText),
+      ...notes,
+      signature,
+      `--\n${footer.text}\n${asText(footer.link)}`,
+    ].join('\n\n'),
+    html: renderEmailHtml({
+      preheader: t(`email.${ctx.template}.preheader`, vars),
+      paragraphs,
+      buttons,
+      notes,
+      signature,
+      footer,
+    }),
     headers: { 'List-Unsubscribe': `<${ctx.links.manage}>` },
   };
   if (ctx.template === 'confirmation') {

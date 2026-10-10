@@ -121,6 +121,20 @@ export const MAILER = {
 
 export const ICS_PRODID = '-//butakov.dev//workshop//RU';
 
+// Mail clients ignore stylesheets and CSS variables, so the site palette is repeated here as literals.
+export const EMAIL_THEME = {
+  font: "-apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
+  page: '#f1f5f9',
+  card: '#ffffff',
+  text: '#0f172a',
+  muted: '#64748b',
+  border: '#e2e8f0',
+  accent: '#0d9488',
+  button: '#0b1220',
+  buttonText: '#ffffff',
+  maxWidth: 560,
+} as const;
+
 export const TELEGRAM_API_BASE = 'https://api.telegram.org';
 export const TELEGRAM_TIMEOUT_MS = 5000;
 
