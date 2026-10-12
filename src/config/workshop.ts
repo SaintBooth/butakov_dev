@@ -138,6 +138,26 @@ export const EMAIL_THEME = {
 export const TELEGRAM_API_BASE = 'https://api.telegram.org';
 export const TELEGRAM_TIMEOUT_MS = 5000;
 
+// Moscow has had no DST since 2014, so a fixed offset is exact.
+export const WORKSHOP_UTC_OFFSET = '+03:00';
+
+export const BOT = {
+  dialogTtlMs: 30 * MINUTE_MS,
+  participantsPageSize: 50,
+  viewLinkTtlMs: 30 * MINUTE_MS,
+  pastSessionsLimit: 10,
+  titleMaxLength: 120,
+  maxDurationMin: 600,
+  maxCapacity: 10_000,
+  durationPresetsMin: [60, 90, 120, 180],
+  capacityPresets: [20, 30, 50],
+  // Auto-summary goes out at this Moscow hour on the day after the session ends.
+  summaryHour: 10,
+  // Sessions older than this never get an auto-summary, so the first deploy does not flood the chat.
+  summaryMaxAgeDays: 3,
+  slugPrefix: 'ai',
+} as const;
+
 const base = `/${WORKSHOP_LOCALE}`;
 
 // Pages that carry a bearer token in ?t=. The analytics blocklist is derived from this list,
@@ -153,8 +173,12 @@ export const WORKSHOP_PATHS = {
   feedback: (token: string) => tokenUrl('feedback', token),
   followup: (token: string) => tokenUrl('followup', token),
   manage: (token: string) => tokenUrl('manage', token),
+  admin: (slug: string, token: string) => `${base}/workshop/${slug}/admin?t=${token}`,
   privacy: `${base}/privacy/workshop`,
 } as const;
+
+// The admin page sits under a session slug, so it gets its own pattern instead of a TOKEN_PAGES entry.
+export const ADMIN_PAGE_PATTERN = new RegExp(`^${base}/workshop/[a-z0-9-]{3,60}/admin/?$`);
 
 // Same uid in the public file and the emailed one, so a calendar updates the event instead of duplicating it.
 export function icsUid(slug: string): string {

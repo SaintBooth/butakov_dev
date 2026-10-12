@@ -27,7 +27,21 @@ const nextConfig = {
     inlineCss: true,
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+    const noIndex = { key: 'X-Robots-Tag', value: 'noindex, nofollow' };
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // Second layer next to the meta tag: also covers CSV and .ics, where a meta tag cannot exist.
+      { source: '/:locale/workshop/:path*', headers: [noIndex] },
+      { source: '/api/workshop/:path*', headers: [noIndex] },
+      {
+        source: '/:locale/workshop/:slug/admin',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          // The URL carries a bearer token; it must not leak through Referer on an outgoing click.
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+        ],
+      },
+    ];
   },
 };
 

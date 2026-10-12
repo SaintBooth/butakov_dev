@@ -142,6 +142,21 @@ describe('parseWorkshopEnv partial SMTP', () => {
   });
 });
 
+describe('TELEGRAM_WEBHOOK_SECRET', () => {
+  it('rejects a short secret', () => {
+    expect(parseWorkshopEnv({ ...base, TELEGRAM_WEBHOOK_SECRET: 'short' }).ok).toBe(false);
+  });
+  it('treats an empty value as absent', () => {
+    const r = parseWorkshopEnv({ ...base, TELEGRAM_WEBHOOK_SECRET: '' });
+    expect(r.ok && r.env.TELEGRAM_WEBHOOK_SECRET).toBeUndefined();
+  });
+  it('accepts a 43-char base64url secret', () => {
+    expect(
+      parseWorkshopEnv({ ...base, TELEGRAM_WEBHOOK_SECRET: 'Ab_-'.repeat(10) + 'xyz' }).ok
+    ).toBe(true);
+  });
+});
+
 describe('getWorkshopEnv', () => {
   afterEach(() => {
     vi.unstubAllEnvs();

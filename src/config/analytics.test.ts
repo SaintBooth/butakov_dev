@@ -25,4 +25,17 @@ describe('isAnalyticsDisabledPath', () => {
       expect(isAnalyticsDisabledPath(new URL(build('x'), 'https://a.test').pathname)).toBe(true);
     }
   });
+
+  it('blocks the admin page of any session', () => {
+    expect(isAnalyticsDisabledPath('/ru/workshop/ai-2026-10-31/admin')).toBe(true);
+    expect(isAnalyticsDisabledPath('/ru/workshop/ai-2026-10-31/admin/')).toBe(true);
+  });
+
+  it('keeps the public registration page tracked', () => {
+    expect(isAnalyticsDisabledPath('/ru/workshop/ai-2026-10-31')).toBe(false);
+  });
+
+  it('still blocks token pages', () => {
+    expect(isAnalyticsDisabledPath('/ru/workshop/manage')).toBe(true);
+  });
 });

@@ -25,6 +25,8 @@ const envSchema = z
     MAIL_FROM: optional(z.string().min(1)),
     TELEGRAM_BOT_TOKEN: optional(z.string().min(1)),
     TELEGRAM_CHAT_ID: optional(z.string().min(1)),
+    // Telegram echoes it in X-Telegram-Bot-Api-Secret-Token; charset per the setWebhook docs.
+    TELEGRAM_WEBHOOK_SECRET: optional(z.string().regex(/^[A-Za-z0-9_-]{32,256}$/)),
   })
   .refine(
     (e) =>
