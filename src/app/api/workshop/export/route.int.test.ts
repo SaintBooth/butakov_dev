@@ -1,25 +1,54 @@
 import type { Sql } from 'postgres';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WorkshopEnv } from '@/config/workshopEnv';
+import { RATE_LIMITS } from '@/config/workshop';
 import { createTestDb, seedRegistration, seedSession } from '@/test/db';
 import { issueViewLink } from '@/features/workshop/db/viewLinks';
-import { GET } from './route';
+import { resetViewLinkFailures } from '@/features/workshop/server/viewLinkGate';
 
 const ADMIN_TOKEN = 'a'.repeat(32);
-const hooks = vi.hoisted(() => ({ db: null as unknown }));
+const IP_HEADER = 'x-client-ip';
+const TEST_IP = '192.0.2.1';
+const hooks = vi.hoisted(() => ({
+  db: null as unknown,
+  headersToReturn: new Headers(),
+}));
 
-vi.mock('next/headers', () => ({ headers: async () => new Headers() }));
+vi.mock('next/headers', () => ({
+  headers: async () => hooks.headersToReturn,
+}));
 vi.mock('@/config/workshopEnv', () => ({
-  getWorkshopEnv: () => ({ WORKSHOP_ADMIN_TOKEN: 'a'.repeat(32) }) as WorkshopEnv,
+  getWorkshopEnv: () =>
+    ({
+      WORKSHOP_ADMIN_TOKEN: 'a'.repeat(32),
+      WORKSHOP_IP_HEADER: IP_HEADER,
+    }) as WorkshopEnv,
 }));
 vi.mock('@/features/workshop/db/client', () => ({ getDb: () => hooks.db }));
 
+let GET: (req: Request) => Promise<Response>;
+
 let sql: Sql;
+
+// Set env before importing the route
+Object.assign(process.env, {
+  DATABASE_URL: process.env.TEST_DATABASE_URL,
+  WORKSHOP_FORM_SECRET: 'f'.repeat(32),
+  WORKSHOP_ADMIN_TOKEN: 'a'.repeat(32),
+  WORKSHOP_IP_HEADER: IP_HEADER,
+});
+
+// Lazy import to use the mocked env
 beforeEach(async () => {
   if (sql) await sql.end();
   sql = await createTestDb();
   hooks.db = sql;
+  hooks.headersToReturn = new Headers();
+  resetViewLinkFailures();
   await seedSession(sql);
+  if (!GET) {
+    ({ GET } = await import('./route'));
+  }
 });
 afterAll(async () => {
   await sql.end();
@@ -31,6 +60,17 @@ const call = (query: string, authorization: string | null = `Bearer ${ADMIN_TOKE
       headers: authorization ? { authorization } : {},
     })
   );
+
+const callWithIp = (query: string, ip: string, token?: string) => {
+  hooks.headersToReturn = new Headers({ [IP_HEADER]: ip });
+  const headers: Record<string, string> = {};
+  if (token) headers['authorization'] = `Bearer ${token}`;
+  return GET(
+    new Request(`http://localhost/api/workshop/export?${query}`, {
+      headers: Object.keys(headers).length > 0 ? headers : { [IP_HEADER]: ip },
+    })
+  );
+};
 
 describe('export route', () => {
   it('refuses a request without the admin token and never caches the answer', async () => {
@@ -97,14 +137,10 @@ describe('export route', () => {
 });
 
 describe('export with a view link', () => {
-  beforeEach(async () => {
-    // Reset globals for each test
-    delete (globalThis as any).__workshopViewLinkFailures;
-  });
-
   it("serves the CSV for the token's own session", async () => {
     const session = await seedSession(sql, { slug: 'ses-a' });
     const t = await issueViewLink(sql, session.id, new Date());
+    hooks.headersToReturn = new Headers({ [IP_HEADER]: TEST_IP });
     const res = await GET(
       new Request(`http://localhost/api/workshop/export?session=ses-a&kind=summary&t=${t}`)
     );
@@ -116,6 +152,7 @@ describe('export with a view link', () => {
     const ses_a = await seedSession(sql, { slug: 'ses-a' });
     await seedSession(sql, { slug: 'ses-b' });
     const t = await issueViewLink(sql, ses_a.id, new Date());
+    hooks.headersToReturn = new Headers({ [IP_HEADER]: TEST_IP });
     expect(
       (
         await GET(
@@ -127,9 +164,33 @@ describe('export with a view link', () => {
 
   it('still requires a bearer token without t', async () => {
     await seedSession(sql, { slug: 'ses-a' });
+    hooks.headersToReturn = new Headers();
     expect(
       (await GET(new Request(`http://localhost/api/workshop/export?session=ses-a&kind=summary`)))
         .status
     ).toBe(401);
+  });
+
+  it('rate-limits bad tokens and blocks even valid ones', async () => {
+    const session = await seedSession(sql, { slug: 'ses-rate' });
+    const validToken = await issueViewLink(sql, session.id, new Date());
+    const badToken = 'x'.repeat(50);
+    const max = RATE_LIMITS.export.max;
+
+    // Send max bad requests → each 404
+    for (let i = 0; i < max; i++) {
+      const res = await callWithIp(`session=ses-rate&kind=summary&t=${badToken}`, TEST_IP);
+      expect(res.status).toBe(404);
+    }
+
+    // Next bad request → 429 (rate limited)
+    expect((await callWithIp(`session=ses-rate&kind=summary&t=${badToken}`, TEST_IP)).status).toBe(
+      429
+    );
+
+    // Even a valid token gets 429 (budget exhausted)
+    expect(
+      (await callWithIp(`session=ses-rate&kind=summary&t=${validToken}`, TEST_IP)).status
+    ).toBe(429);
   });
 });

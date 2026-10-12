@@ -1,10 +1,9 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { RATE_LIMITS } from '@/config/workshop';
-import { viewLinkFailures } from './viewLinkGate';
+import { viewLinkFailures, resetViewLinkFailures } from './viewLinkGate';
 
-// Reset globalThis before each test
 beforeEach(() => {
-  delete (globalThis as any).__workshopViewLinkFailures;
+  resetViewLinkFailures();
 });
 
 describe('viewLinkGate', () => {
@@ -19,15 +18,17 @@ describe('viewLinkGate', () => {
     const ip = '192.168.1.1';
     const max = RATE_LIMITS.export.max;
 
-    // Hit the limit exactly
-    for (let i = 0; i < max; i++) {
-      expect(limiter.isLimited(ip)).toBe(i >= max);
-      if (!limiter.isLimited(ip)) {
-        limiter.hit(ip);
-      }
+    // Hit max-1 times and verify not limited
+    for (let i = 0; i < max - 1; i++) {
+      expect(limiter.isLimited(ip)).toBe(false);
+      limiter.hit(ip);
     }
 
-    // One more hit should exceed the limit
+    // Hit once more to reach the limit
+    expect(limiter.isLimited(ip)).toBe(false);
+    limiter.hit(ip);
+
+    // Now it should be limited
     expect(limiter.isLimited(ip)).toBe(true);
   });
 });

@@ -7,3 +7,7 @@ const globals = globalThis as typeof globalThis & { __workshopViewLinkFailures?:
 export function viewLinkFailures(): RateLimiter {
   return (globals.__workshopViewLinkFailures ??= createRateLimiter(RATE_LIMITS.export));
 }
+
+export function resetViewLinkFailures(): void {
+  delete globals.__workshopViewLinkFailures;
+}
