@@ -35,7 +35,11 @@ describe('notifyOwner', () => {
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toContain(`/bot${TOKEN}/sendMessage`);
-    expect(JSON.parse(init.body)).toEqual({ chat_id: CHAT, text: TEXT });
+    expect(JSON.parse(init.body)).toEqual({
+      chat_id: CHAT,
+      text: TEXT,
+      link_preview_options: { is_disabled: true },
+    });
     expect(init.signal).toBeInstanceOf(AbortSignal);
     expect(errorLog).not.toHaveBeenCalled();
   });

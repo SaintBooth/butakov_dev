@@ -5,6 +5,7 @@ import { describeError } from '../server/describeError';
 import { notifyOwner } from '../server/notify';
 import { createSmtpSender } from './transport';
 import { runMailerTick } from './worker';
+import { runSummaryTick } from '../bot/summary';
 
 // On globalThis so that dev hot reloads, which re-evaluate this module, cannot start a second interval.
 const globals = globalThis as typeof globalThis & { __workshopMailerStarted?: boolean };
@@ -28,6 +29,7 @@ export function startMailer(): void {
     if (running) return;
     running = true;
     runMailerTick(deps)
+      .then(() => runSummaryTick({ db, now: deps.now, notify: deps.notify }))
       // Error messages from the driver can carry row data, so only the class and code are logged.
       .catch((err) => console.error('[workshop] mailer tick failed:', describeError(err)))
       .finally(() => {

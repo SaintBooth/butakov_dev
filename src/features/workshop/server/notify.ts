@@ -11,7 +11,11 @@ export async function notifyOwner(env: WorkshopEnv, text: string): Promise<void>
     const res = await fetch(`${TELEGRAM_API_BASE}/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text }),
+      body: JSON.stringify({
+        chat_id: env.TELEGRAM_CHAT_ID,
+        text,
+        link_preview_options: { is_disabled: true },
+      }),
       signal: AbortSignal.timeout(TELEGRAM_TIMEOUT_MS),
     });
     const parsed = telegramResponseSchema.safeParse(await res.json());
