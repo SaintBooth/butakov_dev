@@ -25,6 +25,11 @@ const envSchema = z
     MAIL_FROM: optional(z.string().min(1)),
     TELEGRAM_BOT_TOKEN: optional(z.string().min(1)),
     TELEGRAM_CHAT_ID: optional(z.string().min(1)),
+    // Telegram cannot reach the host over TCP, so the bot pulls updates unless told otherwise.
+    TELEGRAM_BOT_MODE: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.enum(['polling', 'webhook']).default('polling')
+    ),
     // Telegram echoes it in X-Telegram-Bot-Api-Secret-Token; charset per the setWebhook docs.
     TELEGRAM_WEBHOOK_SECRET: optional(z.string().regex(/^[A-Za-z0-9_-]{32,256}$/)),
   })

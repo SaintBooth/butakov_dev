@@ -203,3 +203,19 @@ describe('getWorkshopEnv', () => {
     expect(log).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('TELEGRAM_BOT_MODE', () => {
+  it('defaults to polling when absent or empty', () => {
+    const a = parseWorkshopEnv(base);
+    const b = parseWorkshopEnv({ ...base, TELEGRAM_BOT_MODE: '' });
+    expect(a.ok && a.env.TELEGRAM_BOT_MODE).toBe('polling');
+    expect(b.ok && b.env.TELEGRAM_BOT_MODE).toBe('polling');
+  });
+  it('accepts webhook', () => {
+    const r = parseWorkshopEnv({ ...base, TELEGRAM_BOT_MODE: 'webhook' });
+    expect(r.ok && r.env.TELEGRAM_BOT_MODE).toBe('webhook');
+  });
+  it('rejects anything else', () => {
+    expect(parseWorkshopEnv({ ...base, TELEGRAM_BOT_MODE: 'push' }).ok).toBe(false);
+  });
+});

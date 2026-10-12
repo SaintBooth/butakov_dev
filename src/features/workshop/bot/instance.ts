@@ -13,7 +13,8 @@ export function getWebhookHandler(): Handler | null {
   const db = getDb();
   const ownerId = Number(env?.TELEGRAM_CHAT_ID);
   if (
-    !env?.TELEGRAM_BOT_TOKEN ||
+    env?.TELEGRAM_BOT_MODE !== 'webhook' ||
+    !env.TELEGRAM_BOT_TOKEN ||
     !env.TELEGRAM_WEBHOOK_SECRET ||
     !Number.isSafeInteger(ownerId) ||
     !db

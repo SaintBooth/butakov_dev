@@ -4,5 +4,7 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { startMailer } = await import('./features/workshop/mail/start');
     startMailer();
+    const { startBotPolling } = await import('./features/workshop/bot/polling');
+    startBotPolling();
   }
 }

@@ -156,6 +156,11 @@ export const BOT = {
   // Sessions older than this never get an auto-summary, so the first deploy does not flood the chat.
   summaryMaxAgeDays: 3,
   slugPrefix: 'ai',
+  // Backoff between getUpdates restarts after 401/409; the last value repeats.
+  pollingRestartDelaysMs: [3_000, 10_000, 30_000, 60_000],
+  // A run at least this long counts as healthy and resets the backoff.
+  pollingHealthyMs: 60_000,
+  pollingAllowedUpdates: ['message', 'callback_query'],
 } as const;
 
 const base = `/${WORKSHOP_LOCALE}`;

@@ -1,3 +1,4 @@
+// Only for TELEGRAM_BOT_MODE=webhook; `--delete` drops a webhook manually.
 import { buildWebhookRequest } from './lib.mjs';
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
