@@ -16,6 +16,14 @@ describe('telegram webhook route', () => {
     expect((await POST(req())).status).toBe(200);
     expect(handler).toHaveBeenCalledOnce();
   });
+  it('answers 200 when the bot throws, so Telegram does not retry', async () => {
+    enabled = true;
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    handler.mockRejectedValueOnce(new Error('boom'));
+    expect((await POST(req())).status).toBe(200);
+    expect(log).toHaveBeenCalled();
+    log.mockRestore();
+  });
   it('is a plain 404 when the bot is off', async () => {
     enabled = false;
     expect((await POST(req())).status).toBe(404);

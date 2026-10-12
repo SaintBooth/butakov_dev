@@ -29,6 +29,8 @@ export function getWebhookHandler(): Handler | null {
   });
   globals.__workshopBotHandler = webhookCallback(bot, 'std/http', {
     secretToken: env.TELEGRAM_WEBHOOK_SECRET,
+    // The route already answers 200 on failures; a slow update must not become a 500 retry either.
+    onTimeout: 'return',
   });
   return globals.__workshopBotHandler;
 }
