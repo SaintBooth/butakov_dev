@@ -2,6 +2,7 @@ import type { Sql } from 'postgres';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WorkshopEnv } from '@/config/workshopEnv';
 import { createTestDb, seedRegistration, seedSession } from '@/test/db';
+import { issueViewLink } from '@/features/workshop/db/viewLinks';
 import { GET } from './route';
 
 const ADMIN_TOKEN = 'a'.repeat(32);
@@ -92,5 +93,43 @@ describe('export route', () => {
     const body = await (await call('session=ai-test&kind=attendees')).text();
     expect(body).toContain("'=1+1");
     expect(body).not.toMatch(/(^|,|\r\n)=1\+1/);
+  });
+});
+
+describe('export with a view link', () => {
+  beforeEach(async () => {
+    // Reset globals for each test
+    delete (globalThis as any).__workshopViewLinkFailures;
+  });
+
+  it("serves the CSV for the token's own session", async () => {
+    const session = await seedSession(sql, { slug: 'ses-a' });
+    const t = await issueViewLink(sql, session.id, new Date());
+    const res = await GET(
+      new Request(`http://localhost/api/workshop/export?session=ses-a&kind=summary&t=${t}`)
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/csv');
+  });
+
+  it('refuses the token for another session', async () => {
+    const ses_a = await seedSession(sql, { slug: 'ses-a' });
+    await seedSession(sql, { slug: 'ses-b' });
+    const t = await issueViewLink(sql, ses_a.id, new Date());
+    expect(
+      (
+        await GET(
+          new Request(`http://localhost/api/workshop/export?session=ses-b&kind=summary&t=${t}`)
+        )
+      ).status
+    ).toBe(404);
+  });
+
+  it('still requires a bearer token without t', async () => {
+    await seedSession(sql, { slug: 'ses-a' });
+    expect(
+      (await GET(new Request(`http://localhost/api/workshop/export?session=ses-a&kind=summary`)))
+        .status
+    ).toBe(401);
   });
 });
