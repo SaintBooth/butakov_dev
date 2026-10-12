@@ -78,6 +78,26 @@ export function readDatabaseUrl(env = process.env) {
   return url;
 }
 
+export const WEBHOOK_PATH = '/api/workshop/tg';
+
+/**
+ * @param {Record<string, string | undefined>} env
+ * @param {{ remove: boolean }} opts
+ */
+export function buildWebhookRequest(env, { remove }) {
+  if (remove) return { method: 'deleteWebhook', body: { drop_pending_updates: true } };
+  if (!env.TELEGRAM_WEBHOOK_SECRET) throw new Error('TELEGRAM_WEBHOOK_SECRET is not set');
+  return {
+    method: 'setWebhook',
+    body: {
+      url: `${readSiteUrl(env)}${WEBHOOK_PATH}`,
+      secret_token: env.TELEGRAM_WEBHOOK_SECRET,
+      allowed_updates: ['message', 'callback_query'],
+      drop_pending_updates: true,
+    },
+  };
+}
+
 /** @param {string} [url] */
 export function connect(url = readDatabaseUrl()) {
   return postgres(url, { max: 1, transform: postgres.camel, onnotice: () => {} });

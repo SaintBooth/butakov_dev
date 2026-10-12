@@ -7,6 +7,7 @@ import {
   parseCreateSessionArgs,
   readDatabaseUrl,
   readSiteUrl,
+  buildWebhookRequest,
 } from './lib.mjs';
 
 describe('scripts lib', () => {
@@ -93,5 +94,35 @@ describe('readDatabaseUrl', () => {
 
   it('names both variables when neither is set', () => {
     expect(() => readDatabaseUrl({})).toThrow(/DATABASE_URL \(or DB_CONNECTION_STRING\)/);
+  });
+});
+
+describe('buildWebhookRequest', () => {
+  const env = {
+    SITE_URL: 'https://butakov.dev/',
+    TELEGRAM_BOT_TOKEN: '1:x',
+    TELEGRAM_WEBHOOK_SECRET: 's'.repeat(32),
+  };
+  it('registers the route with the secret and only the updates the bot reads', () => {
+    expect(buildWebhookRequest(env, { remove: false })).toEqual({
+      method: 'setWebhook',
+      body: {
+        url: 'https://butakov.dev/api/workshop/tg',
+        secret_token: 's'.repeat(32),
+        allowed_updates: ['message', 'callback_query'],
+        drop_pending_updates: true,
+      },
+    });
+  });
+  it('removes the webhook', () => {
+    expect(buildWebhookRequest(env, { remove: true })).toEqual({
+      method: 'deleteWebhook',
+      body: { drop_pending_updates: true },
+    });
+  });
+  it('refuses without the secret', () => {
+    expect(() =>
+      buildWebhookRequest({ ...env, TELEGRAM_WEBHOOK_SECRET: '' }, { remove: false })
+    ).toThrow(/TELEGRAM_WEBHOOK_SECRET/);
   });
 });
