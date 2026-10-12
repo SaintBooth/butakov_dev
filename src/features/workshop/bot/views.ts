@@ -222,7 +222,7 @@ export const reschedulePreviewView = (
     t('reschedule.affected', { count: affected }),
   ].join('\n'),
   keyboard: new InlineKeyboard()
-    .text(t('reschedule.confirm'), encode({ a: 'confirm' }))
+    .text(t('reschedule.confirm'), encode({ a: 'reschedule', id: s.id }))
     .row()
     .text(t('cancel'), encode({ a: 'cancel' })),
 });

@@ -15,13 +15,17 @@ export type Action =
   | { a: 'field'; id: number; field: EditField }
   | { a: 'toggle'; id: number }
   | { a: 'summary'; id: number }
+  | { a: 'reschedule'; id: number }
   | { a: 'pick'; value: number };
 
 type BareAction = Extract<
   Action,
   { a: 'menu' | 'past' | 'new' | 'cancel' | 'confirm' | 'fix' }
 >['a'];
-type IdAction = Extract<Action, { a: 'card' | 'link' | 'edit' | 'toggle' | 'summary' }>['a'];
+type IdAction = Extract<
+  Action,
+  { a: 'card' | 'link' | 'edit' | 'toggle' | 'summary' | 'reschedule' }
+>['a'];
 
 // Short tags keep callback_data far below Telegram's 64-byte cap.
 const BARE: Record<BareAction, string> = {
@@ -38,6 +42,7 @@ const WITH_ID: Record<IdAction, string> = {
   edit: 'e',
   toggle: 't',
   summary: 's',
+  reschedule: 'rs',
 };
 
 export function encode(action: Action): string {
@@ -53,6 +58,7 @@ export function encode(action: Action): string {
     case 'edit':
     case 'toggle':
     case 'summary':
+    case 'reschedule':
       return `${WITH_ID[action.a]}:${action.id}`;
     default:
       return BARE[action.a];

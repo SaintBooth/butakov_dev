@@ -94,6 +94,8 @@ export function buildWebhookRequest(env, { remove }) {
       secret_token: env.TELEGRAM_WEBHOOK_SECRET,
       allowed_updates: ['message', 'callback_query'],
       drop_pending_updates: true,
+      // One request at a time: a double tap must not run a confirm twice in parallel.
+      max_connections: 1,
     },
   };
 }

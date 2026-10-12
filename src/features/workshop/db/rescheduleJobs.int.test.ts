@@ -56,6 +56,23 @@ describe('rescheduleSession', () => {
     expect(j.status).toBe('pending');
   });
 
+  it('refuses a new start that has meanwhile passed', async () => {
+    const s = await seedSession(sql);
+    const [before] = await sql`SELECT starts_at FROM workshop_sessions WHERE id = ${s.id}`;
+    const now = new Date();
+    expect(
+      await rescheduleSession(
+        sql,
+        s.id,
+        new Date(now.getTime() - H),
+        new Date(now.getTime() + H),
+        now
+      )
+    ).toEqual({ status: 'past' });
+    const [row] = await sql`SELECT starts_at FROM workshop_sessions WHERE id = ${s.id}`;
+    expect(row.startsAt).toEqual(before.startsAt);
+  });
+
   it('refuses once the session has started', async () => {
     const now = new Date();
     const s = await seedSession(sql, {

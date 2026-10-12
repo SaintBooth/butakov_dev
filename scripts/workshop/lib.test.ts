@@ -111,6 +111,7 @@ describe('buildWebhookRequest', () => {
         secret_token: 's'.repeat(32),
         allowed_updates: ['message', 'callback_query'],
         drop_pending_updates: true,
+        max_connections: 1,
       },
     });
   });

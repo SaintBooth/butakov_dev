@@ -5,6 +5,7 @@ import { rescheduleJobs, type JobRow } from '../domain/reschedule';
 export type RescheduleResult =
   | { status: 'ok'; notified: number }
   | { status: 'started' }
+  | { status: 'past' }
   | { status: 'not_found' };
 
 export async function rescheduleSession(
@@ -20,6 +21,8 @@ export async function rescheduleSession(
       SELECT starts_at FROM workshop_sessions WHERE id = ${id} FOR UPDATE`;
     if (!s) return { status: 'not_found' };
     if (s.startsAt <= now) return { status: 'started' };
+    // The preview may have sat open until the chosen moment went by.
+    if (startsAt <= now) return { status: 'past' };
     await tx`UPDATE workshop_sessions SET starts_at = ${startsAt}, ends_at = ${endsAt} WHERE id = ${id}`;
 
     const regs = await tx<{ id: number }[]>`

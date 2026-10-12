@@ -1,9 +1,9 @@
-import { Bot, type ApiClientOptions, type Context } from 'grammy';
+import { Bot, GrammyError, type ApiClientOptions, type Context } from 'grammy';
 import type { UserFromGetMe } from 'grammy/types';
 import type { Sql } from 'postgres';
 import { absoluteUrl, BOT, MINUTE_MS, WORKSHOP_PATHS } from '@/config/workshop';
 import { listAdminParticipants } from '../db/adminView';
-import { clearDialog, loadDialog, saveDialog } from '../db/botDialogs';
+import { clearDialog, loadDialog, saveDialog, takeDialog } from '../db/botDialogs';
 import { rescheduleSession } from '../db/rescheduleJobs';
 import {
   createSession,
@@ -34,6 +34,7 @@ export interface BotDeps {
 }
 
 const PREVIEW_METHODS = new Set(['sendMessage', 'editMessageText']);
+const NOT_MODIFIED = 'message is not modified';
 const EDIT_PROMPT = {
   title: 'newTitle',
   meeting: 'newMeeting',
@@ -56,15 +57,34 @@ export function createWorkshopBot(deps: BotDeps): Bot {
 
   // Strangers get silence: an answer would confirm the bot exists and is wired to something.
   bot.use(async (ctx, next) => {
-    if (ctx.from?.id === ownerId) await next();
+    if (ctx.from?.id === ownerId && ctx.chat?.type === 'private') await next();
+  });
+
+  // bot.catch only runs under long polling; webhookCallback lets BotError escape, so errors are
+  // answered here, inside the middleware chain.
+  bot.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (err) {
+      console.error('[workshop-bot]', describeError(err));
+      try {
+        await ctx.reply(v.errorText('generic'));
+      } catch {
+        // Telegram itself may be what failed; nothing more to do.
+      }
+    }
   });
 
   const reply = (ctx: Context, view: v.View) =>
     ctx.reply(view.text, { reply_markup: view.keyboard });
   const show = async (ctx: Context, view: v.View) => {
-    if (ctx.callbackQuery?.message)
+    if (!ctx.callbackQuery?.message) return reply(ctx, view);
+    try {
       await ctx.editMessageText(view.text, { reply_markup: view.keyboard });
-    else await reply(ctx, view);
+    } catch (err) {
+      // A repeated tap re-renders the same view; Telegram rejects that harmlessly.
+      if (!(err instanceof GrammyError && err.description.includes(NOT_MODIFIED))) throw err;
+    }
   };
   const menu = async (ctx: Context) =>
     reply(ctx, v.menuView(await listUpcomingSessions(db, now())));
@@ -98,41 +118,46 @@ export function createWorkshopBot(deps: BotDeps): Bot {
     return reply(ctx, v.promptView('title'));
   }
 
-  async function confirm(ctx: Context, d: Dialog) {
-    if (d.kind === 'create' && d.step === 'confirm') {
-      const { title, startsAt, durationMin, meetingUrl, capacity } = d.draft;
-      if (!title || !startsAt || !durationMin || !meetingUrl || !capacity)
-        return fail(ctx, 'generic');
-      const start = new Date(startsAt);
-      const s = await createSession(
-        db,
-        {
-          title,
-          startsAt: start,
-          endsAt: new Date(start.getTime() + durationMin * MINUTE_MS),
-          meetingUrl,
-          capacity,
-        },
-        slugBase(start)
-      );
-      await clearDialog(db, ownerId);
-      return reply(ctx, v.createdView(s));
-    }
-    if (d.kind === 'time' && d.step === 'confirm' && d.startsAt && d.durationMin) {
-      const start = new Date(d.startsAt);
-      const r = await rescheduleSession(
-        db,
-        d.sessionId,
-        start,
-        new Date(start.getTime() + d.durationMin * MINUTE_MS),
-        now()
-      );
-      await clearDialog(db, ownerId);
-      if (r.status === 'started') return fail(ctx, 'started');
-      const s = await findSessionById(db, d.sessionId);
-      return s && r.status === 'ok' ? reply(ctx, v.rescheduledView(s, r.notified)) : menu(ctx);
-    }
-    return menu(ctx);
+  async function confirmCreate(ctx: Context) {
+    const d = await takeDialog(db, ownerId, now());
+    if (d?.kind !== 'create' || d.step !== 'confirm') return menu(ctx);
+    const { title, startsAt, durationMin, meetingUrl, capacity } = d.draft;
+    if (!title || !startsAt || !durationMin || !meetingUrl || !capacity)
+      return fail(ctx, 'generic');
+    const start = new Date(startsAt);
+    const s = await createSession(
+      db,
+      {
+        title,
+        startsAt: start,
+        endsAt: new Date(start.getTime() + durationMin * MINUTE_MS),
+        meetingUrl,
+        capacity,
+      },
+      slugBase(start)
+    );
+    return reply(ctx, v.createdView(s));
+  }
+
+  async function confirmReschedule(ctx: Context, sessionId: number) {
+    // Peek first: taking would also eat a dialog this button does not belong to.
+    const peek = await loadDialog(db, ownerId, now());
+    if (peek?.kind !== 'time' || peek.step !== 'confirm' || peek.sessionId !== sessionId)
+      return menu(ctx);
+    const d = await takeDialog(db, ownerId, now());
+    if (d?.kind !== 'time' || d.sessionId !== sessionId || !d.startsAt || !d.durationMin)
+      return menu(ctx);
+    const start = new Date(d.startsAt);
+    const r = await rescheduleSession(
+      db,
+      d.sessionId,
+      start,
+      new Date(start.getTime() + d.durationMin * MINUTE_MS),
+      now()
+    );
+    if (r.status === 'started' || r.status === 'past') return fail(ctx, r.status);
+    const s = await findSessionById(db, d.sessionId);
+    return s && r.status === 'ok' ? reply(ctx, v.rescheduledView(s, r.notified)) : menu(ctx);
   }
 
   async function onAction(ctx: Context, action: Action) {
@@ -180,11 +205,13 @@ export function createWorkshopBot(deps: BotDeps): Bot {
       case 'cancel':
         await clearDialog(db, ownerId);
         return reply(ctx, v.textView('cancelled'));
-      case 'pick':
-      case 'confirm': {
+      case 'confirm':
+        return confirmCreate(ctx);
+      case 'reschedule':
+        return confirmReschedule(ctx, action.id);
+      case 'pick': {
         const dialog = await loadDialog(db, ownerId, now());
-        if (!dialog) return menu(ctx);
-        return action.a === 'pick' ? step(ctx, dialog, String(action.value)) : confirm(ctx, dialog);
+        return dialog ? step(ctx, dialog, String(action.value)) : menu(ctx);
       }
     }
   }
@@ -204,13 +231,5 @@ export function createWorkshopBot(deps: BotDeps): Bot {
     await step(ctx, dialog, ctx.message.text);
   });
 
-  bot.catch(async (err) => {
-    console.error('[workshop-bot]', describeError(err.error));
-    try {
-      await err.ctx.reply(v.errorText('generic'));
-    } catch {
-      // Telegram itself may be what failed; nothing more to do.
-    }
-  });
   return bot;
 }

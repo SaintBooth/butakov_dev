@@ -2,7 +2,7 @@ import type { Sql } from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createTestDb } from '@/test/db';
 import type { Dialog } from '../bot/dialog';
-import { clearDialog, loadDialog, saveDialog } from './botDialogs';
+import { clearDialog, loadDialog, saveDialog, takeDialog } from './botDialogs';
 
 let sql: Sql;
 beforeAll(async () => {
@@ -24,6 +24,18 @@ describe('bot dialogs', () => {
   it('drops a row that no longer matches the schema', async () => {
     await sql`INSERT INTO workshop_bot_dialogs (chat_id, state) VALUES (7, '{"kind":"old"}')`;
     expect(await loadDialog(sql, 7, new Date())).toBeNull();
+  });
+  it('takes a dialog exactly once', async () => {
+    const now = new Date();
+    await saveDialog(sql, 42, d, now);
+    expect(await takeDialog(sql, 42, now)).toEqual(d);
+    expect(await takeDialog(sql, 42, now)).toBeNull();
+  });
+  it('does not hand out an expired dialog but still removes it', async () => {
+    const now = new Date();
+    await saveDialog(sql, 42, d, now);
+    expect(await takeDialog(sql, 42, new Date(now.getTime() + 31 * 60_000))).toBeNull();
+    expect(await loadDialog(sql, 42, now)).toBeNull();
   });
   it('clears', async () => {
     await saveDialog(sql, 42, d, new Date());

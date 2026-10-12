@@ -15,6 +15,7 @@ const samples: Action[] = [
   { a: 'field', id: 7, field: 'materials' },
   { a: 'toggle', id: 7 },
   { a: 'summary', id: 2147483647 },
+  { a: 'reschedule', id: 7 },
   { a: 'pick', value: 90 },
 ];
 
