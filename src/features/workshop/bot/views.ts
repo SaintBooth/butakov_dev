@@ -114,8 +114,8 @@ export function peopleView(s: WorkshopSession, people: Person[], page: number): 
   if (page > 0) kb.text(t('people.prev'), encode({ a: 'people', id: s.id, page: page - 1 }));
   if ((page + 1) * size < people.length)
     kb.text(t('people.next'), encode({ a: 'people', id: s.id, page: page + 1 }));
-  kb.row()
-    .text(t('people.full'), encode({ a: 'link', id: s.id }))
+  if (kb.inline_keyboard[0]?.length) kb.row();
+  kb.text(t('people.full'), encode({ a: 'link', id: s.id }))
     .row()
     .text(t('menu.back'), encode({ a: 'card', id: s.id }));
   const rows = slice.map((p) =>
