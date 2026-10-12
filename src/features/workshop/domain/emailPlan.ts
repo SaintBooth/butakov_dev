@@ -13,14 +13,16 @@ export type EmailKind =
   | 'reminder_24h'
   | 'reminder_1h'
   | 'post_session'
-  | 'followup';
+  | 'followup'
+  | 'rescheduled';
 export type TemplateId =
   | 'confirmation'
   | 'reminder_24h'
   | 'reminder_1h'
   | 'post_attended'
   | 'post_missed'
-  | 'followup';
+  | 'followup'
+  | 'rescheduled';
 
 export interface PlannedEmail {
   kind: EmailKind;

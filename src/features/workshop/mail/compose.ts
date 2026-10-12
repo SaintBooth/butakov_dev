@@ -49,6 +49,7 @@ function buttonsFor(ctx: EmailContext): EmailButton[] {
     case 'confirmation':
     case 'reminder_24h':
     case 'reminder_1h':
+    case 'rescheduled':
       return cta('meeting', ctx.meetingUrl);
     case 'post_attended':
       return [...cta('feedback', ctx.links.feedback), ...cta('materials', ctx.materialsUrl)];
