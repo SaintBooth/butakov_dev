@@ -1,6 +1,7 @@
 import type { Sql } from 'postgres';
 import { BOT, WORKSHOP_TIME_ZONE } from '@/config/workshop';
 import { findSessionById, sessionSummary } from '../db/sessions';
+import { describeError } from '../server/describeError';
 import { summaryView } from './views';
 
 export interface SummaryDeps {
@@ -20,8 +21,13 @@ export async function runSummaryTick(deps: SummaryDeps): Promise<number> {
             + make_interval(hours => ${BOT.summaryHour})) AT TIME ZONE ${WORKSHOP_TIME_ZONE}
     RETURNING id`;
   for (const { id } of due) {
-    const s = await findSessionById(deps.db, id);
-    if (s) await deps.notify(summaryView(s, await sessionSummary(deps.db, id)).text);
+    // Already claimed, so one failed send must not stop the rest (and is not retried).
+    try {
+      const s = await findSessionById(deps.db, id);
+      if (s) await deps.notify(summaryView(s, await sessionSummary(deps.db, id)).text);
+    } catch (err) {
+      console.error('[workshop-bot] summary failed:', describeError(err));
+    }
   }
   return due.length;
 }

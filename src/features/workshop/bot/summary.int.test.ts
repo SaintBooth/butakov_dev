@@ -1,5 +1,5 @@
 import type { Sql } from 'postgres';
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestDb, seedSession } from '@/test/db';
 import { runSummaryTick } from './summary';
 
@@ -31,6 +31,25 @@ describe('runSummaryTick', () => {
     expect(await tick('2026-11-01T08:00:00Z')).toBe(0);
     expect(sent).toHaveLength(1);
     expect(sent[0]).toContain('ИИ в бизнесе');
+  });
+
+  it('keeps going when one send fails', async () => {
+    await seed();
+    await seedSession(sql, {
+      slug: 'ai-y',
+      startsAt: new Date(endsAt.getTime() - 7_200_000),
+      endsAt,
+    });
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let calls = 0;
+    const flaky = async (t: string) => {
+      if (calls++ === 0) throw new Error('telegram down');
+      sent.push(t);
+    };
+    await runSummaryTick({ db: sql, now: () => new Date('2026-11-01T07:00:00Z'), notify: flaky });
+    expect(sent).toHaveLength(1);
+    expect(log).toHaveBeenCalled();
+    log.mockRestore();
   });
 
   it('skips sessions older than the age limit', async () => {

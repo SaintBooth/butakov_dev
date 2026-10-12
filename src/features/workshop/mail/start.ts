@@ -29,7 +29,12 @@ export function startMailer(): void {
     if (running) return;
     running = true;
     runMailerTick(deps)
-      .then(() => runSummaryTick({ db, now: deps.now, notify: deps.notify }))
+      // The summary is claimed before it is sent, so without a target it would be lost.
+      .then(() =>
+        env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID
+          ? runSummaryTick({ db, now: deps.now, notify: deps.notify })
+          : undefined
+      )
       // Error messages from the driver can carry row data, so only the class and code are logged.
       .catch((err) => console.error('[workshop] mailer tick failed:', describeError(err)))
       .finally(() => {
