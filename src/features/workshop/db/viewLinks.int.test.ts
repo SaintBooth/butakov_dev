@@ -1,6 +1,7 @@
 import type { Sql } from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createTestDb, seedRegistration, seedSession } from '@/test/db';
+import { hashToken } from '../domain/tokens';
 import { listAdminParticipants } from './adminView';
 import { findViewLinkSession, issueViewLink } from './viewLinks';
 
@@ -26,8 +27,10 @@ describe('view links', () => {
     const token = await issueViewLink(sql, sessionId, now);
     expect(await findViewLinkSession(sql, token, now)).toBe(sessionId);
     expect(await findViewLinkSession(sql, token, new Date(now.getTime() + 31 * 60_000))).toBeNull();
-    const [row] = await sql`SELECT token_sha256 FROM workshop_view_links`;
-    expect(row.token_sha256).not.toBe(token);
+    const [row] =
+      await sql`SELECT token_sha256 FROM workshop_view_links WHERE session_id = ${sessionId}`;
+    expect(row.tokenSha256).toBe(hashToken(token));
+    expect(row.tokenSha256).not.toBe(token);
   });
   it('rejects unknown and oversized tokens', async () => {
     expect(await findViewLinkSession(sql, 'nope', new Date())).toBeNull();
