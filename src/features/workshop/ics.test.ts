@@ -51,3 +51,17 @@ describe('buildIcs', () => {
     expect(ics.replace(/\r\n /g, '')).toContain('я'.repeat(100));
   });
 });
+
+describe('buildIcs sequence', () => {
+  it('writes SEQUENCE when given and omits it otherwise', () => {
+    const base = {
+      uid: 'u',
+      title: 't',
+      startsAt: new Date(0),
+      endsAt: new Date(1000),
+      now: new Date(0),
+    };
+    expect(buildIcs({ ...base, sequence: 1760000000 })).toContain('\r\nSEQUENCE:1760000000\r\n');
+    expect(buildIcs(base)).not.toContain('SEQUENCE');
+  });
+});

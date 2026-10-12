@@ -100,7 +100,9 @@ export function composeEmail(ctx: EmailContext): OutgoingMail {
     }),
     headers: { 'List-Unsubscribe': `<${ctx.links.manage}>` },
   };
-  if (ctx.template === 'confirmation') {
+  // The reschedule notice carries the calendar file too; a higher SEQUENCE makes calendars move
+  // the existing event instead of adding a second one.
+  if (ctx.template === 'confirmation' || ctx.template === 'rescheduled') {
     mail.attachments = [
       {
         filename: `${ctx.slug}.ics`,
@@ -113,6 +115,8 @@ export function composeEmail(ctx: EmailContext): OutgoingMail {
           now: ctx.now,
           description: t('email.icsDescription', { meetingUrl: ctx.meetingUrl }),
           url: ctx.meetingUrl,
+          sequence:
+            ctx.template === 'rescheduled' ? Math.floor(ctx.now.getTime() / 1000) : undefined,
         }),
       },
     ];

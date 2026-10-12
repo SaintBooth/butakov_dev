@@ -8,6 +8,7 @@ export interface IcsEvent {
   now: Date;
   description?: string;
   url?: string;
+  sequence?: number;
 }
 
 const MAX_LINE_OCTETS = 75;
@@ -67,6 +68,7 @@ export function buildIcs(e: IcsEvent): string {
     `DTEND:${utc(e.endsAt)}`,
     `SUMMARY:${escapeText(e.title)}`,
   ];
+  if (e.sequence !== undefined) lines.push(`SEQUENCE:${e.sequence}`);
   if (e.description) lines.push(`DESCRIPTION:${escapeText(e.description)}`);
   if (e.url) lines.push(`URL:${stripLineBreaks(e.url)}`);
   lines.push('END:VEVENT', 'END:VCALENDAR');

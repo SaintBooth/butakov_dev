@@ -74,4 +74,14 @@ describe('composeEmail', () => {
     expect(m.html).not.toContain('href="https://evil.example');
     expect(m.html).toContain('Иван https://evil.example/x');
   });
+
+  it('rescheduled letter has the meeting button and an updated calendar file', () => {
+    const now = new Date('2026-10-20T10:00:00Z');
+    const mail = composeEmail({ ...base, template: 'rescheduled', now });
+    expect(mail.subject).toContain(base.sessionTitle);
+    expect(mail.text).toContain(base.meetingUrl);
+    const ics = mail.attachments?.[0];
+    expect(ics?.filename).toBe(`${base.slug}.ics`);
+    expect(ics?.content).toContain(`SEQUENCE:${Math.floor(now.getTime() / 1000)}`);
+  });
 });
