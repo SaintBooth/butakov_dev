@@ -64,7 +64,7 @@ export const FIELD_LIMITS = {
   followupText: 2000,
 } as const;
 
-export const CONSENT_VERSION = '2026-10-09';
+export const CONSENT_VERSION = '2026-10-12';
 export const CONSENT_KINDS = ['pd_processing', 'marketing', 'portfolio', 'quote'] as const;
 
 // The values mirror the CHECK constraints in db/migrations/001_workshop.sql.
