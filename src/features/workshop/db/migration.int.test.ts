@@ -111,3 +111,35 @@ describe('001_workshop migration', () => {
     );
   });
 });
+
+describe('002_workshop_bot migration', () => {
+  it('accepts a rescheduled email job', async () => {
+    await seedSession(sql);
+    const regId = await seedRegistration(sql);
+    await sql`INSERT INTO workshop_email_jobs (registration_id, kind, send_at)
+              VALUES (${regId}, 'rescheduled', now())`;
+    const [row] = await sql`SELECT kind FROM workshop_email_jobs WHERE kind = 'rescheduled'`;
+    expect(row.kind).toBe('rescheduled');
+  });
+
+  it('still rejects an unknown job kind', async () => {
+    await seedSession(sql);
+    const regId = await seedRegistration(sql);
+    await expect(
+      sql`INSERT INTO workshop_email_jobs (registration_id, kind, send_at) VALUES (${regId}, 'spam', now())`
+    ).rejects.toThrow(/kind/);
+  });
+
+  it('adds summary_sent_at, view links and bot dialogs', async () => {
+    const s = await seedSession(sql);
+    await sql`UPDATE workshop_sessions SET summary_sent_at = now() WHERE id = ${s.id}`;
+    await sql`INSERT INTO workshop_view_links (token_sha256, session_id, expires_at)
+              VALUES ('h1', ${s.id}, now())`;
+    await expect(
+      sql`INSERT INTO workshop_view_links (token_sha256, session_id, expires_at) VALUES ('h1', ${s.id}, now())`
+    ).rejects.toThrow(/token_sha256/);
+    await sql`INSERT INTO workshop_bot_dialogs (chat_id, state) VALUES (123456789012, '{"kind":"x"}')`;
+    const [d] = await sql`SELECT chat_id FROM workshop_bot_dialogs`;
+    expect(String(d.chatId)).toBe('123456789012');
+  });
+});
