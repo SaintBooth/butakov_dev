@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle2, Loader2, MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { CONTACT } from '@/config/contact';
 import { PrivacyModalTrigger } from '@/features/privacy/PrivacyModalTrigger';
-import { reachGoal } from './analytics';
+import { track } from '@/features/analytics/track';
 import type { CardFormData, Direction } from './cardSchema';
 import { useCardForm } from './useCardForm';
 
@@ -169,7 +169,7 @@ export default function CardForm({ direction }: { direction: Direction }) {
         href={`${CONTACT.telegramUrl}?text=${tgText}`}
         target="_blank"
         rel="noreferrer"
-        onClick={() => reachGoal('card_telegram')}
+        onClick={() => track('card_telegram')}
         className="mt-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-teal-600 transition-colors [@media(hover:hover)]:hover:text-teal-700"
       >
         <MessageSquare className="h-3.5 w-3.5" />

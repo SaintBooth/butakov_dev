@@ -4,7 +4,7 @@ import { clsx } from 'clsx';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import type { Direction } from './cardSchema';
-import { reachGoal } from './analytics';
+import { track } from '@/features/analytics/track';
 import CardForm from './CardForm';
 
 interface PathButtonProps {
@@ -41,12 +41,12 @@ export default function CardFork() {
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
-    if (p.get('utm_source') === 'vizitka' || p.get('from') === 'card') reachGoal('card_visit');
+    if (p.get('utm_source') === 'vizitka' || p.get('from') === 'card') track('card_visit');
   }, []);
 
   const choose = (dir: Direction) => {
     setSelected(dir);
-    reachGoal(dir === 'audit' ? 'card_path_audit' : 'card_path_ai');
+    track(dir === 'audit' ? 'card_path_audit' : 'card_path_ai');
   };
 
   return (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { CardFormData, Direction } from './cardSchema';
 import { createCardSchema, web3formsResponseSchema } from './cardSchema';
-import { reachGoal } from './analytics';
+import { track } from '@/features/analytics/track';
 
 const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? '';
 
@@ -61,7 +61,7 @@ export function useCardForm(t: (key: string) => string, direction: Direction) {
       if (ok.success && ok.data.success) {
         form.reset();
         setIsSubmitted(true);
-        reachGoal('card_lead', { direction });
+        track('card_lead', { direction });
         return { success: true };
       }
       return { success: false, reason: 'server' };
