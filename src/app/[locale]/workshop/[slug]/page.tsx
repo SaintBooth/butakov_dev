@@ -62,6 +62,7 @@ export default async function WorkshopRegisterPage({ params }: Props) {
             action={registerAction.bind(null, session.slug)}
             stamp={stamp}
             icsHref={WORKSHOP_PATHS.ics(session.slug)}
+            sessionSlug={session.slug}
           />
         </>
       ) : (

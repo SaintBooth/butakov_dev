@@ -2,7 +2,8 @@
 
 import { CalendarPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { startTransition, useActionState, useState, type FormEvent } from 'react';
+import { startTransition, useActionState, useEffect, useState, type FormEvent } from 'react';
+import { track } from '@/features/analytics/track';
 import type { FormState } from '../actions/register';
 import {
   createRegistrationSchema,
@@ -20,12 +21,21 @@ interface RegistrationFormProps {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   stamp: string;
   icsHref: string;
+  sessionSlug: string;
 }
 
-export function RegistrationForm({ action, stamp, icsHref }: RegistrationFormProps) {
+export function RegistrationForm({ action, stamp, icsHref, sessionSlug }: RegistrationFormProps) {
   const t = useTranslations('workshop');
   const [state, formAction, pending] = useActionState(action, { status: 'idle' });
   const [clientErrors, setClientErrors] = useState<FieldErrors | null>(null);
+
+  // Server result arrives as a new state object; each submit fires at most one event.
+  useEffect(() => {
+    if (state.status === 'success') track('workshop_register', { session: sessionSlug });
+    if (state.status === 'error') {
+      track('workshop_register_error', { reason: state.formError ? 'server' : 'validation' });
+    }
+  }, [state, sessionSlug]);
 
   if (state.status === 'success') {
     return (
@@ -34,6 +44,7 @@ export function RegistrationForm({ action, stamp, icsHref }: RegistrationFormPro
         <p className="mt-1">{t('register.success.body')}</p>
         <a
           href={icsHref}
+          onClick={() => track('workshop_calendar_add', { session: sessionSlug })}
           className="mt-3 inline-flex items-center gap-1.5 font-semibold text-teal-700 underline"
         >
           <CalendarPlus className="h-4 w-4" />
@@ -51,6 +62,7 @@ export function RegistrationForm({ action, stamp, icsHref }: RegistrationFormPro
     // Same schema as the server: fail fast in the browser; the server re-validates anyway.
     const r = createRegistrationSchema(t).safeParse(readRegistrationForm(fd));
     if (!r.success) {
+      track('workshop_register_error', { reason: 'validation' });
       setClientErrors(issuesToFieldErrors(r.error.issues));
       return;
     }
