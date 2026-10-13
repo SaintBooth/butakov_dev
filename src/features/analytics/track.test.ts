@@ -4,17 +4,23 @@ import { MAX_PENDING, flushPending, resetPendingForTests, track } from './track'
 
 type UmamiStub = { track: ReturnType<typeof vi.fn> };
 
+function stubWindow(extra: Record<string, unknown> = {}) {
+  const w = { location: { pathname: '/ru' }, localStorage: { getItem: () => null }, ...extra };
+  vi.stubGlobal('window', w);
+  return w;
+}
+
 describe('track', () => {
   beforeEach(() => {
     resetPendingForTests();
-    vi.stubGlobal('window', {});
+    stubWindow();
   });
   afterEach(() => vi.unstubAllGlobals());
 
   it('sends to umami and metrika with the same data', () => {
     const umami = { track: vi.fn() };
     const ym = vi.fn();
-    vi.stubGlobal('window', { umami, ym });
+    stubWindow({ umami, ym });
     track('lead_open', { placement: 'hero' });
     expect(umami.track).toHaveBeenCalledWith('lead_open', { placement: 'hero' });
     expect(ym).toHaveBeenCalledWith(YM_ID, 'reachGoal', 'lead_open', { placement: 'hero' });
@@ -22,14 +28,13 @@ describe('track', () => {
 
   it('omits data for no-payload events', () => {
     const umami = { track: vi.fn() };
-    vi.stubGlobal('window', { umami });
+    stubWindow({ umami });
     track('card_visit');
     expect(umami.track).toHaveBeenCalledWith('card_visit', undefined);
   });
 
   it('queues until umami loads, then flushes in order once', () => {
-    const w: { umami?: UmamiStub } = {};
-    vi.stubGlobal('window', w);
+    const w: { umami?: UmamiStub } = stubWindow();
     track('card_visit');
     track('not_found', { path: '/x' });
     w.umami = { track: vi.fn() };
@@ -43,8 +48,7 @@ describe('track', () => {
   });
 
   it('caps the queue', () => {
-    const w: { umami?: UmamiStub } = {};
-    vi.stubGlobal('window', w);
+    const w: { umami?: UmamiStub } = stubWindow();
     for (let i = 0; i < MAX_PENDING + 10; i++) track('card_visit');
     w.umami = { track: vi.fn() };
     flushPending();
@@ -59,5 +63,47 @@ describe('track', () => {
   it('is a no-op without window', () => {
     vi.unstubAllGlobals();
     expect(() => track('card_visit')).not.toThrow();
+  });
+
+  it('sends and queues nothing after consent is declined', () => {
+    const umami = { track: vi.fn() };
+    const ym = vi.fn();
+    const w: { umami?: UmamiStub } = stubWindow({
+      ym,
+      localStorage: { getItem: (key: string) => (key === 'cookie-consent' ? 'declined' : null) },
+    });
+    track('card_visit');
+    expect(ym).not.toHaveBeenCalled();
+    w.umami = umami;
+    flushPending();
+    expect(umami.track).not.toHaveBeenCalled();
+  });
+
+  it('sends and queues nothing on analytics-disabled paths', () => {
+    const umami = { track: vi.fn() };
+    const ym = vi.fn();
+    const w: { umami?: UmamiStub } = stubWindow({
+      ym,
+      location: { pathname: '/ru/workshop/manage' },
+    });
+    track('card_visit');
+    expect(ym).not.toHaveBeenCalled();
+    w.umami = umami;
+    flushPending();
+    expect(umami.track).not.toHaveBeenCalled();
+  });
+
+  it('drops the queue when consent is declined before flush', () => {
+    let consent: string | null = null;
+    const umami = { track: vi.fn() };
+    const w: { umami?: UmamiStub } = stubWindow({ localStorage: { getItem: () => consent } });
+    track('card_visit');
+    consent = 'declined';
+    w.umami = umami;
+    flushPending();
+    expect(umami.track).not.toHaveBeenCalled();
+    consent = 'accepted';
+    flushPending();
+    expect(umami.track).not.toHaveBeenCalled();
   });
 });
