@@ -42,4 +42,17 @@ describe('reports config', () => {
       );
     }
   });
+
+  it('keeps literal backslashes in segment regexes', () => {
+    const referrer = (name: string) =>
+      (
+        SEGMENTS.find((s) => s.name === name)?.parameters.filters as {
+          name: string;
+          value: string;
+        }[]
+      ).find((x) => x.name === 'referrer')?.value;
+    expect(referrer('Статьи')).toBe('vc\\.ru|dev\\.to|hackernoon');
+    expect(referrer('Органика')).toBe('(yandex|google)\\.');
+    expect(referrer('Telegram')).toBe('t\\.me|telegram');
+  });
 });

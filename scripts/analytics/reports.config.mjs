@@ -75,21 +75,21 @@ export const SEGMENTS = [
     name: 'Статьи',
     parameters: {
       match: 'any',
-      filters: [f('utmMedium', 'eq', 'article'), f('referrer', 're', 'vc\.ru|dev\.to|hackernoon')],
+      filters: [f('utmMedium', 'eq', 'article'), f('referrer', 're', 'vc\\.ru|dev\\.to|hackernoon')],
     },
   },
   {
     name: 'Органика',
     parameters: {
       match: 'all',
-      filters: [f('referrer', 're', '(yandex|google)\.'), f('utmMedium', 'neq', 'cpc')],
+      filters: [f('referrer', 're', '(yandex|google)\\.'), f('utmMedium', 'neq', 'cpc')],
     },
   },
   {
     name: 'Telegram',
     parameters: {
       match: 'any',
-      filters: [f('utmSource', 'eq', 'telegram'), f('referrer', 're', 't\.me|telegram')],
+      filters: [f('utmSource', 'eq', 'telegram'), f('referrer', 're', 't\\.me|telegram')],
     },
   },
   { name: 'Директ', parameters: { match: 'all', filters: [f('utmMedium', 'eq', 'cpc')] } },
