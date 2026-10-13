@@ -6,6 +6,7 @@ declare global {
       target?: string | Record<string, unknown>,
       params?: Record<string, unknown>
     ) => void;
+    umami?: { track: (event: string, data?: Record<string, unknown>) => void };
   }
 }
 

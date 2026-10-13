@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { UMAMI, isAnalyticsDisabledPath } from '@/config/analytics';
 import { readConsent } from '@/config/consent';
+import { flushPending } from '@/features/analytics/track';
 import { filterUmamiPayload } from '@/utils/umami';
 
 declare global {
   interface Window {
-    umami?: { track: (event: string, data?: Record<string, unknown>) => void };
     [UMAMI.beforeSendHook]?: (
       type: string,
       payload: { url?: string } | null
@@ -18,12 +18,13 @@ declare global {
 
 const IDLE_TIMEOUT_MS = 3000;
 
-function injectScript(path: string, attributes: Record<string, string>) {
+function injectScript(path: string, attributes: Record<string, string>, onLoad?: () => void) {
   const src = `${UMAMI.origin}${path}`;
   if ([...document.scripts].some((s) => s.src === src)) return;
   const script = document.createElement('script');
   script.defer = true;
   script.src = src;
+  if (onLoad) script.addEventListener('load', onLoad, { once: true });
   for (const [name, value] of Object.entries(attributes)) script.setAttribute(name, value);
   document.head.appendChild(script);
 }
@@ -32,12 +33,16 @@ function injectTrackers() {
   window[UMAMI.beforeSendHook] = (_type, payload) =>
     filterUmamiPayload(payload, window.location.origin);
   const site = { 'data-website-id': UMAMI.websiteId };
-  injectScript(UMAMI.scriptPath, {
-    ...site,
-    'data-domains': UMAMI.domain,
-    'data-before-send': UMAMI.beforeSendHook,
-    'data-performance': 'true',
-  });
+  injectScript(
+    UMAMI.scriptPath,
+    {
+      ...site,
+      'data-domains': UMAMI.domain,
+      'data-before-send': UMAMI.beforeSendHook,
+      'data-performance': 'true',
+    },
+    flushPending
+  );
   // Waits for the tracker's session on its own, so load order between the two does not matter.
   injectScript(UMAMI.recorderPath, site);
 }
