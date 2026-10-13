@@ -5,7 +5,11 @@ import { MAX_PENDING, flushPending, resetPendingForTests, track } from './track'
 type UmamiStub = { track: ReturnType<typeof vi.fn> };
 
 function stubWindow(extra: Record<string, unknown> = {}) {
-  const w = { location: { pathname: '/ru' }, localStorage: { getItem: () => null }, ...extra };
+  const w: { umami?: UmamiStub } & Record<string, unknown> = {
+    location: { pathname: '/ru' },
+    localStorage: { getItem: () => null },
+    ...extra,
+  };
   vi.stubGlobal('window', w);
   return w;
 }
