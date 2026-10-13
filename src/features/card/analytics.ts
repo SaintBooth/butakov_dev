@@ -9,6 +9,8 @@ export type CardGoal =
   | 'card_lead';
 
 export function reachGoal(goal: CardGoal, params?: Record<string, unknown>): void {
-  if (typeof window === 'undefined' || typeof window.ym !== 'function') return;
+  if (typeof window === 'undefined') return;
+  window.umami?.track(goal, params);
+  if (typeof window.ym !== 'function') return;
   window.ym(YM_ID, 'reachGoal', goal, params);
 }

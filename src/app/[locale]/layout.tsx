@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { ScrollReveal } from '@/components/ScrollReveal';
+import { UmamiAnalytics } from '@/components/UmamiAnalytics';
 import { YandexMetrika } from '@/components/YandexMetrika';
 import { getSchemaBusiness, getSchemaPerson } from '@/config/schema';
 import { CookieNotice } from '@/features/consent/CookieNotice';
@@ -82,6 +83,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </Suspense>
           </ContactModalProvider>
           <YandexMetrika />
+          <UmamiAnalytics />
           <CookieNotice />
           <ScrollReveal />
         </NextIntlClientProvider>
