@@ -177,10 +177,12 @@ export default async function CasePage({ params }: Props) {
       )}
 
       {/* MDX Content */}
-      <article className="relative prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-pre:p-0 prose-pre:bg-transparent">
-        {content}
+      <div className="relative">
+        <article className="prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-pre:p-0 prose-pre:bg-transparent">
+          {content}
+        </article>
         <ReadDepthTracker slug={slug} kind={isOpinion ? 'opinion' : 'case'} />
-      </article>
+      </div>
 
       {/* Related articles */}
       {relatedCases.length > 0 && (
