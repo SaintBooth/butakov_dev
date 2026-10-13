@@ -77,7 +77,10 @@ export default function Header() {
                 </Link>
               );
             })}
-            <ContactTrigger className="group flex items-center gap-2 rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-teal-500">
+            <ContactTrigger
+              placement="header"
+              className="group flex items-center gap-2 rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-teal-500"
+            >
               <MessageSquare className="h-4 w-4 text-teal-400 transition-colors group-hover:text-white" />
               {t('cta')}
             </ContactTrigger>

@@ -3,11 +3,12 @@
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createContext, useCallback, useContext, useId, useMemo, useState } from 'react';
+import type { LeadPlacement } from '@/features/analytics/events';
 import Modal from '../../components/ui/Modal/Modal';
 import ContactForm from './ContactForm';
 
 interface ContactModalApi {
-  open: (serviceId?: string) => void;
+  open: (serviceId?: string, placement?: LeadPlacement) => void;
 }
 
 const ContactModalContext = createContext<ContactModalApi | null>(null);
@@ -19,6 +20,7 @@ export function useContactModal(): ContactModalApi | null {
 
 interface OpenState {
   serviceId?: string;
+  placement?: LeadPlacement;
   // Bumped on every open so the form remounts clean instead of showing the last success screen.
   key: number;
 }
@@ -28,8 +30,8 @@ export function ContactModalProvider({ children }: { children: React.ReactNode }
   const titleId = useId();
   const [state, setState] = useState<OpenState | null>(null);
 
-  const open = useCallback((serviceId?: string) => {
-    setState((prev) => ({ serviceId, key: (prev?.key ?? 0) + 1 }));
+  const open = useCallback((serviceId?: string, placement?: LeadPlacement) => {
+    setState((prev) => ({ serviceId, placement, key: (prev?.key ?? 0) + 1 }));
   }, []);
   const close = useCallback(() => setState(null), []);
   const api = useMemo(() => ({ open }), [open]);
@@ -57,7 +59,12 @@ export function ContactModalProvider({ children }: { children: React.ReactNode }
             </h2>
             <p className="text-slate-600 font-medium">{t('subtitle')}</p>
           </div>
-          <ContactForm key={state.key} defaultServiceId={state.serviceId} />
+          <ContactForm
+            key={state.key}
+            form="modal"
+            defaultServiceId={state.serviceId}
+            placement={state.placement}
+          />
         </Modal>
       )}
     </ContactModalContext.Provider>

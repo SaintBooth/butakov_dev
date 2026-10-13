@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { LeadErrorReason } from '@/features/analytics/events';
 import type { ContactFormData } from './contactSchema';
 import { createContactSchema, web3formsResponseSchema } from './contactSchema';
 
@@ -6,7 +7,7 @@ const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? '';
 
 interface SubmitResult {
   success: boolean;
-  reason?: string;
+  reason?: LeadErrorReason;
 }
 
 interface UseContactFormResult {
@@ -52,7 +53,7 @@ export function useContactForm(t: (key: string) => string): UseContactFormResult
       message: formData.get('message') || undefined,
     };
 
-    if (!validate(rawData)) return { success: false };
+    if (!validate(rawData)) return { success: false, reason: 'validation' };
 
     setIsSubmitting(true);
     formData.append('access_key', WEB3FORMS_KEY);

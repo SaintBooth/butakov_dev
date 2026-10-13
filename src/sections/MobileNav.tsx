@@ -104,7 +104,7 @@ export default function MobileNav() {
     }
     if (item.kind === 'contact') {
       return (
-        <ContactTrigger key={item.key} className={TAB_CLASS}>
+        <ContactTrigger placement="tab_bar" key={item.key} className={TAB_CLASS}>
           <TabContent icon={icon} label={label} active={false} accent />
         </ContactTrigger>
       );

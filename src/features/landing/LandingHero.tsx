@@ -46,6 +46,7 @@ export default async function LandingHero({ id, locale }: LandingHeroProps) {
           </p>
           <div className="mt-7 md:mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
             <ContactTrigger
+              placement="landing_hero"
               serviceId={serviceId}
               className="px-8 py-3.5 md:py-4 rounded-full bg-teal-800 text-white font-bold hover:bg-teal-900 transition inline-flex items-center justify-center gap-2 group shadow-xl shadow-teal-500/20 active:scale-95"
             >

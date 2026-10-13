@@ -185,6 +185,7 @@ export default function MobileMenu() {
 
         <div className="pt-2">
           <ContactTrigger
+            placement="mobile_menu"
             onOpen={close}
             className={clsx(
               'group flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4',

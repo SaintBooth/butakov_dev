@@ -4,6 +4,8 @@ import { clsx } from 'clsx';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId, useState } from 'react';
+import type { LeadForm, LeadPlacement } from '@/features/analytics/events';
+import { track } from '@/features/analytics/track';
 import { services } from '../../data/services';
 import { PrivacyModalTrigger } from '../privacy/PrivacyModalTrigger';
 import type { ContactFormData } from './contactSchema';
@@ -26,9 +28,11 @@ function inputClass(hasError: boolean): string {
 interface ContactFormProps {
   /** `services` item id to preselect, e.g. when opened from a service landing. */
   defaultServiceId?: string;
+  form: LeadForm;
+  placement?: LeadPlacement;
 }
 
-export default function ContactForm({ defaultServiceId }: ContactFormProps) {
+export default function ContactForm({ defaultServiceId, form, placement }: ContactFormProps) {
   const t = useTranslations('contact');
   const tServices = useTranslations('services');
   const id = useId();
@@ -41,12 +45,17 @@ export default function ContactForm({ defaultServiceId }: ContactFormProps) {
     setSubmitError(null);
     const result = await submit(e, selectedService);
     if (result.success) {
+      track('lead_submit', {
+        form,
+        ...(defaultServiceId && { service: defaultServiceId }),
+        ...(placement && { placement }),
+      });
       setSelectedService(initialService);
-    } else if (result.reason === 'server') {
-      setSubmitError(t('errorServer'));
-    } else if (result.reason === 'network') {
-      setSubmitError(t('errorNetwork'));
+      return;
     }
+    track('lead_error', { reason: result.reason ?? 'validation' });
+    if (result.reason === 'server') setSubmitError(t('errorServer'));
+    else if (result.reason === 'network') setSubmitError(t('errorNetwork'));
   };
 
   if (isSubmitted) {

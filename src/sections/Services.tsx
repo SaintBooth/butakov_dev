@@ -36,7 +36,7 @@ function ServiceCardLink({ service, locale, className, labels }: ServiceCardLink
     );
   }
   return (
-    <ContactTrigger serviceId={service.id} className={classes}>
+    <ContactTrigger placement="services" serviceId={service.id} className={classes}>
       {labels.cta}
       {arrow}
     </ContactTrigger>

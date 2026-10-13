@@ -21,7 +21,11 @@ export default function Contact({ defaultServiceId }: ContactProps) {
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t('title')}</h2>
             <p className="text-slate-600 font-medium">{t('subtitle')}</p>
           </div>
-          <ContactForm defaultServiceId={defaultServiceId} />
+          <ContactForm
+            defaultServiceId={defaultServiceId}
+            form="section"
+            placement="contact_section"
+          />
         </div>
       </div>
     </section>

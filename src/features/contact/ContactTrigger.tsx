@@ -2,11 +2,14 @@
 
 import type { MouseEvent, ReactNode } from 'react';
 import { CTA_HREF } from '@/config/nav';
+import type { LeadPlacement } from '@/features/analytics/events';
+import { track } from '@/features/analytics/track';
 import { Link } from '@/i18n/navigation';
 import { useContactModal } from './ContactModalProvider';
 
 interface ContactTriggerProps {
   children: ReactNode;
+  placement: LeadPlacement;
   className?: string;
   serviceId?: string;
   ariaLabel?: string;
@@ -19,6 +22,7 @@ interface ContactTriggerProps {
  */
 export function ContactTrigger({
   children,
+  placement,
   className,
   serviceId,
   ariaLabel,
@@ -29,8 +33,9 @@ export function ContactTrigger({
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (!modal || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
+    track('lead_open', serviceId ? { placement, service: serviceId } : { placement });
     onOpen?.();
-    modal.open(serviceId);
+    modal.open(serviceId, placement);
   };
 
   return (

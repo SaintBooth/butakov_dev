@@ -226,7 +226,10 @@ export default async function CasePage({ params }: Props) {
             {isRu ? 'Написать мне в Telegram' : 'Message me on Telegram'}
           </a>
         ) : (
-          <ContactTrigger className="inline-flex px-8 py-4 rounded-xl bg-teal-800 text-white font-bold hover:bg-teal-900 transition-all shadow-xl shadow-teal-500/25">
+          <ContactTrigger
+            placement="journal_cta"
+            className="inline-flex px-8 py-4 rounded-xl bg-teal-800 text-white font-bold hover:bg-teal-900 transition-all shadow-xl shadow-teal-500/25"
+          >
             {isRu ? 'Обсудить похожую задачу' : 'Discuss a similar project'}
           </ContactTrigger>
         )}
