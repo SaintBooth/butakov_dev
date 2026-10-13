@@ -3,7 +3,7 @@
 import { clsx } from 'clsx';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { LeadForm, LeadPlacement } from '@/features/analytics/events';
 import { track } from '@/features/analytics/track';
 import { services } from '../../data/services';
@@ -40,6 +40,17 @@ export default function ContactForm({ defaultServiceId, form, placement }: Conta
   const [selectedService, setSelectedService] = useState(initialService);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { isSubmitted, isSubmitting, errors, submit, clearError } = useContactForm(t);
+  const openTracked = useRef(false);
+
+  // The modal's open is tracked by ContactTrigger; the inline form needs its own "form opened" step for funnels.
+  const handleFocus = () => {
+    if (form !== 'section' || openTracked.current) return;
+    openTracked.current = true;
+    track('lead_open', {
+      placement: placement ?? 'contact_section',
+      ...(defaultServiceId && { service: defaultServiceId }),
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setSubmitError(null);
@@ -74,7 +85,7 @@ export default function ContactForm({ defaultServiceId, form, placement }: Conta
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit} onFocus={handleFocus} noValidate className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-1">
           <label htmlFor={`${id}-name`} className="text-sm font-bold text-slate-700">
