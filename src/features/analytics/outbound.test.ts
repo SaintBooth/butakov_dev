@@ -11,6 +11,7 @@ describe('classifyLink', () => {
     ['https://github.com/SaintBooth', { kind: 'github', host: 'github.com' }],
     ['https://www.promptspace.ru/x', { kind: 'promptspace', host: 'promptspace.ru' }],
     ['https://vc.ru/u/1', { kind: 'external', host: 'vc.ru' }],
+    ['http://constructor/', { kind: 'external', host: 'constructor' }],
   ])('classifies %s', (href, expected) => {
     expect(classifyLink(href, SITE)).toEqual(expected);
   });

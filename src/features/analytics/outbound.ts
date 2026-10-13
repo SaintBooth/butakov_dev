@@ -24,5 +24,8 @@ export function classifyLink(href: string, siteHost: string): OutboundLink | nul
   if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
   const host = url.hostname.replace(/^www\./, '');
   if (host === siteHost || host.endsWith(`.${siteHost}`)) return null;
-  return { kind: KNOWN_HOSTS[host] ?? 'external', host };
+  return {
+    kind: Object.prototype.hasOwnProperty.call(KNOWN_HOSTS, host) ? KNOWN_HOSTS[host] : 'external',
+    host,
+  };
 }
