@@ -19,6 +19,8 @@ import {
   getSchemaService,
 } from '@/config/schema';
 import { landings } from '@/data/landings';
+import { FaqTracker } from '@/features/analytics/FaqTracker';
+import { TrackSeen } from '@/features/analytics/TrackSeen';
 import Contact from '@/features/contact/Contact';
 import LandingFaq from '@/features/landing/LandingFaq';
 import LandingHero from '@/features/landing/LandingHero';
@@ -116,11 +118,15 @@ export default async function ServiceLandingPage({ params }: Props) {
       ))}
       <LandingHero id={id} locale={locale} />
       <LandingScope id={id} locale={locale} />
-      <LandingPricing id={id} locale={locale} vars={vars} />
+      <TrackSeen spec={{ event: 'pricing_view', data: { landing: id } }}>
+        <LandingPricing id={id} locale={locale} vars={vars} />
+      </TrackSeen>
       <LandingSteps id={id} locale={locale} />
       <LandingWhy id={id} locale={locale} vars={vars} />
       <LandingRelated id={id} locale={locale} />
-      <LandingFaq heading={t('faq.heading')} items={faqItems} />
+      <FaqTracker landing={id}>
+        <LandingFaq heading={t('faq.heading')} items={faqItems} />
+      </FaqTracker>
       <Contact defaultServiceId={meta.serviceId} />
     </main>
   );

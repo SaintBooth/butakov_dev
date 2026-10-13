@@ -8,6 +8,7 @@ import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/confi
 import { Link } from '@/i18n/navigation';
 import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
+import { ReadDepthTracker } from '@/features/analytics/ReadDepthTracker';
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
@@ -176,8 +177,9 @@ export default async function CasePage({ params }: Props) {
       )}
 
       {/* MDX Content */}
-      <article className="prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-pre:p-0 prose-pre:bg-transparent">
+      <article className="relative prose prose-slate prose-teal max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-pre:p-0 prose-pre:bg-transparent">
         {content}
+        <ReadDepthTracker slug={slug} kind={isOpinion ? 'opinion' : 'case'} />
       </article>
 
       {/* Related articles */}

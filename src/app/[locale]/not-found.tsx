@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ArrowRight } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { NotFoundTracker } from '@/features/analytics/NotFoundTracker';
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
@@ -12,6 +13,7 @@ export default async function NotFound() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col items-center justify-center px-4 pb-16 pt-28 text-center sm:px-6 lg:px-8">
+      <NotFoundTracker />
       <p className="mb-4 text-sm font-bold uppercase tracking-wider text-teal-600">404</p>
       <h1 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">{t('heading')}</h1>
       <p className="mb-8 max-w-md text-slate-600">{t('description')}</p>
