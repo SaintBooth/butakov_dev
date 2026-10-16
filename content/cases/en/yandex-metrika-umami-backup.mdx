@@ -29,12 +29,10 @@ Then there is the loss that happens every day, outage or not. `mc.yandex.ru` is 
 
 ## Picking a self-hosted tool
 
-| Tool | Runs on | License | Cookies | Best for |
-| --- | --- | --- | --- | --- |
-| Umami | Node.js + PostgreSQL | MIT | none | sites and small projects: visits, sources, goals |
-| Plausible CE | Elixir + PostgreSQL + ClickHouse | AGPL-3.0 | none | the same, needs a stronger server for ClickHouse |
-| Matomo | PHP + MySQL/MariaDB | GPL-3.0 | yes by default, can be disabled | a full replacement with e-commerce, heatmaps, tag manager |
-| GoAccess | C, reads web server logs | MIT | no JS at all | counting every request, no in-page events |
+- **Umami:** Node.js and PostgreSQL, MIT license, no cookies. For sites and small projects: visits, sources, goals.
+- **Plausible CE:** Elixir, PostgreSQL and ClickHouse, AGPL-3.0, no cookies. Similar features, but ClickHouse needs a stronger server.
+- **Matomo:** PHP and MySQL/MariaDB, GPL-3.0, sets cookies by default (can be disabled). A full replacement with e-commerce, heatmaps and a tag manager.
+- **GoAccess:** written in C, reads web server logs, MIT, no JavaScript at all. Counts every request to the server but sees no in-page events.
 
 I needed something that would sit on ordinary Node.js hosting next to the site and get by with one PostgreSQL database. Umami fit, and the MIT license settled any question about what I can do with it. For an online store that needs sales funnels and heatmaps from day one, I would look at Matomo instead.
 
