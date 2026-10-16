@@ -1,18 +1,29 @@
 ---
 title: "Cache Warmup Architecture for a 200k SKU Catalog"
+seoTitle: "Cache Warmup for a 200k SKU Catalog Without Overload"
 date: "2026-06-01"
 tags: ["1C Bitrix", "Bash", "Redis"]
 metric: "Server response 190ms"
-excerpt: "Background cache regeneration system after heavy DB updates, with no server overload and no manual reset."
+excerpt: "An uncached page took 2.5 seconds to build, and warming a 200k-product catalog in full would take tens of hours. How I picked 318 URLs out of 7329, warmed them with throttling on cron, and got a 190 ms response. Scripts included."
 ---
 
-## Problem
+Warming the whole cache of a large catalog is a bad idea: crawling hundreds of thousands of pages takes tens of hours and overloads the server on its own. What works: after a heavy database update, clear only the stale cache, pick the pages that matter from the sitemap (catalog sections and SEO pages), and warm them slowly, with pauses, on a schedule after the import. Here that cut 7329 URLs down to 318 and response time from 2524 ms to 190 ms.
 
-Page generation time without cache hit reached **2524ms**. PHP process startup, session init, and dozens of DB queries for filter assembly meant that on aggressive crawling, free workers ran out instantly and CPU hit 100%. Full catalog warmup with standard tools would take dozens of hours and bring the service down.
+## What happened
 
-## Solution
+An uncached page took up to **2524 ms** to generate: PHP startup, session init, and dozens of database queries to build the faceted filter, on every cache miss.
 
-PHP script for SEO module table cleanup and tagged cache reset:
+With a warm cache nobody noticed. But the nightly price import cleared the cache, and that is exactly when crawlers showed up. Each of their requests cost 2.5 seconds of a worker. Free workers ran out instantly and CPU hit 100%. Warming the full catalog with standard tools would take tens of hours and take the service down just as well as the bots did.
+
+## Why a cold cache is so expensive
+
+A catalog page with a faceted filter does a lot of work: core, session, infoblock queries, filter properties, SEO data. Component cache hides that cost only while it exists. Any bulk update (1C import, price recalculation, property edits) invalidates the tags, and the next visitor pays full price.
+
+Clearing the cache is fine; that is how it should work. The question is who comes first for the cold page. Your own script at 11:30 is good. A hundred crawlers at once is not.
+
+## Step 1. Clear only what is stale
+
+A PHP script clears the SEO module tables and its tagged cache, not the whole site cache:
 
 ```php
 <?php
@@ -21,6 +32,7 @@ define("NOT_CHECK_PERMISSIONS", true);
 $_SERVER["DOCUMENT_ROOT"] = __DIR__;
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
+// TODO: replace with your module and its cache tag
 if (\Bitrix\Main\Loader::includeModule('seo.module')) {
     \Seo\Module\Models\CacheTable::clearCache();
     $GLOBALS['CACHE_MANAGER']->ClearByTag('seo_module');
@@ -28,10 +40,19 @@ if (\Bitrix\Main\Loader::includeModule('seo.module')) {
 }
 ```
 
-Bash warmup script: parses sitemap, filters 7329 URLs down to 318 target category sections, warms with throttling:
+`ClearByTag` is the standard Bitrix mechanism: it invalidates only entries carrying that tag.
+
+## Step 2. Pick what to warm
+
+The full catalog sitemap had 7329 URLs. Visitors and search engines mostly land on catalog sections and SEO filter pages, not on every product card. The bash script collects exactly those: SEO pages from their own sitemap, and sections derived from the infoblock sitemaps by stripping the last path segment from product URLs and removing duplicates. Result: 318 target URLs.
+
+## Step 3. Warm slowly
+
+The warmup must not become load itself. `wget --spider` requests pages without saving them, and `--wait=1 --random-wait` adds pauses, so real visitors are served in parallel.
 
 ```bash
 #!/bin/bash
+# TODO: set your domain and document root
 SITE="https://client-site.com"
 DOCROOT="/var/www/client/data/www/client-site.com"
 
@@ -47,15 +68,43 @@ wget -q --spider -i /tmp/warmup_urls.txt --wait=1 --random-wait
 rm -f /tmp/warmup_urls.txt
 ```
 
-Scheduled via cron at DB idle window (after price import completes):
+318 URLs at about a second each is minutes, not hours.
+
+## Step 4. Run it at the right moment
+
+Warming only makes sense once data stops changing, so cron runs it in the window after the price import has finished:
 
 ```bash
 30 11 * * * /var/www/client/data/www/client-site.com/safe_warmup.sh
 ```
 
+If the import sometimes runs late, trigger the warmup as the last step of the import itself instead of by the clock.
+
 ## Result
 
-- Response time dropped to **190ms**
-- CPU spikes fully eliminated
+- Response time down to **190ms**
+- CPU load spikes eliminated
 - SEO meta tags 100% fresh for crawlers
-- Manual cache reset routine eliminated
+- No more routine manual cache clearing
+
+## How to check the warmup works
+
+Measure time to first byte on the same page before and after:
+
+```bash
+# TODO: use one of your catalog section URLs
+curl -s -o /dev/null -w "TTFB: %{time_starttransfer}s\n" https://client-site.com/catalog/section/
+```
+
+Cold gives seconds, warm gives a fraction of a second. If nothing changes after warming, the cache is being cleared again (say, by a later import stage) or the page is not cached at all.
+
+## FAQ
+
+**How do I warm the Bitrix cache after an import?**
+Clear only stale cache by tag, collect important pages from the sitemap (catalog sections, SEO pages), and request them with pauses via `wget --spider` or curl, right after the import finishes.
+
+**Should I warm every catalog page?**
+No. A full crawl of a large catalog takes hours and creates load. Sections and pages that actually get traffic are enough; product cards warm up from normal visits.
+
+**How do I avoid overloading the server while warming?**
+Pause between requests (`--wait=1 --random-wait`), run in a low-traffic window, and warm a limited URL list rather than the whole sitemap.

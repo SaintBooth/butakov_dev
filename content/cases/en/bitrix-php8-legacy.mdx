@@ -1,18 +1,57 @@
 ---
 title: "Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel"
+seoTitle: "Bitrix on PHP 8: Fixing Admin 500 Errors and TypeErrors"
 date: "2025-07-18"
 tags: ["PHP 8", "Bitrix", "Refactoring"]
 metric: "100% admin panel stability"
-excerpt: "Targeted refactoring of PHP 8 incompatible components, DB structure restoration and admin panel recovery after server migration."
+excerpt: "After a legacy 1C-Bitrix site moved to a PHP 8 server, the admin returned 500, imports died with TypeError and block drag-and-drop froze. Each error, the code and SQL fixes, and the order in which to move an old Bitrix project to PHP 8."
 ---
 
-## Problem
+An old 1C-Bitrix project moved to PHP 8 usually breaks in custom code, not in the core: custom modules, `init.php`, event handlers. PHP 8 stopped quietly accepting `null` where an array or a number is expected, so code that "somehow worked" for years starts throwing `TypeError` and returning HTTP 500. The fix is surgical: find each spot in the log, add a type check, and bring the database schema back in line with the platform's own system check.
 
-Admin panel returned a 500 error. PHP 8 strict typing meant `array_key_exists` was receiving `null` instead of an array. System health check showed wrong field types in DB tables. Main page block drag-and-drop froze because the Push and Pull module threw a 404 and Sortable.js crashed. Background import failed with a `TypeError` from passing a string value to `gmdate`. Everything blocked site management and catalog updates.
+## What happened
 
-## Solution
+The project moved to a new server with PHP 8, and several things broke at once:
 
-Modified `lib/traits/admin.php`: added an `is_array` check before the function call.
+- the admin panel returned a 500 error: under PHP 8's strict typing, `array_key_exists` received `null` instead of an array;
+- the built-in system check reported wrong field types in database tables;
+- drag-and-drop of homepage blocks froze, with a 404 from the Push and Pull module and a Sortable.js crash;
+- the background import failed with `TypeError` because a string was passed to `gmdate`.
+
+Together this blocked site management and catalog updates. The site opened, but nobody could work with it.
+
+## Why legacy Bitrix breaks on PHP 8
+
+1. **Internal functions got strict.** `array_key_exists($key, null)` used to emit a warning and return `false`. In PHP 8 it is a `TypeError`, a fatal error. The same goes for `count()` on a non-array, arithmetic on non-numeric strings, and `gmdate()` given a string.
+2. **`mbstring.func_overload` is gone.** Very old Bitrix cores relied on string function overloading, which PHP 8 removed entirely. Update the core to a PHP 8-compatible version first, or fixing your own code is pointless.
+3. **Custom code never got updated.** The core and Marketplace modules receive updates; `init.php`, custom components and patches to third-party modules do not. That is where most of the breakage lives.
+
+## Step 1. See the real error
+
+A bare 500 tells you nothing. Temporarily enable detailed exceptions in `/bitrix/.settings.php`, preferably on a copy of the site:
+
+```php
+'exception_handling' => [
+    'value' => [
+        'debug' => true, // TODO: set back to false after debugging
+        'log' => [
+            'settings' => [
+                // TODO: the directory must exist and be closed to the web
+                'file' => 'local/logs/php_errors.log',
+                'log_size' => 1000000,
+            ],
+        ],
+        // keep the other keys of this section as they were
+    ],
+    'readonly' => false,
+],
+```
+
+Now you get a file and a line instead of a blank 500. Also read the server's PHP log: errors that happen before the core loads only show up there.
+
+## Step 2. The admin 500: check the type before the call
+
+The admin crash came from `lib/traits/admin.php`, where the function received `null` instead of an options array. I added an `is_array` check:
 
 ```php
 if (is_array($arOption) && array_key_exists($key, $arOption)) {
@@ -20,14 +59,22 @@ if (is_array($arOption) && array_key_exists($key, $arOption)) {
 }
 ```
 
-Aligned DB structure to platform standards via direct SQL:
+It changes nothing when the data is valid and stops the crash when it is not. That is the general recipe for most `TypeError`s in legacy code: guard each spot where the wrong type can arrive instead of rewriting the module.
+
+## Step 3. The database schema
+
+The system check (Settings → Tools → System check) compares tables against the reference schema. Here some fields had types the platform did not expect. I fixed them with direct SQL:
 
 ```sql
 ALTER TABLE b_intranet_invitation_link CHANGE CREATED_BY CREATED_BY int NULL DEFAULT NULL;
 ALTER TABLE b_booking_wait_list_item CHANGE CREATED_BY CREATED_BY bigint NOT NULL;
 ```
 
-`options.php` was crashing because the script tried to call `replace` on `undefined`. Added a null guard before the method call:
+Back up before any `ALTER TABLE` on production, and try the built-in fix in the system check first. Direct SQL is for what the standard tool cannot repair.
+
+## Step 4. Frozen drag-and-drop
+
+Block reordering failed for two reasons: a 404 from Push and Pull and a script crash in `options.php`, which called `replace` on `undefined` because a checkbox had no `name` attribute. A null check fixed it:
 
 ```javascript
 var inputName = $(this).find('input[type="checkbox"]').attr('name');
@@ -36,11 +83,46 @@ if (inputName) {
 }
 ```
 
-Fixed the `CMyLastModified::apply` handler in `init.php` so it correctly converts text dates to a numeric format before passing them to `gmdate`.
+One JS error stops every script after it on the page, so "drag-and-drop is broken" may mean something else failed earlier. Start with the browser console.
+
+## Step 5. TypeError in the background import
+
+The import failed in the `CMyLastModified::apply` handler from `init.php`: `gmdate` received a date string, and PHP 8 requires an integer. I changed the handler to convert text dates to a timestamp first. The shape of the fix:
+
+```php
+// TODO: adapt to your own handler
+$timestamp = is_numeric($value) ? (int) $value : strtotime((string) $value);
+if ($timestamp !== false) {
+    $header = gmdate('D, d M Y H:i:s', $timestamp) . ' GMT';
+}
+```
+
+Errors like this only surface in the background, in agents, cron and imports, so test those separately.
 
 ## Result
 
 - **100% admin panel stability**
-- **0 type errors** during background import
+- **0 type errors** in the background import
 - **99.9% service uptime** after migration
-- DB structure errors fully eliminated
+- Database schema errors fully resolved
+
+## Moving an old Bitrix site to PHP 8: the order that saves time
+
+1. Copy the site and back up the database, migrate the copy first.
+2. Update the core and modules to PHP 8-compatible versions.
+3. Enable exception logging and walk through the key flows: public pages, admin, cart and checkout, forms.
+4. Run background jobs separately (agents, cron, the 1C import) and read the log.
+5. Run the system check and fix schema mismatches.
+6. Search your own code for risky spots: `array_key_exists`, `count`, `implode`, date handling, arithmetic on request and option values.
+7. Only then switch PHP on production, with a rollback plan.
+
+## FAQ
+
+**Why does the Bitrix admin return a 500 error after moving to PHP 8?**
+Usually custom code passes `null` or a string where PHP 8 strictly requires an array or a number. Enable exception logging in `.settings.php`, find the file and line, and add a type check.
+
+**Does old Bitrix run on PHP 8?**
+Only after updating the core to a PHP 8-compatible version. Very old versions depend on `mbstring.func_overload`, which PHP 8 removed.
+
+**How do I fix wrong field types in the Bitrix database?**
+Run the system check and use its built-in fix. If that fails, alter the columns to match the reference schema with `ALTER TABLE`, after a backup.

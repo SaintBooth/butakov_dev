@@ -1,35 +1,142 @@
 ---
-title: "WordPress Recovery After Fatal Error During PHP 8.3 Migration"
+title: "WordPress critical error after a PHP 8.3 update: a recovery case and a fix checklist"
+seoTitle: "WordPress Critical Error After PHP Update: How to Fix It"
 date: "2025-11-10"
 tags: ["WordPress", "PHP 8.3", "MySQL"]
 metric: "Uptime 99.99%"
-excerpt: "Emergency debug, plugin compatibility fixes and DB structure restoration after PHP version upgrade broke the site."
+excerpt: "The site and the admin went down after a PHP 8.3 switch. How I got access back without the dashboard, which plugin broke, why Yoast lost its tables, and a step-by-step checklist for the same error on your site."
 ---
 
-## Problem
+If your WordPress site shows "There has been a critical error on this website" right after a PHP update, the fastest route back is: read the error log, find the plugin named in the fatal error, disable it by renaming its folder over SFTP or SSH, then update everything else to versions that support your PHP. That is exactly how this case went, and below I go through each step with the commands.
 
-Frontend and admin panel were completely down. Server logs showed a fatal error in Really Simple SSL Pro plugin during license check. System generated hundreds of Deprecated warnings from other modules. After partial access restoration, Yoast SEO Premium tables were found missing, and sitemap generation fully stopped.
+## What happened
 
-## Solution
+The hosting moved the site to PHP 8.3. After that the frontend and the admin panel were both down, with no way in through the dashboard at all.
 
-Restored admin access by renaming the broken plugin directory via filesystem. Disabled frontend warnings via core config:
+The server log had the answer almost immediately: a fatal error inside Really Simple SSL Pro, thrown during its license check. Around it sat hundreds of Deprecated warnings from other plugins. Those looked scary in volume, but they were not what killed the site.
+
+Then, once access was back, a second problem showed up. The Yoast SEO Premium tables were gone, and sitemap generation had stopped completely. So the site was alive but quietly losing its SEO plumbing, which is the kind of thing nobody notices until traffic drops.
+
+## Why a PHP update breaks WordPress
+
+WordPress core itself handles new PHP versions well. The breakage almost always comes from plugins and themes that were written for older PHP and never updated. Between PHP 7.4 and 8.3 a few changes hit old code hardest:
+
+- functions that no longer exist, like `create_function()` and `each()` (removed in PHP 8.0), cause a fatal error the moment the code runs;
+- stricter type handling: things PHP 7 quietly coerced now throw a `TypeError`;
+- passing `null` to built-in functions that expect a string is deprecated since 8.1, and creating dynamic properties on objects is deprecated since 8.2.
+
+The difference between the two kinds of messages matters for triage. A **Fatal error** stops the request: that is your outage. **Deprecated** is a warning about the future: noisy, worth fixing, but it does not take the site down by itself. In this case one fatal and hundreds of deprecations arrived together, and the trick was not to get lost in the deprecations.
+
+## Step 1. Find the real error
+
+WordPress hides the details behind the "critical error" page, so you need a log. Three places to look:
+
+1. **The recovery mode email.** Since WordPress 5.2, a fatal error triggers an email to the admin address with the name of the broken plugin and a special link that opens the dashboard with that plugin paused. Check the inbox (and spam) first, it saves a lot of time.
+2. **The PHP error log on the server.** Most hosting panels show it, or it sits next to the site files.
+3. **WordPress's own debug log.** Add this to `wp-config.php` above the "That's all, stop editing" line:
+
+```php
+// TODO: remove after debugging, debug.log is readable from the web by default
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_LOG', true );      // writes to wp-content/debug.log
+define( 'WP_DEBUG_DISPLAY', false ); // keep errors off the public pages
+@ini_set( 'display_errors', 0 );
+```
+
+Reload the broken page and open `wp-content/debug.log`. Look for the first line that starts with `PHP Fatal error`: it names the file, and the file path tells you which plugin or theme it belongs to.
+
+## Step 2. Get access back without the dashboard
+
+When the admin itself is down, you disable the culprit from the outside. I renamed the broken plugin's directory through the file system:
+
+```bash
+# TODO: replace with the folder name from your fatal error
+cd wp-content/plugins
+mv really-simple-ssl-pro really-simple-ssl-pro.off
+```
+
+WordPress cannot find the plugin anymore, deactivates it, and the site starts loading. If you have WP-CLI on the server, the same thing is cleaner:
+
+```bash
+# --skip-plugins avoids loading the broken plugin while running the command
+wp plugin deactivate really-simple-ssl-pro --skip-plugins --skip-themes
+```
+
+If the fatal error points into the theme, switch to a default one the same way: `wp theme activate twentytwentyfive --skip-plugins --skip-themes`.
+
+A word of caution about an SSL plugin specifically: it often handles HTTP to HTTPS redirects. After you switch it off, check that the site still redirects and that you do not get mixed-content warnings. If you do, a redirect rule at the server level is the more reliable place for it anyway.
+
+## Step 3. Silence the warnings on public pages
+
+Hundreds of deprecations printed on the frontend look broken to visitors and leak file paths. Until the plugins are updated, I turned the output off in the core config:
 
 ```php
 define( 'WP_DEBUG', false );
 ini_set( 'display_errors', 0 );
 ```
 
-Updated CMS core and all extensions to PHP 8.3-compatible versions. The Yoast SEO database error turned out to be the system failing to find the indexable table:
+This hides the symptom, it does not fix anything. Treat it as a bandage for the hours between "the site is up" and "everything is updated".
+
+## Step 4. Update the core and every extension
+
+Next I updated the WordPress core and all plugins to versions compatible with PHP 8.3. Two practical notes:
+
+- Premium plugins (Yoast SEO Premium and Really Simple SSL Pro were both here) update only with an active license. An expired license means you are running old code on new PHP, which is exactly how this kind of outage starts.
+- Before updating, check the "Requires PHP" line on the plugin page. If a plugin has not been updated for years, there is a good chance it will never support PHP 8.3, and replacing it is cheaper than patching it.
+
+To check code before switching PHP, run the PHPCompatibilityWP ruleset for PHP_CodeSniffer against your plugins and theme. It is a static check and misses things, but it catches removed functions and the obvious syntax problems:
+
+```bash
+# TODO: point at your own wp-content path
+phpcs -p wp-content/plugins wp-content/themes \
+  --standard=PHPCompatibilityWP --runtime-set testVersion 8.3- --extensions=php
+```
+
+## Step 5. The missing Yoast SEO tables
+
+With the site back, the database errors turned out to be Yoast SEO failing to find its indexable table. The query it kept running:
 
 ```sql
 SELECT * FROM yoast_wp_seo_models_indexable WHERE object_id = '1' AND object_type = 'user' LIMIT 1
 ```
 
-Deactivation and reactivation triggered automatic migration: service tables were recreated and populated by the built-in optimization tool.
+The fix was simple, once I knew what I was looking at: deactivating and reactivating Yoast triggered its automatic migration. The service tables were recreated, and the built-in SEO data optimization tool filled them back in. After that the sitemap started generating again.
 
-## Result
+If you see Yoast errors after any crash or a failed update, try that before anything more invasive. Restoring tables from a backup is the fallback, not the first move.
+
+## The result
 
 - Uptime restored to **99.99%**
-- Server response **+25%** from PHP 8.3 upgrade
-- DB errors **100% eliminated**
-- Organic traffic loss stopped
+- Server response **+25%** from the PHP 8.3 upgrade itself
+- Database errors **100% eliminated**
+- The organic traffic loss stopped once the sitemap came back
+
+The irony of the whole story: the PHP upgrade that broke the site also made it noticeably faster once everything was compatible.
+
+## How to update PHP on WordPress without an outage
+
+What I recommend now, so the next upgrade is boring:
+
+1. Make a full backup: files and database, and check that it actually restores.
+2. Copy the site to a staging environment and switch PHP there first.
+3. Update core, plugins and theme on staging, renew premium licenses before you start.
+4. Click through the key pages and the checkout or forms with `WP_DEBUG_LOG` on, then read the log.
+5. Switch PHP on production in a quiet hour. Most hosting panels let you switch it back in a minute, so the rollback plan is one dropdown.
+6. Keep an eye on the log for a day: some code paths only run on cron or on specific pages.
+
+## FAQ
+
+**How do I fix "There has been a critical error on this website" after a PHP update?**
+Find the fatal error in the recovery mode email or in `wp-content/debug.log`, disable the plugin it names by renaming its folder over SFTP or SSH, then update or replace that plugin with a PHP-compatible version.
+
+**Can I access the WordPress admin when it shows a critical error?**
+Use the link from the recovery mode email: it opens the admin with the broken plugin paused. Without the email, rename the plugin folder in `wp-content/plugins` and the admin usually comes back.
+
+**Are Deprecated warnings dangerous after upgrading to PHP 8?**
+Not by themselves: they do not stop the site. But they point at code that may break in the next PHP version, so update those plugins instead of only hiding the warnings.
+
+**How do I roll back a PHP version on WordPress?**
+In most hosting panels you change the PHP version per site from a dropdown, and the change applies within a minute. Roll back, then fix compatibility on a staging copy.
+
+**Why did Yoast SEO tables disappear after the PHP update?**
+In this case the indexable tables were missing after the failure. Deactivating and reactivating Yoast ran its migration and recreated them, and the built-in optimization tool refilled the data.

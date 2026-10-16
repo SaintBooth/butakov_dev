@@ -1,37 +1,113 @@
 ---
 title: "Redis Optimization for Bitrix: Background Tag Cleanup Without Session Loss"
+seoTitle: "Redis Out of Memory: Clean the Cache Without FLUSHDB"
 date: "2026-01-20"
 tags: ["Bitrix", "Redis", "Bash"]
 metric: "97% RAM freed"
-excerpt: "Targeted managed cache cleanup in the background with page prerender, eliminating OOM risk without losing user sessions."
+excerpt: "Redis on a Bitrix store hit 977 MB of a 1 GB limit. Why FLUSHDB is the wrong fix, how to find what fills the memory, and how to clean the cache by key pattern without logging users out. Scripts and a setup checklist."
 ---
 
-## Problem
+When Redis runs out of memory, the tempting fix is `FLUSHDB`. If your sessions live in the same database, that logs every user out and empties their carts. Find out what is actually eating the memory first (`redis-cli --bigkeys`, `INFO memory`), then delete only the junk keys by pattern with `SCAN` and `UNLINK`. That freed 97% of the memory in this case without losing a single session.
 
-The Bitrix project hit hardware hosting limits. Redis consumed 977MB of the available 1GB. `INFO memory` showed critical fill. LRU eviction policy couldn't handle the tag write intensity. Standard admin response is `FLUSHDB`, but that destroys all user session keys, instantly logs out users, and clears shopping carts. First morning request to cold cache caused 10-second page generation waits.
+## What happened
 
-## Solution
+A Bitrix e-commerce project hit the limits of its hosting plan. Redis used 977 MB of the available 1 GB, and `INFO memory` showed it at the edge. The LRU eviction policy could not keep up: cache tags were written faster than Redis evicted old data.
 
-Redis `--bigkeys` audit revealed the cause: 84% of keys were stale tag sets. Instead of full flush, wrote a bash script for mask-based key lookup and async deletion via `UNLINK` (frees memory without blocking the main thread):
+The usual admin answer is `FLUSHDB`. The catch is that it wipes the session keys too: everyone gets logged out, carts go empty. And after the flush, the first morning request to a cold cache took 10 seconds to build a page. The "fix" hurt users twice.
+
+## Why Redis fills up on Bitrix
+
+Bitrix stores more than cached pages in Redis. It also keeps sets of cache tags it uses to invalidate related entries. On a store with frequent catalog updates (price and stock imports, product edits) those tag sets keep piling up, and many of them are long dead. Put sessions in the same instance and everything shares one memory limit.
+
+The eviction policy is the other trap:
+
+```bash
+redis-cli CONFIG GET maxmemory
+redis-cli CONFIG GET maxmemory-policy
+```
+
+With `volatile-lru`, Redis evicts only keys that have a TTL, and keys without one accumulate forever. With `allkeys-lru`, anything can go, sessions included, if they share the instance. Neither is good while cache and sessions sit in the same memory.
+
+## Step 1. See what takes the memory
+
+```bash
+# overall picture: used_memory_human, maxmemory_human
+redis-cli INFO memory
+# is eviction already happening?
+redis-cli INFO stats | grep evicted_keys
+
+# biggest keys per type, without blocking the server
+redis-cli --bigkeys
+
+# size of a specific key
+redis-cli MEMORY USAGE "some:key"
+```
+
+A growing `evicted_keys` means Redis is already throwing data away under pressure, and not necessarily the data you would choose.
+
+Here, `--bigkeys` showed the cause right away: **84% of the keys** were stale tag sets.
+
+## Step 2. Delete by pattern, not everything
+
+Instead of a full flush I wrote a bash script that finds keys by pattern and removes them with `UNLINK`. Unlike `DEL`, `UNLINK` frees memory in a background thread and does not block Redis, which matters on a live store.
 
 ```bash
 REDIS_CLI="/usr/bin/redis-cli"
+# TODO: pick patterns for your project from the --bigkeys output
 $REDIS_CLI --scan --pattern '*IL:*' | xargs -L 100 $REDIS_CLI unlink
 $REDIS_CLI --scan --pattern '*domain.com/public_html*' | xargs -L 100 $REDIS_CLI unlink
 ```
 
-Scheduled via cron during minimum load hours. Added a cache warmup module: the server reads the sitemap and requests target URLs via curl before real visitors arrive.
+Use `--scan`, never `KEYS`: `KEYS *` walks the whole keyspace in one call and freezes Redis on a large dataset, while `SCAN` works in batches.
+
+Dry-run the pattern before the first real run and make sure no session keys match:
 
 ```bash
+redis-cli --scan --pattern '*IL:*' | head -50
+redis-cli --scan --pattern '*IL:*' | wc -l
+```
+
+The script runs from cron during the lowest-traffic hours.
+
+## Step 3. Do not serve a cold cache to the first visitors
+
+Cleaning leaves the cache empty, and someone has to sit through the slow first render. So I added a warmup: the server reads the sitemap and requests the pages itself before real visitors arrive.
+
+```bash
+# TODO: set your domain and how many URLs to warm
 urls=$(curl -s https://domain.com/sitemap.xml | grep -oP '(?<=<loc>).*?(?=</loc>)' | head -n 10)
 for url in $urls; do
   curl -s -L -o /dev/null "$url"
 done
 ```
 
+For a large catalog the warmup needs URL selection and throttling; I covered that in the [200k SKU cache warmup case](/journal/bitrix-cache-warmup).
+
 ## Result
 
-- **97% RAM freed** — consumption dropped from 688MB to 19MB
+- **97% RAM freed**: usage dropped from 688 MB to 19 MB
 - User sessions fully preserved during cleanup
-- Server response for first visitors reduced to milliseconds
-- Stayed on the current hosting tier, no hardware upgrade needed
+- Server response for first visitors cut to milliseconds
+- Stayed on the current hosting plan, no hardware upgrade needed
+
+## Redis setup checklist for Bitrix
+
+1. **Separate cache and sessions.** At least different Redis databases (`db 0` for cache, `db 1` for sessions), ideally separate instances with their own memory limits. Then a cache flush cannot touch sessions at all.
+2. **Pick the policy per role.** `allkeys-lru` for the cache instance, since losing old cache is fine. `noeviction` plus headroom for sessions: silently losing sessions is worse than a write error.
+3. **Set `maxmemory` explicitly.** Without a limit Redis grows until the OS kills it.
+4. **Watch `used_memory` and `evicted_keys`.** Rising evictions warn you long before memory runs out.
+5. **Clean stale tags on a schedule** by pattern, as above, and warm the cache afterwards.
+
+## FAQ
+
+**Is it safe to run FLUSHDB on Redis for Bitrix?**
+Only if you know sessions live in a different database or instance. Otherwise FLUSHDB logs everyone out and empties carts. Deleting keys by pattern with SCAN and UNLINK is the safe option.
+
+**How do I find what fills Redis memory?**
+`redis-cli INFO memory` shows total usage, `redis-cli --bigkeys` lists the largest keys per type, and `MEMORY USAGE` gives the size of a single key.
+
+**Why UNLINK instead of DEL?**
+UNLINK removes the key from the keyspace immediately and frees the memory in a background thread. DEL does everything synchronously and can stall Redis on large keys.
+
+**Which maxmemory-policy should I use?**
+allkeys-lru for cache, noeviction with spare memory for sessions, preferably in a separate Redis instance.

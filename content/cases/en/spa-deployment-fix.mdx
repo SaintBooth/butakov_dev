@@ -1,20 +1,40 @@
 ---
 title: "SPA Deployment: Fixing Build Conflicts and Infinite Redirect Loops"
+seoTitle: "ERR_TOO_MANY_REDIRECTS When Deploying an SPA: Fixes"
 date: "2025-09-05"
 tags: ["React", "Vite", "Nginx"]
 metric: "+14% form conversion"
-excerpt: "Resolved ERESOLVE build conflicts, infinite SSL redirect loop and analytics interference to ship a stable corporate app."
+excerpt: "The build failed with ERESOLVE, the server looped HTTPS redirects forever, and analytics clashed with form inputs. Where each of these SPA deployment problems comes from on a React and Vite app, and how I fixed them."
 ---
 
-## Problem
+An infinite redirect loop when deploying an SPA almost always happens where two layers meet: a proxy or load balancer accepts HTTPS, the request reaches the app server over plain HTTP, and the app server redirects it back to HTTPS. SPAs add their own twist: the server must return `index.html` for any route that does not exist on disk. In this case I rewrote the server config for correct static and SPA routing, worked around a dependency conflict in the build, and kept analytics away from the form inputs.
 
-Build failed with ERESOLVE due to bundler/style library version conflict. On deployment, server entered an infinite redirect loop: the cloud provider router received an HTTPS request, passed it via internal network to a config file which redirected back to HTTPS. Analytics system warned about overriding input functions due to controlled UI components.
+## What happened
 
-## Solution
+Three problems stood between a corporate React and Vite app and a stable release:
 
-Forced dependency installation to bypass strict version checking. Rewrote server config for correct static file serving. Cleared local network cache to eliminate phantom certificate errors. Added blocking attribute to form markup for analytics compatibility.
+- the build failed with `ERESOLVE`, a version conflict between the bundler and the styling library;
+- on deploy the server went into an endless redirect loop: the cloud provider's router accepted HTTPS, passed the request over the internal network to a config that redirected to HTTPS again;
+- the analytics system warned about input function interception caused by controlled UI components.
 
-Server config fix for the redirect loop:
+## Where ERR_TOO_MANY_REDIRECTS comes from
+
+A common hosting setup today: a proxy or load balancer in front holds the SSL certificate and accepts HTTPS, then forwards the request over plain HTTP inside the network. If the app server has a rule "not HTTPS, redirect to HTTPS", it sees HTTP and redirects. The browser comes back to the proxy over HTTPS, the proxy forwards HTTP again, and round it goes until the browser gives up with `ERR_TOO_MANY_REDIRECTS`.
+
+Check the redirect chain:
+
+```bash
+# TODO: use your own domain
+curl -sIL https://example.com/ | grep -iE "^(HTTP|location)"
+```
+
+The same `301` or `302` to the same address over and over is the loop.
+
+General rule: the HTTPS redirect belongs to the layer that sees the original protocol. If that is the proxy, remove the redirect from the app server. If the app server has to redirect, check the header the proxy passes, usually `X-Forwarded-Proto`, not the connection protocol.
+
+## Step 1. Server config for an SPA
+
+I rewrote the server config so static files and app routes are served correctly:
 
 ```apache
 <IfModule mod_rewrite.c>
@@ -27,21 +47,52 @@ RewriteRule . /index.html [L]
 </IfModule>
 ```
 
-Package manager conflict bypass:
+A request for `index.html` itself is served as is; any path with no matching file or directory gets `index.html`, and the app router takes it from there. Without this, opening `/about` directly or refreshing inside the app returns 404.
+
+One more detail from this deploy: after the changes I had to clear the local network cache to get rid of phantom certificate errors, because the browser and DNS remembered the old state for a while.
+
+## Step 2. The dependency conflict
+
+`ERESOLVE` is npm saying two packages require incompatible versions of a shared dependency. Here it was the bundler and the styling library. I installed with relaxed peer checks:
 
 ```bash
 npm install -D tailwindcss @tailwindcss/vite --legacy-peer-deps
 ```
 
-Analytics isolation from input fields:
+`--legacy-peer-deps` works but is not free: npm stops checking peer compatibility, and a mismatch can surface at runtime. After installing this way, run the build and click through the app. Drop the flag once compatible versions are out.
+
+## Step 3. Analytics and form inputs
+
+The analytics session recorder clashed with React's controlled inputs. I added a blocking attribute to the form so analytics leaves input alone:
 
 ```html
 <form data-ym-disable-keys="true">
 ```
 
+A side benefit: form contents stay out of session recordings, which is the right call for contact forms anyway.
+
 ## Result
 
-- PageSpeed score reached **98 points**
-- Time to first interaction **1.2 seconds**
+- PageSpeed score reached **98**
+- Time to interactive **1.2 seconds**
 - Form capture conversion **+14%**
-- Redirect errors fully eliminated
+- Redirect errors fully resolved
+
+## SPA deployment checklist
+
+1. The server returns `index.html` for every route that is not a file, and serves static files directly.
+2. Exactly one layer does the HTTPS redirect: the one that sees the original protocol.
+3. The redirect chain checked with `curl -sIL`: one hop at most.
+4. The build passes without `--force`, or you know why a flag is needed and tested the app by hand.
+5. Analytics scripts do not break controlled form inputs or record their contents.
+
+## FAQ
+
+**Why does my SPA get ERR_TOO_MANY_REDIRECTS after deploy?**
+Usually the proxy accepts HTTPS and forwards HTTP to the app server, which redirects to HTTPS again. Let one layer handle the redirect, or make the app server check `X-Forwarded-Proto`.
+
+**Why does my SPA return 404 on refresh?**
+The server looks for a file at the route path and finds none. Add a rule that returns `index.html` for paths that do not exist on disk.
+
+**What does npm ERESOLVE mean?**
+Two dependencies require incompatible versions of a shared package. `--legacy-peer-deps` lets you install them, but then you have to verify compatibility yourself.

@@ -1,42 +1,97 @@
 ---
 title: "High-Load E-commerce Optimization: DB Locks, CRM Crashes and AI Bot Attacks"
+seoTitle: "Slow Bitrix Store Under Load: DB Locks and AI Crawlers"
 date: "2026-03-15"
 tags: ["BitrixVM", "Redis", "Nginx", "MySQL"]
 metric: "+40% server response speed"
-excerpt: "Full infrastructure migration resolving database deadlocks, CRM mobile crashes and AI crawler overload."
+excerpt: "A Bitrix store slowed down: the database locked up during stock updates, the mobile CRM showed blank screens, and AI crawlers ate every worker through the faceted filter. What caused each problem and how I closed them."
 ---
 
-## Problem
+When an online store on 1C-Bitrix slows down under load, there is rarely a single cause. This case had three: database locking from sessions during parallel AJAX requests, a domain mix-up in the multisite setup, and AI crawlers endlessly walking the faceted filter. I moved sessions to Redis, separated the domains in the site settings, and blocked the aggressive bots at the Nginx level. The server started responding 40% faster.
 
-Database entered deep locks during stock updates. Mobile CRM app showed blank screens or access errors, because a multisite routing bug caused the core to confuse the public store domain with the internal portal domain. Additionally, AI neural network bots aggressively scanning the smart filter exhausted all web server worker processes.
+## What happened
 
-## Solution
+Three problems at once, each hiding the others:
 
-Full audit and migration to high-performance storage. Session storage moved to RAM to eliminate locks during parallel AJAX requests:
+- the database went into deep locks during stock updates;
+- the mobile CRM app showed blank screens or access errors: a multisite routing bug made the core confuse the public store domain with the internal portal domain;
+- AI crawlers aggressively scanned the faceted filter and exhausted every web server worker.
+
+To a visitor it all looked the same: "the site is slow". So the work started with a full audit and sorting out which symptom came from which cause.
+
+## How to find out why Bitrix is slow
+
+Separate the three usual sources before fixing anything:
+
+1. **The database.** Slow queries and locks show up in the MySQL slow query log and in `SHOW ENGINE INNODB STATUS` (the latest deadlock section). If queries wait on each other, more hardware will not help.
+2. **PHP workers.** When every PHP-FPM process is busy, new requests queue up and even light pages take seconds. Check the pool status and active process count.
+3. **Who is actually visiting.** An hour of Nginx logs grouped by User-Agent and URL often shows right away that most of the load is not human.
+
+Bitrix also has a built-in performance panel that roughly but quickly shows whether the server is bound by the database, disk or CPU.
+
+## Step 1. Sessions in Redis instead of files or the database
+
+Locking on parallel AJAX requests is a classic. With file or database sessions, each request from the same user waits until the previous one releases the session. The faceted filter, cart and counters fire requests in parallel, and they line up one behind another.
+
+I moved session storage into memory:
 
 ```ini
 session.save_handler = redis
 session.save_path = "tcp://127.0.0.1:6379"
 ```
 
-Hard multisite separation via direct SQL:
+This went together with a full audit and a move to faster storage. If Redis also holds your cache, keep sessions in a separate database or instance, or a cache flush will log users out. More on that in the [Redis case](/journal/redis-optimization).
+
+## Step 2. Separate the domains in the multisite setup
+
+The mobile CRM broke because the core confused the public store domain with the internal portal. In a multisite configuration Bitrix picks the current site by domain name, so overlapping or swapped domains send requests to the wrong site.
+
+I separated them with direct SQL:
 
 ```sql
 UPDATE b_lang SET SERVER_NAME='crm.example.com' WHERE LID='s1';
 UPDATE b_lang SET SERVER_NAME='example.com' WHERE LID='s2';
 ```
 
-Strict filtering of aggressive AI parsers at Nginx level:
+You can fix the same in the admin (Settings → Sites), but also check the domain list of each site. Clear the cache afterwards, or the old bindings linger.
+
+## Step 3. AI crawlers and the faceted filter
+
+The Bitrix smart filter generates a separate URL for every combination of properties. Handy for people, an almost infinite page space for a crawler, and each page is expensive to build without cache. Aggressive AI crawlers went straight there and took every worker.
+
+I blocked the worst of them in Nginx, before requests reach PHP:
 
 ```nginx
 if ($http_user_agent ~* "meta-externalagent|FacebookBot|Bytespider") { return 403; }
 ```
 
-Unified cache for storefront and portal by assigning a static session identifier.
+That list is who caused the load on this project. Check your own logs before blocking: blocking blindly can hit useful bots too.
+
+## Step 4. Shared cache for the storefront and the portal
+
+Finally, I set up a shared cache for the storefront and the portal using a static session identifier, so the same data was not built twice.
 
 ## Result
 
 - Server response speed **+40%**
-- Peak CPU load reduced **5x**
+- Peak CPU load down **5x**
 - Mobile CRM fully restored
 - Purchase conversion **+15%**
+
+## Protecting a Bitrix store from crawler load
+
+1. **robots.txt:** close service parameters and endless filter combinations, keep open only the filter landing pages you promote on purpose.
+2. **User-Agent blocking in Nginx** for bots that ignore robots.txt and bring nothing, based on your logs.
+3. **Rate limiting** (`limit_req` in Nginx) on filter URLs: people do not make ten requests a second, bots do.
+4. **Monitor the bot share** of traffic: the AI crawler list changes every few months.
+
+## FAQ
+
+**Why does a Bitrix site slow down during stock updates?**
+Often because of database locking: the import and user requests compete for the same tables, and file or database sessions make parallel requests wait on each other. Moving sessions to Redis and scheduling imports apart from peak hours usually fixes it.
+
+**How do I block AI crawlers?**
+Find them in Nginx logs by User-Agent, block specific names at the web server level, and rate-limit heavy URLs such as the faceted filter.
+
+**Why does the mobile CRM fail on a multisite Bitrix?**
+The core picks the site by domain. If site domains overlap or are swapped, app requests land on the wrong site. Check SERVER_NAME and the domain list of each site.
