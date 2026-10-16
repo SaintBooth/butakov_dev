@@ -11,6 +11,7 @@
 - AI consulting — LLM and neural network integration
 
 ## Engineering Cases
+- [When Yandex Metrica went down: running self-hosted Umami as backup analytics (Reports available while Metrica was down)](https://butakov.dev/journal/yandex-metrika-umami-backup)
 - [WordPress hacked again after cleanup: a real backdoor case study (7 backdoors across 4 layers, found and closed)](https://butakov.dev/journal/wordpress-keeps-getting-hacked)
 - [The Mirror, Not the Advisor: A Jungian AI Agent and My Own Boundaries With AI (Written without AI, credits, or tokens)](https://butakov.dev/journal/ai-jungian-mirror-agent)
 - [Building an online store on WordPress with Claude Code: a budget case with 1C ERP integration ($0 in licenses, live in weeks)](https://butakov.dev/journal/wordpress-claude-code-1c)
@@ -23,6 +24,7 @@
 - [Legacy Bitrix Adaptation for PHP 8: Fixing Core Errors and Admin Panel (100% admin panel stability)](https://butakov.dev/journal/bitrix-php8-legacy)
 
 ## Инженерный журнал (русская версия)
+- [Яндекс Метрика не работает: как я поднял резервную аналитику на Umami и что с этим делать по 152-ФЗ (Отчёты доступны, пока Метрика лежит)](https://butakov.dev/ru/journal/yandex-metrika-umami-backup)
 - [WordPress снова взломан после чистки: разбор реального случая с бэкдорами (7 бэкдоров в 4 слоях - найдены и закрыты)](https://butakov.dev/ru/journal/wordpress-keeps-getting-hacked)
 - [«Зеркало психики»: агент-психолог по Юнгу и мои личные границы с ИИ (Написано без ИИ, кредитов и токенов)](https://butakov.dev/ru/journal/ai-jungian-mirror-agent)
 - [Разработка интернет-магазина на WordPress в паре с Claude Code: бюджетный кейс с интеграцией 1С (0 ₽ лицензий, запуск за недели)](https://butakov.dev/ru/journal/wordpress-claude-code-1c)

@@ -12,7 +12,19 @@ const RULES: ReadonlyArray<{ landing: LandingId; tags: readonly string[] }> = [
   { landing: 'web-apps', tags: ['React', 'Vite', 'Next.js', 'Django'] },
   {
     landing: 'support',
-    tags: ['WordPress', 'Bitrix', '1C Bitrix', 'BitrixVM', 'Redis', 'PHP 8', 'PHP 8.3', 'MySQL'],
+    tags: [
+      'WordPress',
+      'Bitrix',
+      '1C Bitrix',
+      'BitrixVM',
+      'Redis',
+      'PHP 8',
+      'PHP 8.3',
+      'MySQL',
+      'Umami',
+      'Analytics',
+      'Аналитика',
+    ],
   },
 ];
 

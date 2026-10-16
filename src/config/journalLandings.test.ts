@@ -15,6 +15,10 @@ describe('landingForTags', () => {
     expect(landingForTags(['React', 'Vite', 'Nginx'])).toBe('web-apps');
   });
 
+  it('sends analytics setup cases to support', () => {
+    expect(landingForTags(['Аналитика', 'Umami', 'Яндекс Метрика', '152-ФЗ'])).toBe('support');
+  });
+
   it('returns null when nothing matches', () => {
     expect(landingForTags(['Opinion'])).toBeNull();
   });

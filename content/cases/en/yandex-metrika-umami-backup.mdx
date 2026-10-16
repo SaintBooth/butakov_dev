@@ -1,0 +1,115 @@
+---
+title: "When Yandex Metrica went down: running self-hosted Umami as backup analytics"
+seoTitle: "Self-Hosted Umami as Backup Analytics: a Real Setup"
+date: "2026-10-16"
+tags: ["Analytics", "Umami", "Yandex Metrica", "Privacy"]
+metric: "Reports available while Metrica was down"
+excerpt: "In October 2026 the Yandex Metrica, Direct and Webmaster dashboards went offline for days. How a self-hosted Umami instance kept my reports available, how I set it up on shared hosting, renamed its endpoints to dodge ad blockers, and sent every goal to both systems from one function."
+---
+
+If your only analytics lives on someone else's infrastructure, an outage there leaves you blind for as long as it lasts. The fix is a second counter that writes visits and goals into a database you control. I run self-hosted Umami next to Yandex Metrica: it is small, sets no cookies, keeps data on my own server, and does not depend on anyone else's data centers. Here is how it is set up, how to keep ad blockers from eating the stats, and how to keep ad campaigns fed with conversions.
+
+## What happened in October 2026
+
+Between October 8 and 11, 2026, Yandex shut down three of its five data centers, citing drone attacks and a fire. According to [industry reports](https://seo.ru/news/kabinety-direkta-metriki-i-vebmastera-nedostupny-posle-atak-na-data-centry-yandeksa/), Metrica data started arriving with gaps on October 8, and from the 11th the Metrica, Direct (Yandex's ad platform) and Webmaster dashboards stopped opening. Search and Maps partly came back that evening; analytics and ads did not.
+
+I ran into it directly. On October 16 I was auditing my site's SEO and both Metrica and Webmaster showed a "temporarily unavailable" page. I pulled the traffic sources report for the last days from my Umami API instead. To be fair to myself, I am not claiming foresight: I set Umami up on October 13, mid-outage, for other reasons. It just turned out to be the only place my data was reachable.
+
+## Why one analytics tool is a single point of failure
+
+Metrica is a good product and I am keeping it. The issue is concentration.
+
+**Reports.** With the dashboard down you cannot see traffic, goals, or the effect of anything you changed, even if the counter keeps collecting in the background.
+
+**Ads.** Conversion-optimizing bid strategies in Yandex Direct learn from Metrica goals. When goals stop arriving, the strategy sees what looks like a conversion drop, not an outage, and adjusts accordingly.
+
+**Ad blockers.** `mc.yandex.ru` is on every major block list. Visitors running uBlock Origin or AdGuard simply do not exist for it. How many of them you have depends on the audience; for technical and B2B audiences the share is noticeably higher.
+
+## Picking a self-hosted tool
+
+| Tool | Runs on | License | Cookies | Best for |
+| --- | --- | --- | --- | --- |
+| Umami | Node.js + PostgreSQL | MIT | none | sites and small projects: visits, sources, goals |
+| Plausible CE | Elixir + PostgreSQL + ClickHouse | AGPL-3.0 | none | the same, needs a stronger server for ClickHouse |
+| Matomo | PHP + MySQL/MariaDB | GPL-3.0 | yes by default, can be disabled | a full replacement with e-commerce, heatmaps, tag manager |
+| GoAccess | C, reads web server logs | MIT | no JS at all | counting every request, no in-page events |
+
+I went with Umami because it runs on plain Node.js hosting without a dedicated server, PostgreSQL is enough, and MIT carries no obligations. For an online store that needs e-commerce reports and heatmaps out of the box, I would pick Matomo.
+
+## How my setup works
+
+### A separate subdomain on my own hosting
+
+Umami 3.4 runs on `stats.butakov.dev` as a separate site on the same hosting, with its own PostgreSQL database. There is no Docker on that host, so I deployed the prebuilt app from the official image instead of building on the server. Visit data never leaves it.
+
+The dashboard sits behind three layers: HTTP auth in front of the whole app, Umami's own login, and two-factor authentication. Only two paths are public: the tracker script and the event endpoint.
+
+### Renamed endpoints against ad blockers
+
+Block lists know Umami's default paths, `/script.js` and `/api/send`. Umami lets you rename both with environment variables, so you do not need an Nginx proxy for this:
+
+```bash
+# tracker script path instead of /script.js
+TRACKER_SCRIPT_NAME=p.js
+# event collection path instead of /api/send
+COLLECT_API_ENDPOINT=/api/p
+```
+
+Combined with a subdomain of your own site, this looks like an ordinary first-party request. No guarantees, block lists evolve, but generic rules do not catch these paths.
+
+### One function sends every goal to both systems
+
+To keep goals from drifting apart between Metrica and Umami, the site has a single entry point. Trimmed down:
+
+```ts
+export function track(event: AnalyticsEvent, data?: EventData) {
+  // visitor declined analytics, or this is a service page
+  if (isTrackingBlocked()) return;
+  const payload = EVENT_SCHEMAS[event].parse(data ?? {});
+
+  // Umami loads deferred: queue events until its script is ready
+  if (window.umami) window.umami.track(event, payload);
+  else if (pending.length < MAX_PENDING) pending.push([event, payload]);
+
+  if (typeof window.ym === 'function') window.ym(YM_ID, 'reachGoal', event, payload);
+}
+```
+
+Every event is validated against a schema, so a typo in a goal name fails the build instead of corrupting stats. If Metrica fails to load, blocked or down, the goal still reaches Umami, and the other way round.
+
+### What must never reach analytics
+
+Some pages on my site carry an access token in the URL, such as a workshop participant's personal link. Metrica records full URLs, so the token would end up in reports. On those pages neither counter loads, and Umami has an extra `data-before-send` hook that cancels any hit whose URL matches a blocked pattern.
+
+Worth checking on your site too: password resets, email confirmations, document links, anything with a secret in the URL.
+
+### Cookies and consent
+
+Umami sets no cookies. It derives the session on the server from a hash of the website ID, IP, user agent and a salt that rotates monthly by default (configurable with `SALT_ROTATION`). The IP itself is not stored, and visits cannot be linked across salt periods.
+
+The consent banner stays, because Metrica runs alongside and does set cookies. If a visitor declines, neither counter loads and no goals are sent.
+
+## Keeping ad conversions flowing
+
+A second counter saves your reports, not your ads: Direct's bid strategies only see Metrica goals. To stop ads depending on a browser script, send conversions to Metrica from the server as offline conversions. Store the `yclid` click ID (or Metrica's `ClientId`) with each lead, and when the CRM marks a sale, upload a CSV:
+
+```csv
+Yclid,Target,DateTime,Price,Currency
+1837492018473920190,ORDER_PAID,1760600000,15400,RUB
+```
+
+`DateTime` is a Unix timestamp and must be in the past. The file goes to `POST https://api-metrika.yandex.net/management/v1/counter/{counterId}/offline_conversions/upload` as multipart/form-data and shows up in reports [within three hours](https://yandex.ru/dev/metrika/ru/management/offline-conv). If Metrica itself is down you still upload later, but nothing is lost: the conversions and click IDs sit in your CRM. I have not enabled this on my own site, which does not sell through a cart; for a store with a CRM and Direct campaigns, it is the next step after a second counter.
+
+## FAQ
+
+**What should I do when my analytics provider goes down?**
+Confirm it is a provider-side outage, mark the period as incomplete, avoid changing ad settings based on those days, and set up a second counter that stores data on your own server.
+
+**Is Umami a good Google Analytics alternative?**
+For visits, sources and custom events, yes: it is light, cookieless and self-hosted. For e-commerce funnels, heatmaps and a tag manager, Matomo is closer to a full replacement.
+
+**Does Umami need a cookie banner?**
+Umami itself sets no cookies, but if your site also runs counters or ad pixels that do, you still need consent for those.
+
+**How do I hide Umami from ad blockers?**
+Serve it from a subdomain of your site and rename the default paths with `TRACKER_SCRIPT_NAME` and `COLLECT_API_ENDPOINT`.
