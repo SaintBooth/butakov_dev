@@ -4,7 +4,7 @@ import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypeSlug from 'rehype-slug';
 import GithubSlugger from 'github-slugger';
 import { z } from 'zod';
-import { CodeBlock, Alert } from '@/components/mdx';
+import { CodeBlock, Alert, MdxLink } from '@/components/mdx';
 import { OPINION_TAGS } from '../config/journalTags';
 
 export interface CaseHeading {
@@ -55,6 +55,7 @@ export async function getCaseBySlug(locale: string, slug: string) {
     components: {
       // Replace default <pre> with Shiki-powered CodeBlock
       pre: CodeBlock as React.ComponentType<React.HTMLAttributes<HTMLElement>>,
+      a: MdxLink,
       Alert,
     },
   });
