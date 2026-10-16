@@ -63,7 +63,36 @@ export async function getCaseBySlug(locale: string, slug: string) {
   const frontmatter = CaseFrontmatterSchema.parse(result.frontmatter);
   const headings = extractHeadings(source);
   const readingTime = estimateReadingTime(source);
-  return { content: result.content, frontmatter, headings, readingTime };
+  const faq = extractFaq(source);
+  return { content: result.content, frontmatter, headings, readingTime, faq };
+}
+
+export interface CaseFaqItem {
+  q: string;
+  a: string;
+}
+
+// Convention in content/cases: "## FAQ", then "**Question?**" on its own line with the answer
+// right below. Parsed from source so FAQPage JSON-LD always matches the visible block.
+function extractFaq(source: string): CaseFaqItem[] {
+  const section = source.split(/^## FAQ\s*$/m)[1]?.split(/^## /m)[0];
+  if (!section) return [];
+
+  const items: CaseFaqItem[] = [];
+  for (const block of section.split(/\n\s*\n/)) {
+    const [first, ...rest] = block.trim().split('\n');
+    const question = first?.match(/^\*\*(.+)\*\*$/)?.[1];
+    const answer = rest.join(' ').trim();
+    if (question && answer) items.push({ q: toPlainText(question), a: toPlainText(answer) });
+  }
+  return items;
+}
+
+function toPlainText(markdown: string): string {
+  return markdown
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*`]/g, '')
+    .trim();
 }
 
 // Mirrors rehype-slug's id generation (same github-slugger algorithm) so TOC anchors match

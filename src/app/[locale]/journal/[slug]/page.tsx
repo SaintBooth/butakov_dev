@@ -4,7 +4,12 @@ import Image from 'next/image';
 import { Quote, Send } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { getCaseBySlug, getCaseSlugs, getRelatedCases, isOpinionPiece } from '@/utils/cases';
-import { getSchemaArticle, getSchemaBreadcrumb, DEFAULT_OG_IMAGE } from '@/config/schema';
+import {
+  getSchemaArticle,
+  getSchemaBreadcrumb,
+  getSchemaFaq,
+  DEFAULT_OG_IMAGE,
+} from '@/config/schema';
 import { Link } from '@/i18n/navigation';
 import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
@@ -66,7 +71,7 @@ export default async function CasePage({ params }: Props) {
   const result = await getCaseBySlug(locale, slug);
   if (!result) notFound();
 
-  const { content, frontmatter: fm, headings, readingTime } = result;
+  const { content, frontmatter: fm, headings, readingTime, faq } = result;
   const isRu = locale === 'ru';
   const isOpinion = isOpinionPiece(fm);
   const tSchema = await getTranslations({ locale, namespace: 'schema' });
@@ -104,6 +109,12 @@ export default async function CasePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      {faq.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(getSchemaFaq(faq)) }}
+        />
+      )}
 
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-slate-500 mb-8" aria-label="Breadcrumb">
