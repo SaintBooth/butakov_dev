@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { LANDING_IDS, landingUrl, SITE_URL } from '@/config/landings';
+import { LANDING_IDS, LANDINGS_UPDATED_AT, landingUrl, SITE_URL } from '@/config/landings';
 import { getAllCaseFrontmatters } from '@/utils/cases';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -41,6 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const landingEntries: MetadataRoute.Sitemap = LANDING_IDS.flatMap((id) =>
     (['en', 'ru'] as const).map((locale) => ({
       url: landingUrl(id, locale),
+      lastModified: LANDINGS_UPDATED_AT,
       priority: 0.9,
       changeFrequency: 'monthly' as const,
       alternates: {

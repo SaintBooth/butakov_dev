@@ -18,6 +18,10 @@ const securityHeaders = [
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  // Next 15.2+ streams metadata into <body> for bots it considers JS-capable
+  // (Googlebot included): title/canonical/hreflang landed ~160 KB into the body.
+  // Matching every UA keeps metadata blocking, inside <head>, for all crawlers.
+  htmlLimitedBots: /.*/,
   images: {
     formats: ['image/avif', 'image/webp'],
   },

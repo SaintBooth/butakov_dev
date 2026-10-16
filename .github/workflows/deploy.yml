@@ -239,3 +239,7 @@ jobs:
             mv app.new app
             touch reload
             rm -rf app.old
+
+      - name: Ping IndexNow
+        continue-on-error: true
+        run: node scripts/indexnow.mjs

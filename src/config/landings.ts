@@ -8,6 +8,9 @@ export const LANDING_SLUGS = {
   ai: { ru: 'vnedrenie-ii', en: 'ai-integration' },
 } as const;
 
+/** Sitemap lastmod for the landings: bump when their copy or prices change. */
+export const LANDINGS_UPDATED_AT = '2026-09-28';
+
 export type LandingId = keyof typeof LANDING_SLUGS;
 export type LandingLocale = 'ru' | 'en';
 
