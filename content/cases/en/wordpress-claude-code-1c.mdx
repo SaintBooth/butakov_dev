@@ -112,7 +112,7 @@ Short answer: Claude Code does not deploy anything on its own. You give it acces
 The order matters, so this is how it went on this store.
 
 1. **Write CLAUDE.md before the first line of code.** The agent rereads it at the start of every session. Mine held the design system as hard bans: four colors, no raw hex, zero radius, the 8px scale. Anything you leave out of that file, the agent decides for you, and usually not the way you would.
-2. **Give it the server through an SSH MCP server.** That is how the agent ships code to the hosting (NetAngels in my case) instead of me copying files around. It also lets the agent look at the server itself when something breaks in production and not locally.
+2. **Give it the server through an SSH MCP server.** That is how the agent ships code to the hosting (NetAngels in my case) instead of me copying files around. It also means the agent can look at the server itself instead of asking you to paste logs, which matters for bugs that only exist in production.
 3. **Give it eyes through a Playwright MCP server.** Without a browser the agent can only reread its own code and tell you it looks right. With one, it opens the store, clicks the real buttons, and compares a screenshot against the prototype.
 4. **Make the live check part of "done".** My rule: "deployed" or "fixed" means nothing until a Playwright run on the live page backs it up. The dead product-card links from the section above only showed up on desktop and only in production. A code review would have shipped that bug.
 5. **Write every trap into memory files.** The project lasted months, the context window does not. Each lesson that cost me time went into a markdown file the next session reads first, so a fresh session starts from what we already know.
@@ -120,9 +120,9 @@ The order matters, so this is how it went on this store.
 
 ### Connecting WooCommerce to Claude Code: what that actually means
 
-People search for this as if there were a plugin that wires the store into the agent. On this project there was nothing like that. Claude Code worked with the theme code in the repository, reached the hosting over SSH, and saw the store the way a customer does, through a browser. WooCommerce itself had no idea an agent was involved.
+People search for this as if there were a plugin that wires the store into the agent. Look at the tooling list at the top of this section: two MCP servers, Playwright and SSH, and nothing WooCommerce-specific. Claude Code worked with the theme code, reached the hosting over SSH, and saw the store the way a customer does, through a browser.
 
-That was enough, because the parts that ate the most time (the 1C exchange, the variation logic, the block-theme wrappers) were code and data problems. If you want an agent to manage products or orders inside WooCommerce directly, that is a different job, and I have not built it on this store.
+That was enough, because the parts that ate the most time (the 1C exchange, the variation logic, the block-theme wrappers) were code and data problems. Having an agent manage products or orders inside WooCommerce directly is a different job, and it is outside this case.
 
 ### The 1C integration: CommerceML and the traps the manuals keep quiet about
 
@@ -266,7 +266,7 @@ No. It covers part of a team: a junior frontend developer, a tester handling rou
 Connect the agent to your hosting through an SSH MCP server and to a browser through Playwright, put your rules in CLAUDE.md, and require a check on the live page after every deploy. The step-by-step version is in the deploy section above.
 
 **Can Claude Code connect to WooCommerce directly?**
-On this project it did not need to: the agent worked with the theme code, the server over SSH, and the live store in a browser. No separate WooCommerce connector was involved.
+On this project it did not need to: the agent worked with the theme code, the server over SSH, and the live store in a browser, with no WooCommerce-specific connector in the tooling.
 
 **Does WooCommerce work with YooKassa and SBP?**
 Yes. YooKassa ships an official WooCommerce module covering card payments and SBP.
