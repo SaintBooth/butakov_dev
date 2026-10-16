@@ -1,10 +1,10 @@
 ---
 title: "Building an online store on WordPress with Claude Code: a budget case with 1C ERP integration"
-seoTitle: "Deploying a WooCommerce Store with Claude Code: a Case Study"
+seoTitle: "How to Deploy WooCommerce with Claude Code: a Case Study"
 date: "2026-07-19"
 tags: ["WordPress", "WooCommerce", "1C", "Claude Code"]
 metric: "$0 in licenses, live in weeks"
-excerpt: "A case study of building a designer clothing store on WordPress + WooCommerce: real-time sync with a 1C ERP, a custom block theme, local payments and shipping. Most of the code was written by the Claude Code AI agent, and the budget came in several times below an agency quote."
+excerpt: "How I built and deployed a WooCommerce store with Claude Code: MCP servers for SSH deploys and live Playwright checks, rules in CLAUDE.md, real-time sync with a 1C ERP, and the bugs the agent caused along the way."
 ---
 
 An online store with real-time ERP sync, the kind of project agencies usually sell as a separate expensive engagement with a mandatory Bitrix license attached, cost this client zero dollars in licenses. It runs on WordPress and WooCommerce, and most of the code was written by Claude Code, not by me. If you assume ERP integration for a Russian retailer automatically means Bitrix and an agency-sized budget, this case is worth a second look.
@@ -104,6 +104,25 @@ Now the part worth being honest about, not just the praise. Left alone, the agen
 One concrete example of that last failure mode: the agent once tied a piece of menu logic to a literal numeric WordPress menu-post ID instead of resolving it through the registered theme location. It worked fine until content got re-exported and the ID shifted, and then the menu quietly stopped highlighting the right item, with nothing in the logs to flag it. Same class of problem as the fallback color from the earlier section: code that is technically working but brittle, and a blanket "do not hardcode" rule does not save you unless you spell it out for every specific spot, post IDs included, not just colors and spacing.
 
 All of this gets solved by process, not by prompting, which is exactly why this piece leans so hard on process instead of just code.
+
+## How to deploy a WooCommerce store with Claude Code
+
+Short answer: Claude Code does not deploy anything on its own. You give it access through MCP servers, one for SSH to the hosting and one for a real browser through Playwright, write the rules into CLAUDE.md, and treat a deploy as unfinished until the agent has opened the live page and shown you it works.
+
+The order matters, so this is how it went on this store.
+
+1. **Write CLAUDE.md before the first line of code.** The agent rereads it at the start of every session. Mine held the design system as hard bans: four colors, no raw hex, zero radius, the 8px scale. Anything you leave out of that file, the agent decides for you, and usually not the way you would.
+2. **Give it the server through an SSH MCP server.** That is how the agent ships code to the hosting (NetAngels in my case) instead of me copying files around. It also lets the agent look at the server itself when something breaks in production and not locally.
+3. **Give it eyes through a Playwright MCP server.** Without a browser the agent can only reread its own code and tell you it looks right. With one, it opens the store, clicks the real buttons, and compares a screenshot against the prototype.
+4. **Make the live check part of "done".** My rule: "deployed" or "fixed" means nothing until a Playwright run on the live page backs it up. The dead product-card links from the section above only showed up on desktop and only in production. A code review would have shipped that bug.
+5. **Write every trap into memory files.** The project lasted months, the context window does not. Each lesson that cost me time went into a markdown file the next session reads first, so a fresh session starts from what we already know.
+6. **Keep architecture and acceptance for yourself.** The agent wrote most of the code. What to build, in what order, and whether the result was good enough to show the client stayed with me.
+
+### Connecting WooCommerce to Claude Code: what that actually means
+
+People search for this as if there were a plugin that wires the store into the agent. On this project there was nothing like that. Claude Code worked with the theme code in the repository, reached the hosting over SSH, and saw the store the way a customer does, through a browser. WooCommerce itself had no idea an agent was involved.
+
+That was enough, because the parts that ate the most time (the 1C exchange, the variation logic, the block-theme wrappers) were code and data problems. If you want an agent to manage products or orders inside WooCommerce directly, that is a different job, and I have not built it on this store.
 
 ### The 1C integration: CommerceML and the traps the manuals keep quiet about
 
@@ -242,6 +261,12 @@ Development where an AI agent writes the routine code while a human sets the tas
 
 **Does Claude Code replace a developer?**
 No. It covers part of a team: a junior frontend developer, a tester handling routine checks, a technical writer. Architecture, task decomposition, and final acceptance stay with the human.
+
+**How do I deploy a WooCommerce store with Claude Code?**
+Connect the agent to your hosting through an SSH MCP server and to a browser through Playwright, put your rules in CLAUDE.md, and require a check on the live page after every deploy. The step-by-step version is in the deploy section above.
+
+**Can Claude Code connect to WooCommerce directly?**
+On this project it did not need to: the agent worked with the theme code, the server over SSH, and the live store in a browser. No separate WooCommerce connector was involved.
 
 **Does WooCommerce work with YooKassa and SBP?**
 Yes. YooKassa ships an official WooCommerce module covering card payments and SBP.
