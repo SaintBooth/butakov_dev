@@ -24,6 +24,8 @@ export const CaseFrontmatterSchema = z.object({
   // because a reflection piece doesn't always have a "result" to report.
   metric: z.string().min(1).optional(),
   excerpt: z.string().min(1),
+  // Meta description for SERP (~160 chars); excerpt stays the on-page lede and can be longer
+  seoDescription: z.string().min(1).max(200).optional(),
   image: z.string().startsWith('/').optional(),
 });
 
