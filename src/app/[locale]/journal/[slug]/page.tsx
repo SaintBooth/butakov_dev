@@ -9,6 +9,8 @@ import { Link } from '@/i18n/navigation';
 import { ContactTrigger } from '@/features/contact/ContactTrigger';
 import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
 import { ReadDepthTracker } from '@/features/analytics/ReadDepthTracker';
+import { isLandingLocale, landingPath } from '@/config/landings';
+import { landingForTags } from '@/config/journalLandings';
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
@@ -88,6 +90,8 @@ export default async function CasePage({ params }: Props) {
   ]);
 
   const authorName = tSchema('person.name');
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
+  const serviceLanding = isOpinion || !isLandingLocale(locale) ? null : landingForTags(fm.tags);
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-28">
@@ -208,6 +212,20 @@ export default async function CasePage({ params }: Props) {
               </Link>
             ))}
           </div>
+        </div>
+      )}
+
+      {serviceLanding && isLandingLocale(locale) && (
+        <div className="mt-12 rounded-2xl border border-teal-100 bg-teal-50/60 p-6">
+          <p className="text-sm text-slate-600">
+            {isRu ? 'Нужна помощь с похожей задачей?' : 'Need help with something similar?'}
+          </p>
+          <Link
+            href={landingPath(serviceLanding, locale)}
+            className="mt-1 inline-block font-bold text-teal-800 hover:text-teal-900 transition-colors"
+          >
+            {tNav(`landings.${serviceLanding}`)} →
+          </Link>
         </div>
       )}
 
