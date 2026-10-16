@@ -8,7 +8,7 @@ metric: "Reports available while Metrica was down"
 excerpt: "In October 2026 the Yandex Metrica, Direct and Webmaster dashboards stayed offline for days. How a self-hosted Umami instance kept my reports reachable, how I hid it from ad blockers, why every goal goes to both systems from one function, and how to keep ad conversions flowing from the server."
 ---
 
-On October 16 I sat down to figure out why my site gets almost no search traffic. I opened Yandex Metrica and got a placeholder: "The Metrica dashboard is temporarily unavailable." Webmaster only started opening that same day, and only partly. The dashboard of Direct, Yandex's ad platform, was closed too, according to the news. The only place I could still see my own traffic for those days was the Umami instance on my own server, so the traffic sources report came from there, through its API, in a couple of minutes.
+I noticed Yandex Metrica was down on the first day of the outage: instead of reports it showed a placeholder, "The Metrica dashboard is temporarily unavailable." The dashboards of Direct, Yandex's ad platform, and Webmaster were unavailable too. It is now October 16. Webmaster has only just started opening, and not fully, while Metrica is still closed. The only place I have fresh traffic data is the Umami instance on my own server, where a traffic sources report takes a couple of minutes to pull.
 
 The short version: if your analytics lives on someone else's infrastructure, their outage blinds you for as long as it lasts, and your ad settings are frozen at the same time. A second counter that writes visits and goals into your own database fixes the first problem. Server-side offline conversions fix most of the second.
 
@@ -16,7 +16,7 @@ The short version: if your analytics lives on someone else's infrastructure, the
 
 Over four days starting October 8, 2026, drones damaged three Yandex data centers, in Sasovo, Kaluga and Vladimir. According to an [industry roundup as of October 12](https://seo.ru/news/kabinety-direkta-metriki-i-vebmastera-nedostupny-posle-atak-na-data-centry-yandeksa/), the Metrica and Direct dashboards showed placeholders, Webmaster was unavailable, and ads kept serving on the settings made before the outage. Counters on websites reportedly kept collecting, and the data could be pulled through the Metrica API, though Yandex never said how complete it was.
 
-Yandex brought the mass-market services back first: Search, Alice, Maps, Taxi, Mail. Ad and analytics dashboards are recovering more slowly. As of October 16, the Metrica dashboard still does not open for me.
+Yandex brought the mass-market services back first: Search, Alice, Maps, Taxi, Mail. Ad and analytics dashboards are recovering more slowly.
 
 I did not see this coming. I set Umami up on October 13, mid-outage, because I wanted session recordings and heatmaps without handing data to a third party. It became my backup counter by accident.
 
