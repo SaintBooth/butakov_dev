@@ -13,7 +13,7 @@ If your only analytics lives on someone else's infrastructure, an outage there l
 
 Between October 8 and 11, 2026, Yandex shut down three of its five data centers, citing drone attacks and a fire. According to [industry reports](https://seo.ru/news/kabinety-direkta-metriki-i-vebmastera-nedostupny-posle-atak-na-data-centry-yandeksa/), Metrica data started arriving with gaps on October 8, and from the 11th the Metrica, Direct (Yandex's ad platform) and Webmaster dashboards stopped opening. Search and Maps partly came back that evening; analytics and ads did not.
 
-I ran into it directly. On October 16 I was auditing my site's SEO and both Metrica and Webmaster showed a "temporarily unavailable" page. I pulled the traffic sources report for the last days from my Umami API instead. To be fair to myself, I am not claiming foresight: I set Umami up on October 13, mid-outage, for other reasons. It just turned out to be the only place my data was reachable.
+I ran into it directly. On October 16 I was auditing my site's SEO and both Metrica and Webmaster showed a "temporarily unavailable" page. I pulled the traffic sources report for those days from my own Umami instance instead. To be fair to myself, I am not claiming foresight: I set Umami up on October 13, mid-outage, for other reasons. It just turned out to be the only place my data was reachable.
 
 ## Why one analytics tool is a single point of failure
 
@@ -40,22 +40,21 @@ I went with Umami because it runs on plain Node.js hosting without a dedicated s
 
 ### A separate subdomain on my own hosting
 
-Umami 3.4 runs on `stats.butakov.dev` as a separate site on the same hosting, with its own PostgreSQL database. There is no Docker on that host, so I deployed the prebuilt app from the official image instead of building on the server. Visit data never leaves it.
+Umami runs as a separate site on a subdomain, on the same hosting as the main site, with its own PostgreSQL database. Visit data never leaves the server. Shared hosting made the install less straightforward than on a VPS, where the official Docker image starts with one command.
 
-The dashboard sits behind three layers: HTTP auth in front of the whole app, Umami's own login, and two-factor authentication. Only two paths are public: the tracker script and the event endpoint.
+The dashboard is closed to the public and requires authentication; only the tracker script and the event endpoint are reachable from outside. Do not leave an analytics dashboard open on a public address: it shows your entire traffic picture.
 
 ### Renamed endpoints against ad blockers
 
 Block lists know Umami's default paths, `/script.js` and `/api/send`. Umami lets you rename both with environment variables, so you do not need an Nginx proxy for this:
 
 ```bash
-# tracker script path instead of /script.js
-TRACKER_SCRIPT_NAME=p.js
-# event collection path instead of /api/send
-COLLECT_API_ENDPOINT=/api/p
+# TODO: pick your own names, do not copy them from articles
+TRACKER_SCRIPT_NAME=<your-name>.js
+COLLECT_API_ENDPOINT=/api/<your-path>
 ```
 
-Combined with a subdomain of your own site, this looks like an ordinary first-party request. No guarantees, block lists evolve, but generic rules do not catch these paths.
+Combined with a subdomain of your own site, this looks like an ordinary first-party request. Choose your own names and keep them out of public write-ups: once a path is published, it can end up on a block list.
 
 ### One function sends every goal to both systems
 
@@ -79,7 +78,7 @@ Every event is validated against a schema, so a typo in a goal name fails the bu
 
 ### What must never reach analytics
 
-Some pages on my site carry an access token in the URL, such as a workshop participant's personal link. Metrica records full URLs, so the token would end up in reports. On those pages neither counter loads, and Umami has an extra `data-before-send` hook that cancels any hit whose URL matches a blocked pattern.
+Some pages carry a secret in the URL, such as an access token or a key in a link. Metrica records full URLs, so the token would end up in reports. On those pages neither counter loads, and Umami has an extra `data-before-send` hook that cancels any hit whose URL matches a blocked pattern.
 
 Worth checking on your site too: password resets, email confirmations, document links, anything with a secret in the URL.
 
