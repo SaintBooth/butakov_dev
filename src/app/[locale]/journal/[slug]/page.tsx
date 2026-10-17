@@ -147,7 +147,7 @@ export default async function CasePage({ params }: Props) {
             </span>
           ))}
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
+        <h1 className="break-words hyphens-auto text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
           {fm.title}
         </h1>
         <p className="text-lg text-slate-600 font-medium mb-5">{fm.excerpt}</p>

@@ -20,6 +20,14 @@
   overflow-wrap: anywhere;
 }
 
+/* Long words at heading size (ERR_TOO_MANY_REDIRECTS) do not fit a 360px phone either: hyphenate
+   where the browser knows the language, break the word as a last resort. The article h1 gets the
+   same through utilities; MDX headings cannot take classes. */
+.prose :where(h2, h3, h4) {
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
