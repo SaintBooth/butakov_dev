@@ -13,6 +13,13 @@
   font-family: var(--font-geist), sans-serif;
 }
 
+/* Inline code in articles holds URLs and paths with no break points: one such token used to
+   widen the whole page on phones, stretching the fixed header and tab bar with it.
+   Code blocks are excluded, they scroll horizontally instead. */
+.prose :where(:not(pre) > code) {
+  overflow-wrap: anywhere;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
