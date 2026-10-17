@@ -52,6 +52,9 @@ export const EVENT_SCHEMAS = {
     kind: z.enum(ARTICLE_KINDS),
     depth: z.literal([...READ_DEPTHS]),
   }),
+  article_helpful: z.strictObject({ slug: z.string(), value: z.enum(['yes', 'no']) }),
+  // Reader text never goes to analytics, only the fact that a comment was sent.
+  article_helpful_comment: z.strictObject({ slug: z.string() }),
   faq_open: z.strictObject({ landing, q: z.number().int().nonnegative() }),
   pricing_view: z.strictObject({ landing }),
   workshop_register: z.strictObject({ session: z.string() }),

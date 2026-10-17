@@ -770,5 +770,20 @@
     "policy": "privacy policy",
     "accept": "Got it",
     "decline": "Decline"
+  },
+  "journalFeedback": {
+    "question": "Was this article helpful?",
+    "yes": "Yes",
+    "no": "No",
+    "thanks": "Thanks!",
+    "thanksMore": "More on this below ↓",
+    "commentLabel": "What was missing?",
+    "commentPlaceholder": "No contact details, just about the article",
+    "submit": "Send",
+    "skip": "Skip",
+    "thanksNo": "Thanks, I'll improve it",
+    "change": "change",
+    "error": "Didn't send.",
+    "retry": "Retry"
   }
 }

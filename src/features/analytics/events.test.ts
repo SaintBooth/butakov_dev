@@ -45,4 +45,16 @@ describe('EVENT_SCHEMAS', () => {
   it('accepts empty data for no-payload events', () => {
     expect(EVENT_SCHEMAS.card_visit.safeParse({}).success).toBe(true);
   });
+
+  it('takes an article vote without any reader text', () => {
+    expect(EVENT_SCHEMAS.article_helpful.safeParse({ slug: 'umami', value: 'yes' }).success).toBe(
+      true
+    );
+    expect(EVENT_SCHEMAS.article_helpful.safeParse({ slug: 'umami', value: 'meh' }).success).toBe(
+      false
+    );
+    expect(
+      EVENT_SCHEMAS.article_helpful_comment.safeParse({ slug: 'umami', comment: 'x' }).success
+    ).toBe(false);
+  });
 });
