@@ -16,6 +16,8 @@ import { ArticleToc } from '@/components/ui/ArticleToc/ArticleToc';
 import { ReadDepthTracker } from '@/features/analytics/ReadDepthTracker';
 import { isLandingLocale, landingPath } from '@/config/landings';
 import { landingForTags } from '@/config/journalLandings';
+import { ArticleFeedback } from '@/features/journal-feedback/ui/ArticleFeedback';
+import { isLocale } from '@/i18n/locales';
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
@@ -210,9 +212,15 @@ export default async function CasePage({ params }: Props) {
         <ReadDepthTracker slug={slug} kind={isOpinion ? 'opinion' : 'case'} />
       </div>
 
+      {isLocale(locale) && (
+        <div className="mt-12 pt-8 border-t border-slate-100">
+          <ArticleFeedback slug={slug} locale={locale} hasRelated={relatedCases.length > 0} />
+        </div>
+      )}
+
       {/* Related articles */}
       {relatedCases.length > 0 && (
-        <div className="mt-16 pt-8 border-t border-slate-100">
+        <div data-related-articles className="mt-12 pt-8 border-t border-slate-100">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-5">
             {isRu ? 'Похожие статьи' : 'Related articles'}
           </h2>
@@ -221,7 +229,7 @@ export default async function CasePage({ params }: Props) {
               <Link
                 key={related.slug}
                 href={`/journal/${related.slug}`}
-                className="block p-4 rounded-xl border border-slate-100 hover:border-teal-200 transition-colors"
+                className="block p-4 rounded-xl border border-slate-100 hover:border-teal-200 in-data-[highlight=true]:border-teal-200 transition-colors"
               >
                 <div className="font-semibold text-slate-800 text-sm mb-1 line-clamp-2">
                   {related.frontmatter.title}
