@@ -11,9 +11,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const ruBySlug = new Map(casesRu.map((c) => [c.slug, c]));
   const slugs = new Set([...enBySlug.keys(), ...ruBySlug.keys()]);
 
-  // Most recent case date, used as lastModified for listing pages whose
-  // content changes exactly when a new case is published.
-  const allDates = [...casesEn, ...casesRu].map((c) => c.frontmatter.date).sort();
+  // Most recent case update, used as lastModified for listing pages whose
+  // content changes when a case is published or rewritten.
+  const allDates = [...casesEn, ...casesRu].map((c) => c.modified).sort();
   const latestDate = allDates[allDates.length - 1];
 
   const caseEntries: MetadataRoute.Sitemap = [];
@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (en) {
       caseEntries.push({
         url: `${SITE_URL}/journal/${slug}`,
-        lastModified: en.frontmatter.date,
+        lastModified: en.modified,
         priority: 0.6,
         ...(ru ? { alternates: { languages: { ru: `${SITE_URL}/ru/journal/${slug}` } } } : {}),
       });
@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (ru) {
       caseEntries.push({
         url: `${SITE_URL}/ru/journal/${slug}`,
-        lastModified: ru.frontmatter.date,
+        lastModified: ru.modified,
         priority: 0.6,
         ...(en ? { alternates: { languages: { en: `${SITE_URL}/journal/${slug}` } } } : {}),
       });

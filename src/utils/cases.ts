@@ -6,6 +6,7 @@ import GithubSlugger from 'github-slugger';
 import { z } from 'zod';
 import { CodeBlock, Alert, MdxLink } from '@/components/mdx';
 import { OPINION_TAGS } from '../config/journalTags';
+import { caseEditDate, latestDate } from './caseModified';
 
 export interface CaseHeading {
   depth: 2 | 3;
@@ -19,6 +20,11 @@ export const CaseFrontmatterSchema = z.object({
   // Короткий вариант для <title>/OG (SERP режет ~60 символов); H1 и schema.org остаются на полном title
   seoTitle: z.string().min(1).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'),
+  // Manual override for the "last updated" date; normally it comes from git history (see getCaseModified)
+  updated: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'updated must be YYYY-MM-DD')
+    .optional(),
   tags: z.array(z.string()),
   // Hard result for case studies ("0 ₽ лицензий"); one-line takeaway for opinion pieces. Optional
   // because a reflection piece doesn't always have a "result" to report.
@@ -44,6 +50,23 @@ export function getCaseSlugs(locale: string): string[] {
     .map((f) => f.replace('.mdx', ''));
 }
 
+const editDates = new Map<string, string | null>();
+
+/**
+ * Last content update: the latest of publication date, manual `updated` and the last
+ * non-cosmetic git edit. Feeds sitemap lastmod and dateModified, so an expanded article
+ * gets recrawled without anyone remembering to bump a date.
+ */
+function getCaseModified(
+  locale: string,
+  slug: string,
+  filePath: string,
+  frontmatter: CaseFrontmatter
+): string {
+  if (!editDates.has(filePath)) editDates.set(filePath, caseEditDate(locale, slug, filePath));
+  return latestDate(frontmatter.date, frontmatter.updated, editDates.get(filePath));
+}
+
 export async function getCaseBySlug(locale: string, slug: string) {
   const filePath = path.join(process.cwd(), 'content', 'cases', locale, `${slug}.mdx`);
   if (!fs.existsSync(filePath)) return null;
@@ -65,7 +88,8 @@ export async function getCaseBySlug(locale: string, slug: string) {
   const headings = extractHeadings(source);
   const readingTime = estimateReadingTime(source);
   const faq = extractFaq(source);
-  return { content: result.content, frontmatter, headings, readingTime, faq };
+  const modified = getCaseModified(locale, slug, filePath, frontmatter);
+  return { content: result.content, frontmatter, modified, headings, readingTime, faq };
 }
 
 export interface CaseFaqItem {
@@ -160,14 +184,20 @@ export async function getAllCaseFrontmatters(locale: string) {
     slugs.map(async (slug) => {
       const result = await getCaseBySlug(locale, slug);
       return result
-        ? { slug, frontmatter: result.frontmatter, readingTime: result.readingTime }
-        : { slug, frontmatter: undefined, readingTime: undefined };
+        ? {
+            slug,
+            frontmatter: result.frontmatter,
+            modified: result.modified,
+            readingTime: result.readingTime,
+          }
+        : { slug, frontmatter: undefined, modified: undefined, readingTime: undefined };
     })
   );
   return (
     cases.filter((c) => c.frontmatter) as Array<{
       slug: string;
       frontmatter: CaseFrontmatter;
+      modified: string;
       readingTime: number;
     }>
   ).sort((a, b) => b.frontmatter.date.localeCompare(a.frontmatter.date));

@@ -63,6 +63,7 @@ export function getSchemaArticle(opts: {
   headline: string;
   description: string;
   datePublished: string;
+  dateModified?: string;
   url: string;
   image?: string;
   keywords?: string[];
@@ -75,6 +76,7 @@ export function getSchemaArticle(opts: {
     headline: opts.headline,
     description: opts.description,
     datePublished: opts.datePublished,
+    dateModified: opts.dateModified ?? opts.datePublished,
     url: opts.url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url },
     image: opts.image ?? DEFAULT_OG_IMAGE,

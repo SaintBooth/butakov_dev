@@ -38,6 +38,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: article "updated" dates (sitemap lastmod, dateModified) come from git log.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:

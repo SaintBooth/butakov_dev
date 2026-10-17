@@ -55,6 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: metaDescription,
       url,
       publishedTime: fm.date,
+      modifiedTime: result.modified,
       images: [{ url: image }],
     },
     twitter: {
@@ -71,7 +72,7 @@ export default async function CasePage({ params }: Props) {
   const result = await getCaseBySlug(locale, slug);
   if (!result) notFound();
 
-  const { content, frontmatter: fm, headings, readingTime, faq } = result;
+  const { content, frontmatter: fm, modified, headings, readingTime, faq } = result;
   const isRu = locale === 'ru';
   const isOpinion = isOpinionPiece(fm);
   const tSchema = await getTranslations({ locale, namespace: 'schema' });
@@ -82,6 +83,7 @@ export default async function CasePage({ params }: Props) {
     headline: fm.title,
     description: fm.excerpt,
     datePublished: fm.date,
+    dateModified: modified,
     url: `${base}${ruPrefix}/journal/${slug}`,
     image: fm.image ? `${base}${fm.image}` : undefined,
     keywords: fm.tags,
@@ -174,7 +176,15 @@ export default async function CasePage({ params }: Props) {
           <div className="min-w-0 text-sm">
             <div className="font-semibold text-slate-800">{authorName}</div>
             <div className="flex items-center gap-2 text-slate-500">
-              <span>{fm.date}</span>
+              <time dateTime={fm.date}>{fm.date}</time>
+              {modified !== fm.date && (
+                <>
+                  <span className="w-1 h-1 rounded-full bg-slate-300" />
+                  <span>
+                    {isRu ? 'обновлено' : 'updated'} <time dateTime={modified}>{modified}</time>
+                  </span>
+                </>
+              )}
               <span className="w-1 h-1 rounded-full bg-slate-300" />
               <span>
                 {readingTime} {isRu ? 'мин чтения' : 'min read'}

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/generate-llms-txt.js && next build",
+    "build": "node scripts/generate-llms-txt.js && node scripts/generate-case-modified.ts && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

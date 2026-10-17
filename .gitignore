@@ -39,3 +39,6 @@ docs/
 content/devto/
 content/hackernoon/
 content/vcru/
+
+# Build-time article edit dates from git (scripts/generate-case-modified.ts)
+content/cases/modified.json

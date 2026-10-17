@@ -3,7 +3,8 @@ import { getTranslations } from 'next-intl/server';
 import { LANDING_IDS, landingPath, type LandingId, type LandingLocale } from '@/config/landings';
 import { landings } from '@/data/landings';
 import { Link } from '@/i18n/navigation';
-import { getAllCaseFrontmatters } from '@/utils/cases';
+import { landingForTags } from '@/config/journalLandings';
+import { getAllCaseFrontmatters, isOpinionPiece } from '@/utils/cases';
 
 interface LandingRelatedProps {
   id: LandingId;
@@ -16,8 +17,16 @@ export default async function LandingRelated({ id, locale }: LandingRelatedProps
   const tLandings = await getTranslations({ locale, namespace: 'landings' });
   const all = await getAllCaseFrontmatters(locale);
   const bySlug = new Map(all.map((c) => [c.slug, c]));
-  // Keep the curated order from data/landings; skip slugs missing in this locale.
-  const cases = landings[id].caseSlugs.flatMap((slug) => bySlug.get(slug) ?? []);
+  // Curated order from data/landings first, then every other case whose tags route to this
+  // landing (same rule as the article → landing link), so new articles are linked without edits.
+  const curated = landings[id].caseSlugs.flatMap((slug) => bySlug.get(slug) ?? []);
+  const matched = all.filter(
+    (c) =>
+      !landings[id].caseSlugs.includes(c.slug) &&
+      !isOpinionPiece(c.frontmatter) &&
+      landingForTags(c.frontmatter.tags) === id
+  );
+  const cases = [...curated, ...matched];
   const others = LANDING_IDS.filter((other) => other !== id);
 
   return (

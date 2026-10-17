@@ -17,6 +17,8 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Read via fs at request time (no .git on the host), so the tracer can't see it on its own.
+  outputFileTracingIncludes: { '/**': ['content/cases/modified.json'] },
   poweredByHeader: false,
   // Next 15.2+ streams metadata into <body> for bots it considers JS-capable
   // (Googlebot included): title/canonical/hreflang landed ~160 KB into the body.
