@@ -63,6 +63,12 @@ describe('feedbackReducer', () => {
     });
   });
 
+  it('settled clears a retried error but leaves the panel open', () => {
+    expect(
+      run({ type: 'vote_no' }, { type: 'failed' }, { type: 'send' }, { type: 'settled' })
+    ).toMatchObject({ phase: 'no_open', sending: false, error: false });
+  });
+
   it('skip closes the panel into thanks', () => {
     expect(run({ type: 'vote_no' }, { type: 'skip' })).toMatchObject({
       phase: 'thanks',

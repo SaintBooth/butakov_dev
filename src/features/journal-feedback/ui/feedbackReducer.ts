@@ -17,6 +17,7 @@ export type FeedbackAction =
   | { type: 'vote_no' }
   | { type: 'send' }
   | { type: 'sent' }
+  | { type: 'settled' }
   | { type: 'skip' }
   | { type: 'failed' }
   | { type: 'change'; choice: Choice };
@@ -49,6 +50,8 @@ export function feedbackReducer(s: FeedbackState, a: FeedbackAction): FeedbackSt
     case 'sent':
     case 'skip':
       return s.phase === 'no_open' ? { ...s, phase: 'thanks', sending: false } : s;
+    case 'settled':
+      return { ...s, sending: false, error: false };
     case 'failed':
       return s.phase === 'no_open'
         ? { ...s, sending: false, error: true }
